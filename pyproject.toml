@@ -3,7 +3,7 @@ name = "unity_helper"
 version = "1.1.1"
 description = "A runtime reflection toolkit for Unity applications, enabling real-time inspection and interaction with classes, methods, and fields and objects."
 authors = ["Chasss"]
-readme = "unity_helper/README.md"
+readme = "README.md"
 license = "MIT"
 
 packages = [
