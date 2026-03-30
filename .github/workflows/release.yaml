@@ -21,9 +21,9 @@ jobs:
       suffix: ${{ steps.release.outputs.suffix }}
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Extract tag and Details
+      - name: Extract tag and details
         id: release
         run: |
           if [ "${{ github.ref_type }}" = "tag" ]; then
@@ -71,7 +71,7 @@ jobs:
     needs: [details, check_pypi]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -84,15 +84,13 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Set project version with Poetry
-        run: |
-          poetry version ${{ needs.details.outputs.new_version }}
+        run: poetry version ${{ needs.details.outputs.new_version }}
 
       - name: Install dependencies
         run: poetry install --sync --no-interaction
 
       - name: Build source and wheel distribution
-        run: |
-          poetry build
+        run: poetry build
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -117,6 +115,9 @@ jobs:
 
       - name: Publish distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
 
   github_release:
     name: Create GitHub Release
@@ -125,13 +126,11 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
@@ -151,12 +150,12 @@ jobs:
       name: release
     steps:
       - name: Dispatch Repository Dispatch event
-        uses: peter-evans/repository-dispatch@v2
+        uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ secrets.BREW_TAP_TOKEN }}
           repository: ${{ env.OWNER }}/{{ env.TAP_NAME }}
           event-type: "update-formula"
-          client-payload: |-
+          client-payload: |
             { 
               "formula_version": "${{env.FORMULA_VERSION}}", 
               "formula_url": "${{ env.FORMULA_URL }}", 
@@ -165,4 +164,4 @@ jobs:
         env:
           FORMULA_VERSION: ${{ needs.details.outputs.new_version }}
           FORMULA_NAME: ${{ env.PACKAGE_NAME }}
-          FORMULA_URL: https://github.com/${{env.OWNER}}/${{env.PACKAGE_NAME}}/releases/download/${{ needs.details.outputs.new_version }}/${{env.PACKAGE_NAME}}-${{ needs.details.outputs.new_version }}.tar.gz
+          FORMULA_URL: https://github.com/${{env.OWNER}}/${{env.PACKAGE_NAME}}/releases/download/${{ needs.details.outputs.new_version }}/${{env.PACKAGE_NAME}}-${{needs.details.outputs.new_version}}.tar.gz
