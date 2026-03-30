@@ -9,7 +9,7 @@ import ctypes
 from pylocalmem import Process
 from contextlib import contextmanager
 from .mono import MonoClass, MonoMethod
-from .objects import Transform, Rigidbody, Camera, Object
+from .objects import Rigidbody, Camera, Object
 from .bindings import Bindings
 from .structures import Il2CppArray, Vec3, Il2CppAssembly
 
@@ -26,27 +26,8 @@ class Il2cpp(Bindings):
     def _get_domain_raw(self) -> int|None:
         dom = self._il2cpp_domain_get()
         return int(dom) if dom else None
-
-    # def _ensure_domain_and_attach(self, wait: float = 0.0) -> int:
-    #     """
-    #     Backwards-compatible helper that populates self._domain and performs a single attach.
-    #     This is still used during initialization. Public APIs will attach/detach per-call.
-    #     """
-    #     if self._domain and self._attached:
-    #         return self._domain
-
-    #     dom = self._get_domain_raw()
-    #     if not dom and wait > 0:
-    #         time.sleep(wait)
-    #         dom = self._get_domain_raw()
-    #     if not dom:
-    #         raise RuntimeError("il2cpp domain not available")
-
-    #     self._domain = dom
-    #     self._il2cpp_thread_attach(ctypes.c_void_p(dom))
-    #     self._attached = True
-    #     return dom
-
+    
+    
     @contextmanager
     def _attached_context(self):
         """
@@ -132,32 +113,6 @@ class Il2cpp(Bindings):
         else:
             return None
         return data
-
-    # Legacy (probably dont have a use for it)
-    # def _get_class_from_name(self, assembly_name:str, namespace:str, klass:str, cache:bool = True) -> Optional[int]:
-    #     key = f"{assembly_name}|{namespace}|{klass}"
-    #     if key in self._class_cache:
-    #         return self._class_cache[key]
-
-    #     if cache:
-    #         self.list_classes_in_image(assembly_name)
-    #         if key in self._class_cache:
-    #             return self._class_cache[key]
-
-        
-    #     asm = self.__open_assembly(assembly_name)
-    #     if not asm:
-    #         return None
-    #     img = self.__get_image_from_assembly(asm)
-    #     if not img:
-    #         return None
-
-    #     with self._attached_context():
-    #         cls = self._il2cpp_class_from_name(ctypes.c_void_p(img), namespace.encode(), klass.encode())
-    #         if not cls:
-    #             return None
-    #         self._class_cache[key] = int(cls)
-    #         return int(cls)
         
     def get_class_from_name(self, assembly_name:str, namespace:str, klass:str, cache:bool=True) -> MonoClass:
         """
@@ -377,123 +332,3 @@ class Il2cpp(Bindings):
                 assemblies.append(name)
 
         return assemblies
-
-    # list_methods_in_image (not needed)
-    # def test2(self, assembly_name:str) -> List[MonoMethod]:
-    #     classes = self.test(assembly_name)
-    #     data = {}
-    #     for klass in classes:
-    #         methods = klass.list_methods()
-    #         for method in methods:
-    #             data.setdefault(klass.name, {})
-    #             data[klass.name][method.name] = {"method_ptr": method.methodInfo, "method_address": method.address, "param_count": method.param_count, 'param_info': method.param_info, 'return_value': method.return_value, 'flags': {'static': method.is_static}} 
-    #     return data
-
-
-
-
-    # Broken concepts
-    # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-    # def get_current_camera(self) -> Camera:
-    #     return Camera(self, self._UnityEngine_Camera_get_current(0)) 
-    
-    # def get_cameras(self) -> List[Camera]:
-    #     count = self._UnityEngine_Camera_get_allCamerasCount(0)
-
-    #     camera_array_ptr = self._UnityEngine_Camera_get_allCameras(0)
-    #     arr = ctypes.c_void_p * count
-
-    #     array_pointer = [Camera(self, i) for i in ctypes.cast(camera_array_ptr, ctypes.POINTER(arr)).contents]
-    
-
-    #     return array_pointer
-
-    # def rotation_matrix_2d(self, pivot_x, pivot_y, angle_deg):
-    #     angle = math.radians(angle_deg)
-    #     cos_a = math.cos(angle)
-    #     sin_a = math.sin(angle)
-        
-    #     # Translate pivot to origin, rotate, translate back
-    #     return Matrix4x4(
-    #         cos_a, -sin_a, 0, pivot_x - cos_a*pivot_x + sin_a*pivot_y,
-    #         sin_a,  cos_a, 0, pivot_y - sin_a*pivot_x - cos_a*pivot_y,
-    #         0,     0,     1, 0,
-    #         0,     0,     0, 1
-    #     )
-
-
-    # def draw_line(self, start: Vec3, end: Vec3, color: Color, thickness: float = 1.0):
-    #     method = 0  # MethodInfo* placeholder
-
-    #     # Calculate direction, length, and rotation angle
-    #     dx = end.x - start.x
-    #     dy = end.y - start.y
-    #     length = (dx**2 + dy**2) ** 0.5
-    #     angle = math.degrees(math.atan2(dy, dx))
-
-    #     # Save current GUI matrix
-    #     old_matrix = self._UnityEngine_GUI__get_matrix(method)
-
-    #     # Apply rotation matrix around start point
-    #     rot_matrix = self.rotation_matrix_2d(start.x, start.y, angle)
-    #     self._UnityEngine_GUI__set_matrix(rot_matrix, method)
-
-    #     # Create rectangle for the line
-    #     rect = Rect(start.x, start.y, length, thickness)
-
-    #     # Draw the line
-    #     self._UnityEngine_GUI__DrawTexture(ctypes.byref(rect), self.texture, method)
-
-    #     # Restore old GUI matrix
-    #     self._UnityEngine_GUI__set_matrix(old_matrix, method)
-
-    # def draw_line(self, start, end, color):
-    #     """
-    #     start, end: Vec3 with .x .y .z (floats)
-    #     color: Color struct (must match Unity layout exactly)
-    #     """
-
-    #     GL_LINES = 1
-    #     method = 0
-
-    #     # Begin
-    #     self._UnityEngine_GL__Begin(GL_LINES, method)
-
-    #     # Color (pass pointer!)
-    #     self._UnityEngine_GL__Color(ctypes.byref(color), method)
-
-    #     # Vertex 1
-    #     self._UnityEngine_GL__Vertex3(start.x, start.y, start.z, method)
-
-    #     # Vertex 2
-    #     self._UnityEngine_GL__Vertex3(end.x, end.y, end.z, method)
-
-    #     # End
-    #     self._UnityEngine_GL__End(method)
-
-
-    # def drawCube(self, center:Vec3, size:Vec3) -> None:
-    #     return self._UnityEngine_Gizmos__DrawCube(ctypes.pointer(center), ctypes.pointer(size), 0)
-
-
-    # def drawLine(self, start:Vec3, end:Vec3, color:Color) -> None:
-    #     return self._UnityEngine_Debug__DrawLine(start, end, color, 0)
-        # return self._UnityEngine_Gizmos__DrawLine(ctypes.pointer(start), ctypes.pointer(end), 0)
-
-
-    # def drawRay(self, start:Vec3, direction:Vec3) -> None:
-    #     return self._UnityEngine_Gizmos__DrawRay(ctypes.pointer(start), ctypes.pointer(direction), 0)
-
-
-    # def drawSphere(self, center:Vec3, radius:float) -> None:
-    #     return self._UnityEngine_Gizmos__DrawSphere(ctypes.pointer(center), ctypes.c_float(radius), 0)
-
-
-    # def drawWireCube(self, center:Vec3, size:Vec3) -> None:
-    #     return self._UnityEngine_Gizmos__DrawWireCube(ctypes.pointer(center), ctypes.pointer(size), 0)
-
-    
-    # def drawWireSphere(self, center:Vec3, radius:float) -> None:
-    #     return self._UnityEngine_Gizmos__DrawWireSphere(ctypes.pointer(center), ctypes.c_float(radius), 0)
