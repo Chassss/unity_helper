@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "unity_helper"
 version = "1.1.1"
-description = "A python package for local process data manipulation"
+description = "A runtime reflection toolkit for Unity applications, enabling real-time inspection and interaction with classes, methods, and fields and objects."
 authors = ["Chasss"]
-readme = "README.md"
+readme = "unity_helper/README.md"
 license = "MIT"
 
 classifiers = [
