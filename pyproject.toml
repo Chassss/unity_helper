@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "unity_helper"
+version = "1.1.1"
+description = "A python package for local process data manipulation"
+authors = ["Chasss"]
+readme = "README.md"
+license = "MIT"
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
+]
+
+repository = "http://github.com/chassss/unity_helper"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+pylocalmem = "^1.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
