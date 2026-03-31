@@ -253,15 +253,6 @@ class Transform(Component):
             self._il2cpp._UnityEngine_Transform__set_rotation(self.ptr, ctypes.byref(rot), 0)
         except:
             pass
-    
-    @property
-    def rect(self) -> Rect|None:
-        try:
-            rect = Rect()
-            self._il2cpp._UnityEngine_Transform__get_rect(ctypes.byref(rect), self.ptr, 0)
-            return rect
-        except:
-            return None
 
     @property
     def parent(self)-> Transform|None:
