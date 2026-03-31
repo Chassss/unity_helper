@@ -1,6 +1,7 @@
 [tool.poetry]
 name = "unity_helper"
-description = "A runtime reflection toolkit for Unity applications, enabling real-time inspection and interaction with classes, methods, and fields and objects."
+version = "0.0.0"
+description = "Runtime inspection toolkit for Unity IL2CPP applications — explore classes, methods, fields, and live objects in real time."
 authors = ["Chasss"]
 readme = "README.md"
 license = "MIT"
