@@ -18,9 +18,9 @@ class Bindings():
         except:
             return None
         
-    def __find_method(self, unity_obj, method):
+    def __find_method(self, unity_obj, method, param_count=None):
         try:
-            return unity_obj.find_method(method).address
+            return unity_obj.find_method(method, param_count=param_count).address
         except Exception as e:
             print(f"Failed to find: {method} some built in features wont work")
 
@@ -92,7 +92,7 @@ class Bindings():
         self._UnityEngine_GameObject__Find = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._gameobject, 'Find'))
         self._UnityEngine_GameObject__FindGameObjectWithTag = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._gameobject, 'FindGameObjectWithTag'))
         self._UnityEngine_GameObject__SetActive = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method(self._gameobject, 'SetActive'))
-        self._UnityEngine_GameObject__get_transform = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self._gameobject.find_method('get_transform', param_count=0).address)
+        self._UnityEngine_GameObject__get_transform = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._gameobject, 'get_transform', param_count=0))
         self._UnityEngine_GameObject__get_tag = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._gameobject, 'get_tag'))
         self._UnityEngine_GameObject__set_tag = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._gameobject, 'set_tag'))
         self._UnityEngine_GameObject__get_isStatic = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._gameobject, 'get_isStatic'))
@@ -118,11 +118,11 @@ class Bindings():
 
         self._object = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine', 'Object')
 
-        self._UnityEngine_Object__FindObjectOfType = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self._object.find_method('FindObjectOfType', param_count=2).address)
-        self._UnityEngine_Object__FindObjectsOfType = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self._object.find_method('FindObjectsOfType', param_count=2).address)
+        self._UnityEngine_Object__FindObjectOfType = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method(self._object, 'FindObjectOfType', param_count=2))
+        self._UnityEngine_Object__FindObjectsOfType = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method(self._object, 'FindObjectsOfType', param_count=2))
         self._UnityEngine_Object__get_name = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._object, 'get_name'))
         self._UnityEngine_Object__set_name = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._object, 'set_name'))
-        self._UnityEngine_Object__Destroy = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_float, ctypes.c_void_p)(self._object.find_method('Destroy', param_count=1).address)
+        self._UnityEngine_Object__Destroy = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_float, ctypes.c_void_p)(self.__find_method(self._object, 'Destroy', param_count=1))
         
 
         self._transform = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine', 'Transform')
@@ -130,8 +130,8 @@ class Bindings():
         self._UnityEngine_Transform__IsChildOf = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._transform, 'IsChildOf'))
         self._UnityEngine_Transform__get_childCount = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._transform, 'get_childCount'))
         self._UnityEngine_Transform__GetChild = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)(self.__find_method(self._transform, 'GetChild'))
-        self._UnityEngine_Transform__LookAt_transform = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('LookAt', param_count=1).address)
-        self._UnityEngine_Transform__LookAt_pos = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.POINTER(Vec3), ctypes.c_void_p)(self._transform.find_method('LookAt', param_count=2).address)
+        self._UnityEngine_Transform__LookAt_transform = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._transform, 'LookAt', param_count=1))
+        self._UnityEngine_Transform__LookAt_pos = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method(self._transform, 'LookAt', param_count=2))
         self._UnityEngine_Transform__Find = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._transform, 'Find'))
         self._UnityEngine_Transform__translate = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_int32, ctypes.c_void_p)(self.__find_method(self._transform, 'Translate'))
         self._UnityEngine_Transform__set_position = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method(self._transform, 'set_position'))
