@@ -190,6 +190,14 @@ for clazz in ref.list_classes_in_image('Assembly-CSharp.dll'):
 
 ---
 
+## ⚠️ Important Notes
+
+- This is a Python script that **must be executed within the game's process**.
+- It **does not work as a standalone script** and cannot interact with external processes.
+- Running it outside of the game environment will not work.
+
+---
+
 ## 📄 License
 
 MIT License
