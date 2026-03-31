@@ -5,8 +5,14 @@ Component-based systems like Transform, Camera, and Scene, etc.
 """
 
 import ctypes
-from .mono import UnityObject
 from .structures import Vec3, Quaternion, Rect
+
+class UnityObject():
+    def __init__(self, ptr):
+        from .main import Il2cpp
+        self._il2cpp:Il2cpp = Il2cpp.inst
+        self.ptr:int = ptr
+
 
 class Rigidbody(UnityObject):
     """
@@ -239,9 +245,9 @@ class Transform(Component):
             return None
     
     @rotation.setter
-    def rotation(self, rot:list|tuple|Vec3):
+    def rotation(self, rot:list|tuple|Quaternion):
         try:
-            rot = self._il2cpp._vec3_helper(rot)
+            rot = self._il2cpp._quaternion_helper(rot)
             if not rot:
                 pass
             self._il2cpp._UnityEngine_Transform__set_rotation(self.ptr, ctypes.byref(rot), 0)
@@ -351,7 +357,7 @@ class Transform(Component):
     def LookAt_transform(self, transform:Transform) -> int|None:
         try:
             self._il2cpp._UnityEngine_Transform__LookAt_transform(self.ptr, transform.ptr, 0)
-            return 
+            return 1
         except:
             return None
         
@@ -417,7 +423,6 @@ class Scene(UnityObject):
         except:
             return None
     
-
     @property
     def guid(self) -> str|None:
         try:
@@ -433,7 +438,6 @@ class Scene(UnityObject):
         except:
             return None
         
-
     @property
     def handle(self) -> int|None:
         try:

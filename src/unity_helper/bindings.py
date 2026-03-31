@@ -132,7 +132,7 @@ class Bindings():
         self._UnityEngine_Transform__get_position = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('get_position').address)
         self._UnityEngine_Transform__set_rotation = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.POINTER(Quaternion), ctypes.c_void_p)(self._transform.find_method('set_rotation').address)
         self._UnityEngine_Transform__get_rotation = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Quaternion), ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('get_rotation').address)
-        self._UnityEngine_Transform__get_rect = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Rect), ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('get_rotation').address)
+        self._UnityEngine_Transform__get_rect = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Rect), ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('get_rect').address)
         self._UnityEngine_Transform__get_parent = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('get_parent').address)
         self._UnityEngine_Transform__set_parent = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('set_parent').address)
         self._UnityEngine_Transform__get_root = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('get_parent').address)
@@ -156,8 +156,8 @@ class Bindings():
         self._UnityEngine_Rigidbody_set_mass = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_float, ctypes.c_void_p)(self._rigidbody.find_method('set_mass').address)
         self._UnityEngine_Rigidbody_get_isKinematic = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self._rigidbody.find_method('get_isKinematic').address)
         self._UnityEngine_Rigidbody_set_isKinematic = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self._rigidbody.find_method('set_isKinematic').address)
-        self._UnityEngine_Rigidbody_get_rotation = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self._rigidbody.find_method('get_rotation').address)
-        self._UnityEngine_Rigidbody_set_rotation = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self._rigidbody.find_method('set_rotation').address)
+        self._UnityEngine_Rigidbody_get_rotation = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Quaternion), ctypes.c_void_p, ctypes.c_void_p)(self._rigidbody.find_method('get_rotation').address)
+        self._UnityEngine_Rigidbody_set_rotation = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.POINTER(Quaternion), ctypes.c_void_p)(self._rigidbody.find_method('set_rotation').address)
 
         self._scene = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine.SceneManagement', 'Scene')
 

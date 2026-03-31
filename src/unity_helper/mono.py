@@ -7,12 +7,6 @@ Reserved for internal use only.
 import ctypes
 from .objects import Object
 
-class UnityObject():
-    def __init__(self, ptr):
-        from .main import Il2cpp
-        self._il2cpp:Il2cpp = Il2cpp.inst
-        self.ptr:int = ptr
-
 class MonoClass():
     def __init__(self, il2cpp, cls, name, object, _type):
         self._il2cpp:int = il2cpp
