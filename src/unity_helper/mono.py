@@ -373,14 +373,16 @@ class MonoField():
         """
         return self._is_static
     
-
-    def __get_type(self, type_name) -> ctypes._SimpleCData|None:
-        
-        ret = self.__owner._type_dict(type_name)
-        if not ret:
-            ret = ctypes.c_void_p
-
-        return ret
+    @property
+    def instance(self) -> int:
+        """
+        Class instance address
+        """
+        return self.__owner.instance
+    
+    @instance.setter
+    def instance(self, value):
+        self.__owner.instance = value
 
         
     @property
@@ -424,15 +426,12 @@ class MonoField():
                     ctypes.c_void_p(self.ptr),
                     ctypes.byref(cval)
                 )
-        
 
-    @property
-    def instance(self) -> int:
-        """
-        Class instance address
-        """
-        return self.__owner.instance
-    
-    @instance.setter
-    def instance(self, value):
-        self.__owner.instance = value
+
+    def __get_type(self, type_name) -> ctypes._SimpleCData|None:
+        
+        ret = self.__owner._type_dict(type_name)
+        if not ret:
+            ret = ctypes.c_void_p
+
+        return ret

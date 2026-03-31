@@ -11,7 +11,7 @@ from contextlib import contextmanager
 from .mono import MonoClass, MonoMethod
 from .objects import Rigidbody, Camera, Object
 from .bindings import Bindings
-from .structures import Il2CppArray, Vec3, Il2CppAssembly
+from .structures import Il2CppArray, Vec3, Il2CppAssembly, Quaternion
 
 
 class Il2cpp(Bindings):
@@ -113,6 +113,16 @@ class Il2cpp(Bindings):
         else:
             return None
         return data
+    
+    def _quaternion_helper(self, data):
+        if isinstance(data, (list, tuple)):
+            x,y,z,w = data
+            data = Quaternion(x,y,z,w)
+        elif isinstance(data, (Quaternion)):
+            return data
+        else:
+            return None
+        return data
         
     def get_class_from_name(self, assembly_name:str, namespace:str, klass:str, cache:bool=True) -> MonoClass:
         """
@@ -154,8 +164,6 @@ class Il2cpp(Bindings):
 
             return monoclass
 
-    
-    # find_method - half legacy, will probably be removed in the future but i cant be asked to re-write a buncha scripts just yet as this might change
     def find_method(self, assembly_name:str, namespace:str, klass:str, method_name:str, param_count:int|None = None, cache:bool = True) -> MonoMethod:
         """
         Retrieve a MonoMethod object given its name.

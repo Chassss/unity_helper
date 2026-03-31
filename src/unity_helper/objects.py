@@ -33,17 +33,6 @@ class Rigidbody(UnityObject):
             self._il2cpp._UnityEngine_Rigidbody_set_velocity(self.ptr, ctypes.pointer(pos), 0)
         except:
             pass
-    
-    def addForce(self, force:list|tuple|Vec3, mode:int) -> int|None:
-        try:
-            force = self._il2cpp._vec3_helper(force)
-            if not force:
-                return None
-            
-            self._il2cpp._UnityEngine_Rigidbody_AddForce(self.ptr, ctypes.pointer(force), mode, 0)
-            return 1
-        except:
-            return None
 
     @property
     def position(self) -> None:
@@ -72,7 +61,54 @@ class Rigidbody(UnityObject):
             return pos
         except:
             return None
+        
+    @property
+    def mass(self) -> float|None:
+        try:
+            return self._il2cpp._UnityEngine_Rigidbody_get_mass(self.ptr, 0)
+        except:
+            return None
+        
+    @mass.setter
+    def mass(self):
+        try:
+            self._il2cpp._UnityEngine_Rigidbody_set_mass(self.ptr, 0)
+        except:
+            pass
     
+    @property
+    def isKinematic(self) -> bool|None:
+        try:
+            return self._il2cpp._UnityEngine_Rigidbody_get_isKinematic(self.ptr, 0)
+        except:
+            None
+        
+    @isKinematic.setter
+    def isKinematic(self, value):
+        try:
+            self._il2cpp._UnityEngine_Rigidbody_set_isKinematic(self.ptr, value, 0)
+        except:
+            pass
+
+    @property
+    def rotation(self) -> Quaternion|None:
+        try:
+            rot = Quaternion()
+            self._il2cpp._UnityEngine_Rigidbody_get_rotation(ctypes.byref(rot), self.ptr, 0)
+            return rot
+        except:
+            return None
+        
+    @rotation.setter
+    def rotation(self, rot:list|tuple|Quaternion):
+        try:
+            rot = self._il2cpp._quaternion_helper(rot)
+            if not rot:
+                pass
+            self._il2cpp._UnityEngine_Rigidbody_set_rotation(self.ptr, ctypes.pointer(rot), 0)
+        except:
+            pass
+
     def set_detectCollisions(self, value:bool) -> int|None:
         try:
             self._il2cpp._UnityEngine_Rigidbody_set_detectCollisions(self.ptr, value, 0)
@@ -80,12 +116,23 @@ class Rigidbody(UnityObject):
         except:
             return None
 
-    def set_useGravity(self, value:bool) -> None:
+    def set_useGravity(self, value:bool) -> int|None:
         try:
             self._il2cpp._UnityEngine_Rigidbody_set_useGravity(self.ptr, value, 0)
             return 1
         except:
             return
+        
+    def addForce(self, force:list|tuple|Vec3, mode:int) -> int|None:
+        try:
+            force = self._il2cpp._vec3_helper(force)
+            if not force:
+                return None
+            
+            self._il2cpp._UnityEngine_Rigidbody_AddForce(self.ptr, ctypes.pointer(force), mode, 0)
+            return 1
+        except:
+            return None
 
 class Component(UnityObject):
     """
@@ -117,13 +164,6 @@ class Component(UnityObject):
             self._il2cpp._UnityEngine_Behaviour__set_enabled(self.ptr, value, 0)
         except:
             pass
-
-    def destroy(self) -> None:
-        try:
-            self._il2cpp._UnityEngine_Object__Destroy(self.ptr, 0, 0)
-            return 1
-        except:
-            return None
     
     @property
     def gameObject(self) -> Object|None:
@@ -154,6 +194,13 @@ class Component(UnityObject):
         except:
             pass
 
+    def destroy(self) -> None:
+        try:
+            self._il2cpp._UnityEngine_Object__Destroy(self.ptr, 0, 0)
+            return 1
+        except:
+            return None
+
 
 class Transform(Component):
     """
@@ -162,15 +209,6 @@ class Transform(Component):
     To create your own Transform class simply get the address of the Transform object
     and then do Transform(address)
     """
-    def translate(self, translation:list|tuple|Vec3, relativeTo:int) -> int|None:
-        try:
-            translation = self._il2cpp._vec3_helper(translation)
-            if not translation:
-                return None
-            self._il2cpp._UnityEngine_Transform__translate(self.ptr, ctypes.pointer(translation), relativeTo, 0)
-            return 1
-        except:
-            return None
 
     @property
     def position(self) -> Vec3|None:
@@ -218,36 +256,6 @@ class Transform(Component):
             return rect
         except:
             return None
-        
-
-    def find(self, transform_str:str)-> Transform|None:
-        try:
-            found = self._il2cpp._UnityEngine_Transform__Find(self.ptr, self._il2cpp._il2cpp_string_new(transform_str.encode()), 0)
-            if not found:
-                return None
-            return Transform(self, found)
-        except:
-            return None
-        
-
-    def LookAt_pos(self, pos:list|tuple|Vec3, direction:list|tuple|Vec3) -> int|None:
-        try:
-            pos = self._il2cpp._vec3_helper(pos)
-            direction = self._il2cpp._vec3_helper(direction)
-            if not pos or not direction:
-                return None
-            self._il2cpp._UnityEngine_Transform__LookAt_pos(self.ptr, ctypes.pointer(pos), ctypes.pointer(direction), 0)
-            return 1
-        except:
-            return None
-        
-    def LookAt_transform(self, transform:Transform) -> int|None:
-        try:
-            self._il2cpp._UnityEngine_Transform__LookAt_transform(self.ptr, transform.ptr, 0)
-            return 
-        except:
-            return None
-    
 
     @property
     def parent(self)-> Transform|None:
@@ -275,16 +283,6 @@ class Transform(Component):
             return Transform(parent)
         except:
             return None
-        
-
-    def GetChild(self, index:int) -> Transform|None:
-        try:
-            child = self._il2cpp._UnityEngine_Transform__GetChild(self.ptr, index, 0)
-            if not child:
-                return None
-            return Transform(child)
-        except:
-            return None
 
     @property
     def childcount(self) -> int|None:
@@ -292,11 +290,87 @@ class Transform(Component):
             return self._il2cpp._UnityEngine_Transform__get_childCount(self.ptr, 0)
         except:
             return None
+    
+    @property
+    def forward(self)-> Vec3|None:
+        try:
+            return self._il2cpp._UnityEngine_Transform__get_forward(self.ptr, 0)
+        except:
+            return None
+    
+    @forward.setter
+    def forward(self, pos:list|tuple|Vec3):
+        try:
+            pos = self._il2cpp._vec3_helper(pos)
+            if not pos:
+                pass
+            self._il2cpp._UnityEngine_Transform__set_forward(self.ptr, ctypes.pointer(pos), 0)
+        except:
+            pass
+
+    @property
+    def up(self)-> Vec3|None:
+        try:
+            return self._il2cpp._UnityEngine_Transform__get_up(self.ptr, 0)
+        except:
+            return None
         
+    @property
+    def right(self)-> Vec3|None:
+        try:
+            return self._il2cpp._UnityEngine_Transform__get_right(self.ptr, 0)
+        except:
+            return None
 
     def IsChildOf(self, transform:Transform) -> bool|None:
         try:
             return self._il2cpp._UnityEngine_Transform__IsChildOf(self.ptr, transform.ptr, 0)
+        except:
+            return None
+        
+    def find(self, transform_str:str)-> Transform|None:
+        try:
+            found = self._il2cpp._UnityEngine_Transform__Find(self.ptr, self._il2cpp._il2cpp_string_new(transform_str.encode()), 0)
+            if not found:
+                return None
+            return Transform(self, found)
+        except:
+            return None
+        
+    def LookAt_pos(self, pos:list|tuple|Vec3, direction:list|tuple|Vec3) -> int|None:
+        try:
+            pos = self._il2cpp._vec3_helper(pos)
+            direction = self._il2cpp._vec3_helper(direction)
+            if not pos or not direction:
+                return None
+            self._il2cpp._UnityEngine_Transform__LookAt_pos(self.ptr, ctypes.pointer(pos), ctypes.pointer(direction), 0)
+            return 1
+        except:
+            return None
+        
+    def LookAt_transform(self, transform:Transform) -> int|None:
+        try:
+            self._il2cpp._UnityEngine_Transform__LookAt_transform(self.ptr, transform.ptr, 0)
+            return 
+        except:
+            return None
+        
+    def translate(self, translation:list|tuple|Vec3, relativeTo:int) -> int|None:
+        try:
+            translation = self._il2cpp._vec3_helper(translation)
+            if not translation:
+                return None
+            self._il2cpp._UnityEngine_Transform__translate(self.ptr, ctypes.pointer(translation), relativeTo, 0)
+            return 1
+        except:
+            return None
+        
+    def GetChild(self, index:int) -> Transform|None:
+        try:
+            child = self._il2cpp._UnityEngine_Transform__GetChild(self.ptr, index, 0)
+            if not child:
+                return None
+            return Transform(child)
         except:
             return None
 
@@ -307,11 +381,6 @@ class Scene(UnityObject):
     To create your own Scene class simply get the address of the Scene object
     and then do Scene(address)
     """
-    def IsValid(self) -> bool|None:
-        try:
-            return self._il2cpp._UnityEngine_Scene__IsValid(self.ptr, 0)
-        except:
-            return None
     @property
     def name(self) -> str|None:
         try:
@@ -339,6 +408,12 @@ class Scene(UnityObject):
     def loaded(self) -> bool|None:
         try:
             return self._il2cpp._UnityEngine_Scene__get_isLoaded(self.ptr, 0)
+        except:
+            return None
+        
+    def IsValid(self) -> bool|None:
+        try:
+            return self._il2cpp._UnityEngine_Scene__IsValid(self.ptr, 0)
         except:
             return None
     
@@ -392,6 +467,34 @@ class Object(UnityObject):
         except:
             pass
     
+    @property
+    def isStatic(self) -> bool|None:
+        try:
+            return self._il2cpp._UnityEngine_GameObject__get_isStatic(self.ptr, 0)
+        except:
+            return None
+        
+    @property
+    def layer(self) -> int|None:
+        try:
+            return self._il2cpp._UnityEngine_GameObject__get_layer(self.ptr, 0)
+        except:
+            return None
+        
+    @name.setter
+    def layer(self, value:int):
+        try:
+            self._il2cpp._UnityEngine_Object__set_layer(self.ptr, value, 0)
+        except:
+            pass
+    
+    def SetActive(self, value:bool) -> int|None:
+        try:
+            self._il2cpp._UnityEngine_GameObject__SetActive(self.ptr, value, 0)
+            return 1
+        except:
+            return None
+
     def destroy(self) -> int|None:
         try:
             self._il2cpp._UnityEngine_Object__Destroy(self.ptr, 0)
@@ -406,21 +509,6 @@ class Object(UnityObject):
             return components
         except:
             return None
-    
-    @property
-    def isStatic(self) -> bool|None:
-        try:
-            return self._il2cpp._UnityEngine_GameObject__get_isStatic(self.ptr, 0)
-        except:
-            return None
-        
-    def SetActive(self, value:bool) -> int|None:
-        try:
-            self._il2cpp._UnityEngine_GameObject__SetActive(self.ptr, value, 0)
-            return 1
-        except:
-            return None
-
 
     @property
     def transform(self)-> Transform|None:

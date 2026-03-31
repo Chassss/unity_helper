@@ -91,6 +91,8 @@ class Bindings():
         self._UnityEngine_GameObject__set_tag = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self._gameobject.find_method('set_tag').address)
         self._UnityEngine_GameObject__get_isStatic = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self._gameobject.find_method('get_isStatic').address)
         self._UnityEngine_GameObject__get_scene = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self._gameobject.find_method('get_tag').address)
+        self._UnityEngine_GameObject__get_layer = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(self._gameobject.find_method('get_layer').address)
+        self._UnityEngine_GameObject__set_layer = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)(self._gameobject.find_method('set_layer').address)
 
         self._behaviour = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine', 'Behaviour')
         self._UnityEngine_Behaviour__get_enabled = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self._behaviour.find_method('get_enabled').address)
@@ -134,6 +136,11 @@ class Bindings():
         self._UnityEngine_Transform__get_parent = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('get_parent').address)
         self._UnityEngine_Transform__set_parent = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('set_parent').address)
         self._UnityEngine_Transform__get_root = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('get_parent').address)
+        self._UnityEngine_Transform__get_forward = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('get_forward').address)
+        self._UnityEngine_Transform__set_forward = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('set_forward').address)
+        self._UnityEngine_Transform__get_up = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('get_up').address)
+        self._UnityEngine_Transform__get_right = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.c_void_p)(self._transform.find_method('get_right').address)
+    
 
         self._rigidbody = self.get_class_from_name('UnityEngine.PhysicsModule.dll', 'UnityEngine', 'Rigidbody')
 
@@ -145,7 +152,12 @@ class Bindings():
         self._UnityEngine_Rigidbody_get_position = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.c_void_p)(self._rigidbody.find_method('get_position').address)
         self._UnityEngine_Rigidbody_set_position = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self._rigidbody.find_method('set_position').address)
         self._UnityEngine_Rigidbody_set_useGravity = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self._rigidbody.find_method('set_useGravity').address)
-        
+        self._UnityEngine_Rigidbody_get_mass = ctypes.WINFUNCTYPE(ctypes.c_float, ctypes.c_void_p, ctypes.c_void_p)(self._rigidbody.find_method('get_mass').address)
+        self._UnityEngine_Rigidbody_set_mass = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_float, ctypes.c_void_p)(self._rigidbody.find_method('set_mass').address)
+        self._UnityEngine_Rigidbody_get_isKinematic = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self._rigidbody.find_method('get_isKinematic').address)
+        self._UnityEngine_Rigidbody_set_isKinematic = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self._rigidbody.find_method('set_isKinematic').address)
+        self._UnityEngine_Rigidbody_get_rotation = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self._rigidbody.find_method('get_rotation').address)
+        self._UnityEngine_Rigidbody_set_rotation = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self._rigidbody.find_method('set_rotation').address)
 
         self._scene = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine.SceneManagement', 'Scene')
 
@@ -157,25 +169,3 @@ class Bindings():
         self._UnityEngine_Scene__get_buildIndex = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(self._scene.find_method('get_buildIndex').address)
         self._UnityEngine_Scene__get_handle = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(self._scene.find_method('get_handle').address)
         self._UnityEngine_Scene__IsValid = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self._scene.find_method('IsValid').address)
-
-        # self._gizmos = self.get_class_by_name('UnityEngine.CoreModule.dll', 'UnityEngine', 'Gizmos')
-        
-        # self._UnityEngine_Gizmos__DrawCube = ctypes.WINFUNCTYPE(None, Vec3, Vec3, ctypes.c_void_p)(self._gizmos.find_method('DrawCube').address)
-        # self._UnityEngine_Gizmos__DrawLine = ctypes.WINFUNCTYPE(None, Vec3, Vec3, ctypes.c_void_p)(self._gizmos.find_method('DrawLine').address)
-        # self._UnityEngine_Gizmos__DrawRay = ctypes.WINFUNCTYPE(None, Vec3, Vec3, ctypes.c_void_p)(self._gizmos.find_method('DrawRay').address)
-        # self._UnityEngine_Gizmos__DrawSphere = ctypes.WINFUNCTYPE(None, Vec3, ctypes.c_float, ctypes.c_void_p)(self._gizmos.find_method('DrawSphere').address)
-        # self._UnityEngine_Gizmos__DrawWireCube = ctypes.WINFUNCTYPE(None, Vec3, Vec3, ctypes.c_void_p)(self._gizmos.find_method('DrawWireCube').address)
-        # self._UnityEngine_Gizmos__DrawWireSphere = ctypes.WINFUNCTYPE(None, Vec3, ctypes.c_float, ctypes.c_void_p)(self._gizmos.find_method('DrawWireSphere').address)
-        
-        
-        # self._debug = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine', 'Debug')
-
-        # self._UnityEngine_Debug__DrawLine = ctypes.WINFUNCTYPE(None, Vec3, Vec3, Color, ctypes.c_void_p)(self._debug.find_method('DrawLine', param_count=3).address)
-
-
-        # self._gl = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine', 'GL')
-
-        # self._UnityEngine_GL__Begin = ctypes.WINFUNCTYPE(None, ctypes.c_int32, ctypes.c_void_p)(self._gl.find_method('Begin').address)        
-        # self._UnityEngine_GL__End = ctypes.WINFUNCTYPE(None, ctypes.c_void_p)(self._gl.find_method('End').address)
-        # self._UnityEngine_GL__Vertex3 = ctypes.WINFUNCTYPE(None, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_void_p)(self._gl.find_method('Vertex3').address)
-        # self._UnityEngine_GL__Color = ctypes.WINFUNCTYPE(None, Color, ctypes.c_void_p)(self._gl.find_method('Color').address)
