@@ -4,7 +4,7 @@ Reserved for internal use only.
 """
 
 import ctypes
-from .structures import Vec3, Quaternion, Rect, Il2CppAssembly
+from .structures import Vec3, Quaternion, Il2CppAssembly
 from.mono import MonoClass
 
 

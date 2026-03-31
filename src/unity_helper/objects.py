@@ -5,7 +5,7 @@ Component-based systems like Transform, Camera, and Scene, etc.
 """
 
 import ctypes
-from .structures import Vec3, Quaternion, Rect
+from .structures import Vec3, Quaternion
 
 class UnityObject():
     def __init__(self, ptr):
