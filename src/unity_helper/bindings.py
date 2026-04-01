@@ -183,8 +183,8 @@ class Bindings():
         self._UnityEngine_Camera__set_pixelRect = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.POINTER(Rect), ctypes.c_void_p)(self.__find_method('_UnityEngine_Camera__set_pixelRect', self._camera, 'set_pixelRect'))
         self._UnityEngine_Camera__get_targetDisplay = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Camera__get_targetDisplay', self._camera, 'get_targetDisplay'))
         self._UnityEngine_Camera__set_targetDisplay = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)(self.__find_method('_UnityEngine_Camera__set_targetDisplay', self._camera, 'set_targetDisplay'))
-        self._UnityEngine_Camera__get_useOcclusionCulling = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p )(self.__find_method('_UnityEngine_Camera__get_useOcclusionCulling', self._camera, 'get_useOcclusionCulling'))
-        self._UnityEngine_Camera__set_useOcclusionCulling = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)(self.__find_method('_UnityEngine_Camera__set_useOcclusionCulling', self._camera, 'set_useOcclusionCulling'))
+        self._UnityEngine_Camera__get_useOcclusionCulling = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p )(self.__find_method('_UnityEngine_Camera__get_useOcclusionCulling', self._camera, 'get_useOcclusionCulling'))
+        self._UnityEngine_Camera__set_useOcclusionCulling = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Camera__set_useOcclusionCulling', self._camera, 'set_useOcclusionCulling'))
         self._UnityEngine_Camera__get_usePhysicalProperties = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Camera__get_orthographic', self._camera, 'get_orthographic'))
         self._UnityEngine_Camera__set_usePhysicalProperties = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Camera__set_usePhysicalProperties', self._camera, 'set_usePhysicalProperties'))
 
