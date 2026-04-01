@@ -87,7 +87,7 @@ class Bindings():
             if i.name == 'GetComponents' and i.param_count == 1 and i.param_info[0] == 'Parameter 0 type: System.Type':
                 self._UnityEngine_GameObject__GetComponents = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(i.address)
             elif i.name == 'AddComponent' and i.param_count == 1 and i.param_info[0] == 'Parameter 0 type: System.Type':
-                self._UnityEngine_GameObject__AddComponent = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(i.address)       
+                self._UnityEngine_GameObject__AddComponent = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(i.address)
 
         self._UnityEngine_GameObject__Find = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._gameobject, 'Find'))
         self._UnityEngine_GameObject__FindGameObjectWithTag = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._gameobject, 'FindGameObjectWithTag'))
@@ -96,7 +96,7 @@ class Bindings():
         self._UnityEngine_GameObject__get_tag = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._gameobject, 'get_tag'))
         self._UnityEngine_GameObject__set_tag = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._gameobject, 'set_tag'))
         self._UnityEngine_GameObject__get_isStatic = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._gameobject, 'get_isStatic'))
-        self._UnityEngine_GameObject__get_scene = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._gameobject, 'get_tag'))
+        self._UnityEngine_GameObject__get_scene = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._gameobject, 'get_scene'))
         self._UnityEngine_GameObject__get_layer = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method(self._gameobject, 'get_layer'))
         self._UnityEngine_GameObject__set_layer = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)(self.__find_method(self._gameobject, 'set_layer'))
 
@@ -117,6 +117,10 @@ class Bindings():
         
 
         self._object = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine', 'Object')
+        for i in self._object.list_methods():
+            if i.name == 'Instantiate' and i.param_count == 1 and i.param_info[0] == 'Parameter 0 type: UnityEngine.Object':
+                self._UnityEngine_Object__Instantiate = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(i.address)
+
 
         self._UnityEngine_Object__FindObjectOfType = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method(self._object, 'FindObjectOfType', param_count=2))
         self._UnityEngine_Object__FindObjectsOfType = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method(self._object, 'FindObjectsOfType', param_count=2))

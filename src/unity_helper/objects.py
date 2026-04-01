@@ -155,7 +155,6 @@ class Component(UnityObject):
             return name_ptr.decode() if name_ptr else None
         except:
             return None
-        # return self._il2cpp.PROCESS.read_unicode_string(name_ptr + 0x14, self._il2cpp.PROCESS.read_int(name_ptr + 0x10) * 2)
 
     @property
     def enabled(self) -> bool|None:
@@ -479,43 +478,14 @@ class Object(UnityObject):
     @name.setter
     def layer(self, value:int):
         try:
-            self._il2cpp._UnityEngine_Object__set_layer(self.ptr, value, 0)
+            self._il2cpp._UnityEngine_GameObject__set_layer(self.ptr, value, 0)
         except:
             pass
-    
-    def SetActive(self, value:bool) -> int|None:
-        try:
-            self._il2cpp._UnityEngine_GameObject__SetActive(self.ptr, value, 0)
-            return 1
-        except:
-            return None
-
-    def destroy(self) -> int|None:
-        try:
-            self._il2cpp._UnityEngine_Object__Destroy(self.ptr, 0)
-            return 1
-        except:
-            return None
-        
-    def GetComponents(self) -> list[Component]|None:
-        try:
-            arr = self._il2cpp._UnityEngine_GameObject__GetComponents(self.ptr, self._il2cpp._component.object, 0)
-            components = [Component(i) for i in self._il2cpp._read_il2cpp_array(arr)]
-            return components
-        except:
-            return None
 
     @property
     def transform(self)-> Transform|None:
         try:
             return Transform(self._il2cpp._UnityEngine_GameObject__get_transform(self.ptr, 0))
-        except:
-            return None
-
-    def AddComponent(self, type_:int) -> int|None:
-        try:
-            self._il2cpp._UnityEngine_GameObject__AddComponent(self.ptr, type_, 0)
-            return 1
         except:
             return None
 
@@ -541,6 +511,44 @@ class Object(UnityObject):
             if not addr:
                 return None
             return Scene(addr)
+        except:
+            return None
+        
+    def SetActive(self, value:bool) -> int|None:
+        try:
+            self._il2cpp._UnityEngine_GameObject__SetActive(self.ptr, value, 0)
+            return 1
+        except:
+            return None
+
+    def destroy(self) -> int|None:
+        try:
+            self._il2cpp._UnityEngine_Object__Destroy(self.ptr, 0)
+            return 1
+        except:
+            return None
+        
+    def GetComponents(self) -> list[Component]|None:
+        try:
+            arr = self._il2cpp._UnityEngine_GameObject__GetComponents(self.ptr, self._il2cpp._component.object, 0)
+            components = [Component(i) for i in self._il2cpp._read_il2cpp_array(arr)]
+            return components
+        except:
+            return None
+        
+    def AddComponent(self, type_:int) -> int|None:
+        try:
+            self._il2cpp._UnityEngine_GameObject__AddComponent(self.ptr, type_, 0)
+            return 1
+        except:
+            return None
+        
+    def Instantiate(self) -> Object|None:
+        try:
+            new_obj = self._il2cpp._UnityEngine_Object__Instantiate(self.ptr, 0)
+            if not new_obj:
+                return None
+            return Object(new_obj)
         except:
             return None
 

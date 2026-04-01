@@ -198,6 +198,12 @@ for clazz in ref.list_classes_in_image('Assembly-CSharp.dll'):
 
 ---
 
+## 🔴 Known issues
+- Accessing the scene property on a GameObject returns an invalid scene object
+- Calling a method via the built in __call__ can lead to unexpected behavior sometimes
+
+--
+
 ## 📄 License
 
 MIT License

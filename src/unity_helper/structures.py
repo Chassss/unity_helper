@@ -127,3 +127,20 @@ Il2CppAssembly._fields_ = [
     ("referencedAssemblyCount", ctypes.c_int32),
     ("aname", Il2CppAssemblyName)
 ]
+
+class Bounds(ctypes.Structure):
+    _fields_ = [
+        ("center", Vec3),
+        ("size", Vec3)
+    ]
+
+
+class RaycastHit(ctypes.Structure):
+    _fields_ = [
+        ("point", Vec3),
+        ("normal", Vec3),
+        ("faceID", ctypes.c_uint),
+        ("distance", ctypes.c_float),
+        ("uv", Vec2),
+        ("collider", ctypes.c_int)
+    ]
