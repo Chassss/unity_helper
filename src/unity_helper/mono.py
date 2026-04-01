@@ -82,7 +82,6 @@ class MonoClass():
                 param_info = [f"Parameter {i} type: " + self._il2cpp._il2cpp_type_get_name(self._il2cpp._il2cpp_method_get_param(method, i)).decode() for i in range(param_count)]
                 return_value = self._il2cpp._il2cpp_type_get_name(self._il2cpp._il2cpp_method_get_return_type(method)).decode()
                 is_static = (self._il2cpp._il2cpp_method_get_flags(method, 0) & 0x0010) != 0
-                # self.__methods[name] = {"method_ptr": int(method), "method_address": self._il2cpp.PROCESS.read_longlong(method), "param_count": param_count, 'param_info': param_info, 'return_value': return_value, 'flags': {'static': is_static}}
                 
                 method = MonoMethod(self, self._il2cpp, name, self._il2cpp.PROCESS.read_longlong(method), int(method), param_count, param_info, return_value, is_static)
                 if not any(i.name == method.name and i.address == method.address for i in self._methods):
@@ -129,7 +128,7 @@ class MonoClass():
                 type_ptr = self._il2cpp._il2cpp_field_get_type(field)
                 type_name = self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else ""
                 is_static = (self._il2cpp._il2cpp_field_get_flags(field) & 0x0010) != 0
-                # fields[name] = {"field_ptr": int(field), "type": type_name, "static": is_static}
+ 
                 monofield = MonoField(self, self._il2cpp, name, int(field), type_name, is_static)
 
                 if not any(i.name == monofield.name for i in self._fields):
@@ -149,7 +148,7 @@ class MonoClass():
             Object: An object containing various methods and data for interacting with the object.
         """
         try:
-            return Object(self._il2cpp._UnityEngine_Object__FindObjectOfType(self.object, includeInactive, 0))
+            return Object(self._il2cpp._UnityEngine_Object__FindObjectOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectOfType']))
         except:
             return None
 
@@ -164,7 +163,7 @@ class MonoClass():
             list[Object]: A list containing Object objects.
         """
         try:
-            arr = self._il2cpp._UnityEngine_Object__FindObjectsOfType(self.object, includeInactive, 0)
+            arr = self._il2cpp._UnityEngine_Object__FindObjectsOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectsOfType'])
             objects = [Object(i) for i in self._il2cpp._read_il2cpp_array(arr)]
             return objects
         except:

@@ -144,3 +144,10 @@ class RaycastHit(ctypes.Structure):
         ("uv", Vec2),
         ("collider", ctypes.c_int)
     ]
+
+
+class Ray(ctypes.Structure):
+    _fields_ = [
+        ("m_Direction", Vec3),
+        ("m_Origin", Vec3)
+    ]

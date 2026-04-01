@@ -9,9 +9,9 @@ import ctypes
 from pylocalmem import Process
 from contextlib import contextmanager
 from .mono import MonoClass, MonoMethod
-from .objects import Rigidbody, Camera, Object
+from .objects import Camera, Object
 from .bindings import Bindings
-from .structures import Il2CppArray, Vec3, Il2CppAssembly, Quaternion
+from .structures import Il2CppArray, Vec3, Il2CppAssembly, Quaternion, Color, Vec2, Rect
 
 
 class Il2cpp(Bindings):
@@ -96,6 +96,9 @@ class Il2cpp(Bindings):
         
 
     def _read_il2cpp_array(self, arr_ptr) -> int|None:
+        """
+        Reserved for internal use by other classes
+        """
         header = ctypes.cast(arr_ptr, ctypes.POINTER(Il2CppArray)).contents
         length = header.max_length
 
@@ -105,6 +108,9 @@ class Il2cpp(Bindings):
         return [elements[i] for i in range(length)]
     
     def _vec3_helper(self, data):
+        """
+        Reserved for internal use by other classes
+        """
         if isinstance(data, (list, tuple)):
             x,y,z = data
             data = Vec3(x,y,z)
@@ -114,11 +120,53 @@ class Il2cpp(Bindings):
             return None
         return data
     
+    def _vec2_helper(self, data):
+        """
+        Reserved for internal use by other classes
+        """
+        if isinstance(data, (list, tuple)):
+            x,y = data
+            data = Vec3(x,y)
+        elif isinstance(data, (Vec2)):
+            return data
+        else:
+            return None
+        return data
+    
     def _quaternion_helper(self, data):
+        """
+        Reserved for internal use by other classes
+        """
         if isinstance(data, (list, tuple)):
             x,y,z,w = data
             data = Quaternion(x,y,z,w)
         elif isinstance(data, (Quaternion)):
+            return data
+        else:
+            return None
+        return data
+    
+    def _color_helper(self, data):
+        """
+        Reserved for internal use by other classes
+        """
+        if isinstance(data, (list, tuple)):
+            r,g,b,a = data
+            data = Color(r,g,b,a)
+        elif isinstance(data, (Color)):
+            return data
+        else:
+            return None
+        return data
+    
+    def _rect_helper(self, data):
+        """
+        Reserved for internal use by other classes
+        """
+        if isinstance(data, (list, tuple)):
+            x,y,wdith,height = data
+            data = Rect(x,y,wdith,height)
+        elif isinstance(data, (Rect)):
             return data
         else:
             return None
@@ -196,30 +244,45 @@ class Il2cpp(Bindings):
         for method in methods:
             for count in param_range:
                 if method.name == method_name and method.param_count == count:
-                    return method 
+                    return method
 
-    
-    def get_RigidBody(self, this:int) -> Rigidbody:
-        """
-        Retreives a Rigidbody object given a valid object pointer.
-
-        Args:
-            this (int): Instance pointer e.g., 2155666249552
-
-        Returns:
-            Rigidbody: An object containing various methods of interacting with the rigidbody.
-        """
-        return Rigidbody(self._UnityEngine_Component__GetComponent(this, self._il2cpp_string_new(b"Rigidbody"), 0))
-
-
-    def get_main_camera(self) -> Camera:
+    def get_mainCamera(self) -> Camera|None:
         """
         Retreives the main Camera object
 
         Returns:
             Camera: An object containing various methods and data for interacting with the camera
         """
-        return Camera(self._UnityEngine_Camera_get_main(0))
+        try:
+            addr = self._UnityEngine_Camera_get_main(self._methodInfoData['_UnityEngine_Camera_get_main'])
+            if not addr:
+                return None
+            return Camera(addr)
+        except:
+            return None
+    
+    def get_currentCamera(self) -> Camera|None:
+        # try:
+            addr = self._UnityEngine_Camera_get_current(self._methodInfoData['_UnityEngine_Camera_get_current'])
+            if not addr:
+                return None
+            return Camera(addr)
+        # except:
+        #     return None
+    
+    def get_allCameras(self) -> list[Camera]|None:
+        try:
+            arr = self._UnityEngine_Camera_get_allCameras(self._methodInfoData['_UnityEngine_Camera_get_allCameras'])
+            cameras = [Camera(i) for i in self._read_il2cpp_array(arr) if i]
+            return cameras
+        except:
+            return None
+    
+    def get_all_camerasCount(self) -> int|None:
+        try:
+            return self._UnityEngine_Camera_get_allCamerasCount(0, self._methodInfoData['_UnityEngine_Camera_get_allCamerasCount'])
+        except:
+            return None
 
 
     def find_object(self, object_str:str) -> Object:
@@ -233,7 +296,7 @@ class Il2cpp(Bindings):
             Object: An object containing various methods and data for interacting with the object.
         """
         try:
-            obj = self._UnityEngine_GameObject__Find(self._il2cpp_string_new(object_str.encode()), 0)
+            obj = self._UnityEngine_GameObject__Find(self._il2cpp_string_new(object_str.encode()), self._methodInfoData['_UnityEngine_GameObject__Find'])
             if not obj:
                 return None
             return Object(obj)
@@ -251,7 +314,7 @@ class Il2cpp(Bindings):
             Object: An object containing various methods and data for interacting with the object.
         """
         try:
-            obj = self._UnityEngine_GameObject__FindGameObjectWithTag(self._il2cpp_string_new(tag_str.encode()), 0)
+            obj = self._UnityEngine_GameObject__FindGameObjectWithTag(self._il2cpp_string_new(tag_str.encode()), self._methodInfoData['_UnityEngine_GameObject__FindGameObjectWithTag'])
             if not obj:
                 return None
             return Object(obj)
