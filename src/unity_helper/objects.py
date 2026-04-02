@@ -774,18 +774,17 @@ class Object(UnityObject):
         except:
             pass
 
-
     @property
     def hideFlags(self) -> int|None:
         try:
-            return self._il2cpp._UnityEngine_GameObject__get_hideFlags(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_GameObject__get_hideFlags'])
+            return self._il2cpp._UnityEngine_Object__get_hideFlags(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Object__get_hideFlags'])
         except:
             return None
     
     @hideFlags.setter
     def hideFlags(self, value:int):
         try:
-            self._il2cpp._UnityEngine_GameObject__set_hideFlags(self.ptr, value, self._il2cpp._methodInfoData['_UnityEngine_GameObject__set_hideFlags'])
+            self._il2cpp._UnityEngine_Object__set_hideFlags(self.ptr, value, self._il2cpp._methodInfoData['_UnityEngine_Object__get_hideFlags'])
         except:
             pass
 
