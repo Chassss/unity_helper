@@ -132,7 +132,7 @@ class MonoClass():
                 monofield = MonoField(self, self._il2cpp, name, int(field), type_name, is_static)
 
                 if not any(i.name == monofield.name for i in self._fields):
-                    self._methods.append(monofield)
+                    self._fields.append(monofield)
                     
         return self._fields
     
