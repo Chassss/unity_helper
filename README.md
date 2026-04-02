@@ -132,8 +132,8 @@ example_field.value = 9999
 ### 🔹 Working with Unity Objects
 
 ```python
-main_cam = ref.get_main_camera()
-rigidbody = ref.get_RigidBody(123456789)
+main_cam = ref.get_mainCamera()
+rigidbody = unity_helper.objects.Rigidbody(123456789)
 ```
 
 #### Rigidbody
