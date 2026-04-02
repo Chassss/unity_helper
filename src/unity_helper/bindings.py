@@ -128,7 +128,7 @@ class Bindings():
         self._UnityEngine_GameObject__get_activeInHierarchy = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_activeInHierarchy', self._gameobject, 'get_activeInHierarchy'))
         self._UnityEngine_GameObject__get_activeSelf = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_activeSelf', self._gameobject, 'get_activeSelf'))
         self._UnityEngine_GameObject__get_sceneCullingMask = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_sceneCullingMask', self._gameobject, 'get_sceneCullingMask'))
-        self._UnityEngine_GameObject__GetComponent = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_GameObject__GetComponent', self._gameobject, 'GetComponent', 1, ['Parameter 0 type: System.Type']))
+        self._UnityEngine_GameObject__GetComponent = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_GameObject__GetComponent', self._gameobject, 'GetComponent', 1, ['Parameter 0 type: System.Type']))
 
         self._behaviour = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine', 'Behaviour')
 
