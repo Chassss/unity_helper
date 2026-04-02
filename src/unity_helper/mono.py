@@ -28,7 +28,7 @@ class MonoClass():
     @property
     def object(self) -> int:
         """
-        Class object address in memory
+        Class type object address in memory
         """
         return self._object
     @property
