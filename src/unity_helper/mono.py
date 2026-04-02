@@ -340,6 +340,23 @@ class MonoField():
         self._ptr:int = ptr
         self._type:str = type_name
         self._is_static:bool = is_static
+        self._type_dict = {
+                "System.Single": ctypes.c_float,
+                "System.Double": ctypes.c_double,
+                "System.SByte": ctypes.c_byte,
+                "System.Byte": ctypes.c_ubyte,
+                "System.Int16": ctypes.c_short,
+                "System.UInt16": ctypes.c_ushort,
+                "System.Int32": ctypes.c_int,
+                "System.UInt32": ctypes.c_uint,
+                "System.Int64": ctypes.c_longlong,
+                "System.UInt64": ctypes.c_ulonglong,
+                "System.Boolean": ctypes.c_bool,
+                "System.Char": ctypes.c_wchar,
+                "System.IntPtr": ctypes.c_void_p,
+                "System.UIntPtr": ctypes.c_void_p,
+                "System.Void": None
+            }
 
     @property
     def name(self) -> str:
@@ -423,7 +440,7 @@ class MonoField():
 
     def __get_type(self, type_name) -> ctypes._SimpleCData|None:
         
-        ret = self.__owner._type_dict(type_name)
+        ret = self._type_dict[type_name]
         if not ret:
             ret = ctypes.c_void_p
 
