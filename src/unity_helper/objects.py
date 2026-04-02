@@ -835,9 +835,9 @@ class Object(UnityObject):
         except:
             return None
     
-    def GetComponent(self, type_:int) -> Component|None:
+    def GetComponent(self, type_object:int) -> Component|None:
         try:
-            addr = self._il2cpp._UnityEngine_GameObject__GetComponent(self.ptr, type_, self._il2cpp._methodInfoData['_UnityEngine_GameObject__GetComponent'])
+            addr = self._il2cpp._UnityEngine_GameObject__GetComponent(self.ptr, type_object, self._il2cpp._methodInfoData['_UnityEngine_GameObject__GetComponent'])
             if not addr:
                 return None
             return Component(addr)
@@ -852,9 +852,9 @@ class Object(UnityObject):
         except:
             return None
         
-    def AddComponent(self, type_:int) -> int|None:
+    def AddComponent(self, type_object:int) -> int|None:
         try:
-            self._il2cpp._UnityEngine_GameObject__AddComponent(self.ptr, type_, self._il2cpp._methodInfoData['_UnityEngine_GameObject__AddComponent'])
+            self._il2cpp._UnityEngine_GameObject__AddComponent(self.ptr, type_object, self._il2cpp._methodInfoData['_UnityEngine_GameObject__AddComponent'])
             return 1
         except:
             return None
@@ -987,9 +987,9 @@ class Camera(Component):
             return None
     
     @cameraType.setter
-    def cameraType(self, type_:int):
+    def cameraType(self, type_object:int):
         try:
-            self._il2cpp._UnityEngine_Camera__set_cameraType(self.ptr, type_, self._il2cpp._methodInfoData['_UnityEngine_Camera__set_cameraType'])
+            self._il2cpp._UnityEngine_Camera__set_cameraType(self.ptr, type_object, self._il2cpp._methodInfoData['_UnityEngine_Camera__set_cameraType'])
         except:
             pass
 
