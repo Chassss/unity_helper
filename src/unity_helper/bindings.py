@@ -191,7 +191,7 @@ class Bindings():
 
         self._object = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine', 'Object')
 
-        self._UnityEngine_Object__Instantiate = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)()
+        self._UnityEngine_Object__Instantiate = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Object__Instantiate', self._object, 'Instantiate', 1, ['Parameter 0 type: UnityEngine.Object']))
         self._UnityEngine_Object__FindObjectOfType = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Object__FindObjectOfType', self._object, 'FindObjectOfType', param_count=2))
         self._UnityEngine_Object__FindObjectsOfType = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Object__FindObjectsOfType', self._object, 'FindObjectsOfType', param_count=2))
         self._UnityEngine_Object__get_name = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Object__get_name', self._object, 'get_name'))
