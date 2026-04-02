@@ -356,9 +356,11 @@ class Il2cpp(Bindings):
                 full_name = ".".join(filter(None, [cls_namespace, cls_name]))
 
                 cls = MonoClass(self, cls_ptr, full_name, type_obj, type_)
+                
+                if not any(i.name == cls.name and i.object == i.object for i in self._class_cache):
+                    self._class_cache.append(cls)
 
                 classes.append(cls)
-                self._class_cache.append(cls)
 
         return classes
     
