@@ -1185,8 +1185,6 @@ class Collider(Component):
 
     def Raycast(self, ray:Ray, maxDistance:float) -> bool|None:
         try:
-            origin = self._il2cpp._vec3_helper(origin)
-            direction = self._il2cpp._vec3_helper(direction)
             hitInfo = RaycastHit()
             result = self._il2cpp._UnityEngine_Collider_Raycast(self.ptr, ctypes.pointer(ray), ctypes.byref(hitInfo), maxDistance, self._il2cpp._methodInfoData['_UnityEngine_Collider_Raycast'])
             if result:
