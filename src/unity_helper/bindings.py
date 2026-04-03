@@ -53,7 +53,8 @@ class Bindings():
                 return m.address
 
         except Exception as e:
-            print(f"Failed to find: {method_name} some built in features wont work")
+            if self.warn_on_missing:
+                print(f"Failed to find: {method_name} some built in features wont work")
             return 0
 
         return 0
