@@ -2,7 +2,7 @@
 Provides high-level wrappers for Unity objects, including
 Component-based systems like Transform, Camera, and Scene, etc.
 
-For information on any of the functions in this module referr too the official unity docs https://docs.unity3d.com/ScriptReference/
+For information on any of the functions in this module refer too the official unity documentation https://docs.unity3d.com/ScriptReference/
 
 """
 
@@ -60,67 +60,9 @@ class Physics(UnityObject):
             origin = self._il2cpp._vec3_helper(origin)
             direction = self._il2cpp._vec3_helper(direction)
             hitInfo = RaycastHit()
-            result = self._il2cpp._UnityEngine_Physics_Raycast(origin, direction, ctypes.byref(hitInfo), maxDistance, layerMask, self._il2cpp._methodInfoData['_UnityEngine_Physics_Raycast'])
+            result = self._il2cpp._UnityEngine_Physics_Raycast(ctypes.pointer(origin), ctypes.pointer(direction), ctypes.byref(hitInfo), maxDistance, layerMask, self._il2cpp._methodInfoData['_UnityEngine_Physics_Raycast'])
             if result:
-                return hitInfo
-            return result
-        except:
-            return None
-        
-
-class Collider(UnityObject):
-    @property
-    def attachedRigidbody(self) -> Rigidbody|None:
-        try:
-            body = self._il2cpp._UnityEngine_Collider_get_attachedRigidbody(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Collider_get_attachedRigidbody'])
-            if not body:
-                return None
-            return Rigidbody(body)
-        except:
-            return None
-        
-    @property
-    def bounds(self) -> Bounds|None:
-        try:
-            return self._il2cpp._UnityEngine_Collider_get_bounds(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Collider_get_bounds'])
-        except:
-            return None
-        
-    @property
-    def enabled(self) -> bool|None:
-        try:
-            return self._il2cpp._UnityEngine_Collider_get_enabled(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Collider_get_enabled'])
-        except:
-            return None
-        
-    @enabled.setter
-    def enabled(self):
-        try:
-            self._il2cpp._UnityEngine_Collider_set_enabled(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Collider_set_enabled'])
-        except:
-            pass
-        
-    @property
-    def isTrigger(self) -> bool|None:
-        try:
-            return self._il2cpp._UnityEngine_Collider_get_isTrigger(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Collider_get_isTrigger'])
-        except:
-            return None
-        
-    @isTrigger.setter
-    def isTrigger(self):
-        try:
-            self._il2cpp._UnityEngine_Collider_set_isTrigger(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Collider_set_isTrigger'])
-        except:
-            pass
-
-    def Raycast(self, ray:Ray, maxDistance:float) -> bool|None:
-        try:
-            origin = self._il2cpp._vec3_helper(origin)
-            direction = self._il2cpp._vec3_helper(direction)
-            hitInfo = RaycastHit()
-            result = self._il2cpp._UnityEngine_Collider_Raycast(self.ptr, ray, maxDistance, self._il2cpp._methodInfoData['_UnityEngine_Collider_Raycast'])
-            if result:
+                hitInfo.collider = self._il2cpp._UnityEngine_Object__FindObjectFromInstanceID(hitInfo.collider, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectFromInstanceID'])
                 return hitInfo
             return result
         except:
@@ -1193,3 +1135,63 @@ class Camera(Component):
             self._il2cpp._UnityEngine_Camera__set_usePhysicalProperties(self.ptr, value, self._il2cpp._methodInfoData['_UnityEngine_Camera__set_usePhysicalProperties'])
         except:
             pass
+
+
+class Collider(Component):
+    @property
+    def attachedRigidbody(self) -> Rigidbody|None:
+        try:
+            body = self._il2cpp._UnityEngine_Collider_get_attachedRigidbody(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Collider_get_attachedRigidbody'])
+            if not body:
+                return None
+            return Rigidbody(body)
+        except:
+            return None
+        
+    @property
+    def bounds(self) -> Bounds|None:
+        try:
+            return self._il2cpp._UnityEngine_Collider_get_bounds(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Collider_get_bounds'])
+        except:
+            return None
+        
+    @property
+    def enabled(self) -> bool|None:
+        try:
+            return self._il2cpp._UnityEngine_Collider_get_enabled(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Collider_get_enabled'])
+        except:
+            return None
+        
+    @enabled.setter
+    def enabled(self):
+        try:
+            self._il2cpp._UnityEngine_Collider_set_enabled(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Collider_set_enabled'])
+        except:
+            pass
+        
+    @property
+    def isTrigger(self) -> bool|None:
+        try:
+            return self._il2cpp._UnityEngine_Collider_get_isTrigger(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Collider_get_isTrigger'])
+        except:
+            return None
+        
+    @isTrigger.setter
+    def isTrigger(self):
+        try:
+            self._il2cpp._UnityEngine_Collider_set_isTrigger(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Collider_set_isTrigger'])
+        except:
+            pass
+
+    def Raycast(self, ray:Ray, maxDistance:float) -> bool|None:
+        try:
+            origin = self._il2cpp._vec3_helper(origin)
+            direction = self._il2cpp._vec3_helper(direction)
+            hitInfo = RaycastHit()
+            result = self._il2cpp._UnityEngine_Collider_Raycast(self.ptr, ctypes.pointer(ray), ctypes.byref(hitInfo), maxDistance, self._il2cpp._methodInfoData['_UnityEngine_Collider_Raycast'])
+            if result:
+                hitInfo.collider = self._il2cpp._UnityEngine_Object__FindObjectFromInstanceID(hitInfo.collider, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectFromInstanceID'])
+                return hitInfo
+            return result
+        except:
+            return None
