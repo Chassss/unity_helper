@@ -199,7 +199,7 @@ class Bindings():
         self._UnityEngine_Object__Destroy = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_float, ctypes.c_void_p)(self.__find_method('_UnityEngine_Object__Destroy', self._object, 'Destroy', param_count=1))
         self._UnityEngine_Object__get_hideFlags = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Object__get_hideFlags', self._object, 'get_hideFlags'))
         self._UnityEngine_Object__set_hideFlags = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)(self.__find_method('_UnityEngine_Object__set_hideFlags', self._object, 'set_hideFlags'))
-        
+        self._UnityEngine_Object__FindObjectFromInstanceID = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)(self.__find_method('_UnityEngine_Object__FindObjectFromInstanceID', self._object, 'FindObjectFromInstanceID'))
 
         self._transform = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine', 'Transform')
         
