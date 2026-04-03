@@ -142,7 +142,7 @@ class RaycastHit(ctypes.Structure):
         ("faceID", ctypes.c_uint),
         ("distance", ctypes.c_float),
         ("uv", Vec2),
-        ("collider", ctypes.c_int)
+        ("collider", ctypes.c_void_p)
     ]
 
 
