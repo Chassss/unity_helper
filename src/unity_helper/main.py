@@ -262,13 +262,13 @@ class Il2cpp(Bindings):
             return None
     
     def get_currentCamera(self) -> Camera|None:
-        # try:
+        try:
             addr = self._UnityEngine_Camera_get_current(self._methodInfoData['_UnityEngine_Camera_get_current'])
             if not addr:
                 return None
             return Camera(addr)
-        # except:
-        #     return None
+        except:
+            return None
     
     def get_allCameras(self) -> list[Camera]|None:
         try:
