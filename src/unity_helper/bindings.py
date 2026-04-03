@@ -277,7 +277,7 @@ class Bindings():
         self._UnityEngine_Physics_Simulate = ctypes.WINFUNCTYPE(None, ctypes.c_float, ctypes.c_void_p)(self.__find_method('_UnityEngine_Physics_Simulate', self._physics, 'Simulate'))
         self._UnityEngine_Physics_get_autoSimulation = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Physics_get_autoSimulation', self._physics, 'get_autoSimulation'))
         self._UnityEngine_Physics_set_autoSimulation = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Physics_set_autoSimulation', self._physics, 'set_autoSimulation'))
-        self._UnityEngine_Physics_Raycast = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(Vec3), ctypes.POINTER(Vec3), ctypes.POINTER(RaycastHit), ctypes.c_float, ctypes.c_int)(self.__find_method_by_criteria('_UnityEngine_Physics_Raycast', self._physics, 'RayCast', 5, ['Parameter 0 type: UnityEngine.Vector3', 'Parameter 1 type: UnityEngine.Vector3', 'Parameter 2 type: UnityEngine.RaycastHit&', 'Parameter 3 type: System.Single', 'Parameter 4 type: System.Int32']))
+        self._UnityEngine_Physics_Raycast = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(Vec3), ctypes.POINTER(Vec3), ctypes.POINTER(RaycastHit), ctypes.c_float, ctypes.c_int, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Physics_Raycast', self._physics, 'Raycast', 5, ['Parameter 0 type: UnityEngine.Vector3', 'Parameter 1 type: UnityEngine.Vector3', 'Parameter 2 type: UnityEngine.RaycastHit&', 'Parameter 3 type: System.Single', 'Parameter 4 type: System.Int32']))
 
 
         self._collider = self.get_class_from_name('UnityEngine.PhysicsModule.dll', 'UnityEngine', 'Collider')
