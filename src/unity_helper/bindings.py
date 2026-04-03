@@ -30,7 +30,8 @@ class Bindings():
 
             return found_method.address
         except Exception as e:
-            print(f"Failed to find: {method} some built in features wont work")
+            if self.warn_on_missing:
+                print(f"Failed to find: {method} some built in features wont work")
             return 0
 
     def __find_method_by_criteria(self, name, unity_obj, method_name=None, param_count=None, param_types=None):
@@ -92,7 +93,7 @@ class Bindings():
         self._il2cpp_method_get_flags = self.__DO_API(self.game_asm.il2cpp_method_get_flags, [ctypes.c_void_p, ctypes.c_int32], ctypes.c_int32)
         self._il2cpp_class_get_field_from_name = self.__DO_API(self.game_asm.il2cpp_class_get_field_from_name, [ctypes.c_void_p, ctypes.c_char_p], ctypes.c_void_p)
         self._il2cpp_domain_get_assemblies = self.__DO_API(self.game_asm.il2cpp_domain_get_assemblies, [ctypes.c_void_p, ctypes.POINTER(ctypes.c_size_t)], ctypes.POINTER(Il2CppAssembly))
-
+        self._il2cpp_class_get_parent = self.__DO_API(self.game_asm.il2cpp_class_get_parent, [ctypes.c_void_p], ctypes.c_void_p)
 
         self._domain: int|None = None
         self._attached = False
