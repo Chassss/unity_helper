@@ -55,7 +55,7 @@ class Physics(UnityObject):
         except:
             pass
 
-    def Raycast(self, origin:list|tuple|Vec3, direction:list|tuple|Vec3, maxDistance:float, layerMask:int) -> bool|None:
+    def Raycast(self, origin:list|tuple|Vec3, direction:list|tuple|Vec3, maxDistance:float, layerMask:int) -> bool|RaycastHit|None:
         try:
             origin = self._il2cpp._vec3_helper(origin)
             direction = self._il2cpp._vec3_helper(direction)
@@ -1183,7 +1183,7 @@ class Collider(Component):
         except:
             pass
 
-    def Raycast(self, ray:Ray, maxDistance:float) -> bool|None:
+    def Raycast(self, ray:Ray, maxDistance:float) -> bool|RaycastHit|None:
         try:
             hitInfo = RaycastHit()
             result = self._il2cpp._UnityEngine_Collider_Raycast(self.ptr, ctypes.pointer(ray), ctypes.byref(hitInfo), maxDistance, self._il2cpp._methodInfoData['_UnityEngine_Collider_Raycast'])
