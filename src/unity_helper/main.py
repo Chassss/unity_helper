@@ -15,11 +15,17 @@ from .structures import Il2CppArray, Vec3, Il2CppAssembly, Quaternion, Color, Ve
 
 
 class Il2cpp(Bindings):
+    """
+    High-level wrapper for unity IL2CPP based games to be able to interact with its information.
+
+    Args:
+        warn_on_missing (bool): If True, emits a warning when a built in requested method is not found; if False, missing methods fail silently.
+    """
     inst = None
-    def __init__(self, dll_name: str = "GameAssembly.dll"):
-        self.game_asm = ctypes.WinDLL(dll_name)
+    def __init__(self, warn_on_missing:bool=True):
+        self.game_asm = ctypes.WinDLL("GameAssembly.dll")
         self.PROCESS = Process()
-        
+        self.warn_on_missing = warn_on_missing
         Il2cpp.inst = self
         self._initialize()
 
