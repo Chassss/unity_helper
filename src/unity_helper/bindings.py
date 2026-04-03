@@ -282,11 +282,11 @@ class Bindings():
 
         self._collider = self.get_class_from_name('UnityEngine.PhysicsModule.dll', 'UnityEngine', 'Collider')
         
-        self._UnityEngine_Collider_get_attachedRigidbody = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('UnityEngine_Collider_get_attachedRigidbody', self._collider, 'get_attachedRigidbody'))
-        self._UnityEngine_Collider_get_bounds = ctypes.WINFUNCTYPE(Bounds, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('UnityEngine_Collider_get_bounds', self._collider, 'get_bounds'))
-        self._UnityEngine_Collider_get_enabled = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('UnityEngine_Collider_get_enabled', self._collider, 'get_enabled'))
-        self._UnityEngine_Collider_set_enabled = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('UnityEngine_Collider_set_enabled', self._collider, 'set_enabled'))
-        self._UnityEngine_Collider_get_isTrigger = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('UnityEngine_Collider_get_isTrigger', self._collider, 'get_isTrigger'))
-        self._UnityEngine_Collider_set_isTrigger = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('UnityEngine_Collider_set_isTrigger', self._collider, 'set_isTrigger'))
-        self._UnityEngine_Collider_Raycast = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, Ray, ctypes.POINTER(RaycastHit), ctypes.c_float)(self.__find_method_by_criteria('UnityEngine_Collider_Raycast', self._collider, 'Raycast', 3, ['Parameter 0 type: UnityEngine.Ray', 'Parameter 1 type: UnityEngine.RaycastHit&', 'Parameter 2 type: System.Single']))
+        self._UnityEngine_Collider_get_attachedRigidbody = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Collider_get_attachedRigidbody', self._collider, 'get_attachedRigidbody'))
+        self._UnityEngine_Collider_get_bounds = ctypes.WINFUNCTYPE(Bounds, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Collider_get_bounds', self._collider, 'get_bounds'))
+        self._UnityEngine_Collider_get_enabled = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Collider_get_enabled', self._collider, 'get_enabled'))
+        self._UnityEngine_Collider_set_enabled = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Collider_set_enabled', self._collider, 'set_enabled'))
+        self._UnityEngine_Collider_get_isTrigger = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Collider_get_isTrigger', self._collider, 'get_isTrigger'))
+        self._UnityEngine_Collider_set_isTrigger = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Collider_set_isTrigger', self._collider, 'set_isTrigger'))
+        self._UnityEngine_Collider_Raycast = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.POINTER(Ray), ctypes.POINTER(RaycastHit), ctypes.c_float, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Collider_Raycast', self._collider, 'Raycast', 3, ['Parameter 0 type: UnityEngine.Ray', 'Parameter 1 type: UnityEngine.RaycastHit&', 'Parameter 2 type: System.Single']))
 
