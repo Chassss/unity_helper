@@ -16,7 +16,7 @@ class MonoClass():
         self._type:int = _type
         self._methods:list[MonoMethod] = []
         self._fields:list[MonoField] = []
-        self.instance:int = None
+        self._instance:int = None
 
     @property
     def name(self) -> str:
@@ -37,6 +37,19 @@ class MonoClass():
         Class type address in memory
         """
         return self._type
+    
+    @property
+    def instance(self) -> int:
+        """
+        Class instance address
+        """
+        return self._instance
+
+    @instance.setter
+    def instance(self, value:int):
+        if not isinstance(value, int):
+            raise TypeError("Instance must be an int")
+        self._instance = value
 
     def find_method(self, method_name:str, param_count:int=None, cache:bool=True) -> MonoMethod|None:
         """
@@ -104,36 +117,40 @@ class MonoClass():
             if i.name == field:
                 return i
 
-    def list_fields(self, cache=True) -> list[MonoField]|None:
+    def list_fields(self, cache=True) -> list[MonoField] | None:
         """
-        Retrieve a list of MonoField objects.
-
-        Args:
-            field (str): Name of the method, e.g., 'set_timeScale'.
-            
-        Returns:
-            list[MonoField]: A list containing MonoField objects.
-        """   
+        Retrieve a list of MonoField objects, including inherited fields.
+        """
         if cache and self._fields:
             return self._fields
-        
-        iterator = ctypes.c_void_p()
-        with self._il2cpp._attached_context():
-            while True:
-                field = self._il2cpp._il2cpp_class_get_fields(ctypes.c_void_p(self.__cls), ctypes.byref(iterator))
-                if not field:
-                    break
-                name_ptr = self._il2cpp._il2cpp_field_get_name(field)
-                name = name_ptr.decode() if name_ptr else ""
-                type_ptr = self._il2cpp._il2cpp_field_get_type(field)
-                type_name = self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else ""
-                is_static = (self._il2cpp._il2cpp_field_get_flags(field) & 0x0010) != 0
- 
-                monofield = MonoField(self, self._il2cpp, name, int(field), type_name, is_static)
 
-                if not any(i.name == monofield.name for i in self._fields):
-                    self._fields.append(monofield)
-                    
+        self._fields = []
+
+        with self._il2cpp._attached_context():
+            klass = ctypes.c_void_p(self.__cls)
+
+            while klass:
+                iterator = ctypes.c_void_p()
+
+                while True:
+                    field = self._il2cpp._il2cpp_class_get_fields(klass, ctypes.byref(iterator))
+                    if not field:
+                        break
+
+                    name_ptr = self._il2cpp._il2cpp_field_get_name(field)
+                    name = name_ptr.decode() if name_ptr else ""
+                    type_ptr = self._il2cpp._il2cpp_field_get_type(field)
+                    type_name = (self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else "")
+                    flags = self._il2cpp._il2cpp_field_get_flags(field)
+                    is_static = (flags & 0x0010) != 0
+                    monofield = MonoField(self, self._il2cpp, name, int(field), type_name, is_static, flags)
+
+                    if not any(i.name == monofield.name for i in self._fields):
+                        self._fields.append(monofield)
+
+                # move to parent class because classes can inherit fields from parents
+                klass = self._il2cpp._il2cpp_class_get_parent(klass)
+
         return self._fields
     
 
@@ -333,13 +350,14 @@ class MonoMethod():
             return None
         
 class MonoField():
-    def __init__(self, owner, il2cpp, name, ptr, type_name, is_static):
+    def __init__(self, owner, il2cpp, name, ptr, type_name, is_static, flags):
         self.__owner = owner
         self._il2cpp = il2cpp
         self._name:str = name
         self._ptr:int = ptr
         self._type:str = type_name
         self._is_static:bool = is_static
+        self.flags:int = flags
         self._type_dict = {
                 "System.Single": ctypes.c_float,
                 "System.Double": ctypes.c_double,
@@ -391,7 +409,9 @@ class MonoField():
         return self.__owner.instance
     
     @instance.setter
-    def instance(self, value):
+    def instance(self, value:int):
+        if not isinstance(value, int):
+            raise TypeError("instance must be an int")
         self.__owner.instance = value
 
         
@@ -416,7 +436,10 @@ class MonoField():
 
 
     @value.setter
-    def value(self, value):
+    def value(self, value:int):
+        if not isinstance(value, int):
+            raise TypeError("Value must be an int")
+
         if not self.__owner.instance and not self.is_static:
             pass
 
@@ -439,9 +462,11 @@ class MonoField():
 
 
     def __get_type(self, type_name) -> ctypes._SimpleCData|None:
-        
-        ret = self._type_dict[type_name]
-        if not ret:
-            ret = ctypes.c_void_p
+        try:
+            ret = self._type_dict.get(type_name)
+            if not ret:
+                ret = ctypes.c_void_p
 
-        return ret
+            return ret
+        except:
+            return ctypes.c_void_p # extra safety measures although it shouldnt error out either way
