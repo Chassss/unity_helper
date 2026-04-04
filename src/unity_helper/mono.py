@@ -451,9 +451,7 @@ class MonoField():
 
 
     @value.setter
-    def value(self, value:int):
-        if not isinstance(value, int):
-            raise TypeError("Value must be an int")
+    def value(self, value):
 
         if not self.__owner.instance and not self.is_static:
             pass
