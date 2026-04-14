@@ -755,7 +755,7 @@ class Object(UnityObject):
             return None
         
     @property
-    def activeSelf(self) -> bool|None:
+    def sceneCullingMask(self) -> bool|None:
         try:
             return self._il2cpp._UnityEngine_GameObject__get_sceneCullingMask(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_GameObject__get_sceneCullingMask'])
         except:
