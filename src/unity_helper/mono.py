@@ -10,7 +10,7 @@ from .objects import Object
 class MonoClass():
     def __init__(self, il2cpp, cls, name, object, _type):
         self._il2cpp:int = il2cpp
-        self.__cls:int = cls
+        self.cls:int = cls
         self._name:str = name
         self._object:int = object
         self._type:int = _type
@@ -86,7 +86,7 @@ class MonoClass():
         iterator = ctypes.c_void_p()
         with self._il2cpp._attached_context():
             while True:
-                method = self._il2cpp._il2cpp_class_get_methods(ctypes.c_void_p(self.__cls), ctypes.byref(iterator))
+                method = self._il2cpp._il2cpp_class_get_methods(ctypes.c_void_p(self.cls), ctypes.byref(iterator))
                 if not method:
                     break
                 name_ptr = self._il2cpp._il2cpp_method_get_name(method)
@@ -128,7 +128,7 @@ class MonoClass():
         self._fields = []
 
         with self._il2cpp._attached_context():
-            klass = ctypes.c_void_p(self.__cls)
+            klass = ctypes.c_void_p(self.cls)
 
             while klass:
                 iterator = ctypes.c_void_p()
