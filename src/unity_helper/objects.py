@@ -1177,13 +1177,12 @@ class Camera(Component):
             return None
 
 
-    def ScreenToViewportPoint(self) -> Vec3|None:
+    def ScreenToViewportPoint(self, pos:list|tuple|Vec3) -> Vec3|None:
         try:
-            mouse_pos = Vec3()
-            pos = Vec3()
-            self._il2cpp._UnityEngine_Input__get_mousePosition(ctypes.byref(mouse_pos), self._il2cpp._methodInfoData['_UnityEngine_Input__get_mousePosition'])
-            self._il2cpp._UnityEngine_Camera__ScreenToViewportPoint(ctypes.byref(pos), self.ptr, ctypes.pointer(mouse_pos), self._il2cpp._methodInfoData['_UnityEngine_Camera__ScreenToViewportPoint'])
-            return pos
+            pos = self._il2cpp._vec3_helper(pos)
+            viewport_pos = Vec3()
+            self._il2cpp._UnityEngine_Camera__ScreenToViewportPoint(ctypes.byref(viewport_pos), self.ptr, ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Camera__ScreenToViewportPoint'])
+            return viewport_pos
         except:
             return None
 
