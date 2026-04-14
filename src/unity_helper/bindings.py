@@ -189,7 +189,10 @@ class Bindings():
         self._UnityEngine_Camera__set_useOcclusionCulling = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Camera__set_useOcclusionCulling', self._camera, 'set_useOcclusionCulling'))
         self._UnityEngine_Camera__get_usePhysicalProperties = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Camera__get_orthographic', self._camera, 'get_orthographic'))
         self._UnityEngine_Camera__set_usePhysicalProperties = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Camera__set_usePhysicalProperties', self._camera, 'set_usePhysicalProperties'))
-
+        self._UnityEngine_Camera__ScreenPointToRay = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Ray), ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Camera__ScreenPointToRay', self._camera, 'ScreenPointToRay', param_count=1, param_types=['Parameter 0 type: UnityEngine.Vector3']))
+        self._UnityEngine_Camera__ScreenToWorldPoint = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Camera__ScreenToWorldPoint', self._camera, 'ScreenToWorldPoint', param_count=1, param_types=['Parameter 0 type: UnityEngine.Vector3']))
+        self._UnityEngine_Camera__ScreenToViewportPoint = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Camera__ScreenToViewportPoint', self._camera, 'ScreenToViewportPoint', param_count=1, param_types=['Parameter 0 type: UnityEngine.Vector3']))
+        self._UnityEngine_Camera__WorldToScreenPoint = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Camera__WorldToScreenPoint', self._camera, 'WorldToScreenPoint', param_count=1, param_types=['Parameter 0 type: UnityEngine.Vector3']))
 
         self._object = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine', 'Object')
 
@@ -280,7 +283,7 @@ class Bindings():
         self._UnityEngine_Physics_get_autoSimulation = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Physics_get_autoSimulation', self._physics, 'get_autoSimulation'))
         self._UnityEngine_Physics_set_autoSimulation = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Physics_set_autoSimulation', self._physics, 'set_autoSimulation'))
         self._UnityEngine_Physics_Raycast = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(Vec3), ctypes.POINTER(Vec3), ctypes.POINTER(RaycastHit), ctypes.c_float, ctypes.c_int, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Physics_Raycast', self._physics, 'Raycast', 5, ['Parameter 0 type: UnityEngine.Vector3', 'Parameter 1 type: UnityEngine.Vector3', 'Parameter 2 type: UnityEngine.RaycastHit&', 'Parameter 3 type: System.Single', 'Parameter 4 type: System.Int32']))
-
+        self._UnityEngine_Physics_RaycastRay = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(Ray), ctypes.POINTER(RaycastHit), ctypes.c_float, ctypes.c_int, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Physics_RaycastRay', self._physics, 'Raycast', 4, ['Parameter 0 type: UnityEngine.Ray', 'Parameter 1 type: UnityEngine.RaycastHit&', 'Parameter 2 type: System.Single', 'Parameter 3 type: System.Int32']))
 
         self._collider = self.get_class_from_name('UnityEngine.PhysicsModule.dll', 'UnityEngine', 'Collider')
         
@@ -292,3 +295,7 @@ class Bindings():
         self._UnityEngine_Collider_set_isTrigger = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Collider_set_isTrigger', self._collider, 'set_isTrigger'))
         self._UnityEngine_Collider_Raycast = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.POINTER(Ray), ctypes.POINTER(RaycastHit), ctypes.c_float, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Collider_Raycast', self._collider, 'Raycast', 3, ['Parameter 0 type: UnityEngine.Ray', 'Parameter 1 type: UnityEngine.RaycastHit&', 'Parameter 2 type: System.Single']))
 
+
+        self._input = self.get_class_from_name('UnityEngine.InputLegacyModule.dll', 'UnityEngine', 'Input')
+
+        self._UnityEngine_Input__get_mousePosition = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method('_UnityEngine_Input__get_mousePosition', self._input, 'get_mousePosition'))
