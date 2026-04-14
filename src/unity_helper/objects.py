@@ -67,6 +67,17 @@ class Physics(UnityObject):
             return result
         except:
             return None
+        
+    def RaycastRay(self, ray:Ray, maxDistance:float, layerMask:int) -> bool|RaycastHit|None:
+        try:
+            hitInfo = RaycastHit()
+            result = self._il2cpp._UnityEngine_Physics_RaycastRay(ctypes.pointer(ray), ctypes.byref(hitInfo), maxDistance, layerMask, self._il2cpp._methodInfoData['_UnityEngine_Physics_RaycastRay'])
+            if result:
+                hitInfo.collider = self._il2cpp._UnityEngine_Object__FindObjectFromInstanceID(hitInfo.collider, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectFromInstanceID'])
+                return hitInfo
+            return result
+        except:
+            return None
 
 class Rigidbody(UnityObject):
     """
@@ -1136,6 +1147,45 @@ class Camera(Component):
         except:
             pass
 
+    def ScreenPointToRay(self) -> Ray|None:
+        try:
+            ray = Ray()
+            pos = Vec3()
+            self._il2cpp._UnityEngine_Input__get_mousePosition(ctypes.byref(pos), self._il2cpp._methodInfoData['_UnityEngine_Input__get_mousePosition'])
+            self._il2cpp._UnityEngine_Camera__ScreenPointToRay(ctypes.byref(ray), self.ptr, ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Camera__ScreenPointToRay'])
+            return ray
+        except:
+            return None
+        
+    def ScreenToWorldPoint(self) -> Vec3|None:
+        try:
+            mouse_pos = Vec3()
+            pos = Vec3()
+            self._il2cpp._UnityEngine_Input__get_mousePosition(ctypes.byref(mouse_pos), self._il2cpp._methodInfoData['_UnityEngine_Input__get_mousePosition'])
+            self._il2cpp._UnityEngine_Camera__ScreenToWorldPoint(ctypes.byref(pos), self.ptr, ctypes.pointer(mouse_pos), self._il2cpp._methodInfoData['_UnityEngine_Camera__ScreenToWorldPoint'])
+            return pos
+        except:
+            return None
+        
+    def WorldToScreenPoint(self, pos:list|tuple|Vec3) -> Vec3|None:
+        try:
+            pos = self._il2cpp._vec3_helper(pos)
+            screen_pos = Vec3()
+            self._il2cpp._UnityEngine_Camera__WorldToScreenPoint(ctypes.byref(screen_pos), self.ptr, ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Camera__WorldToScreenPoint'])
+            return screen_pos
+        except:
+            return None
+
+
+    def ScreenToViewportPoint(self) -> Vec3|None:
+        try:
+            mouse_pos = Vec3()
+            pos = Vec3()
+            self._il2cpp._UnityEngine_Input__get_mousePosition(ctypes.byref(mouse_pos), self._il2cpp._methodInfoData['_UnityEngine_Input__get_mousePosition'])
+            self._il2cpp._UnityEngine_Camera__ScreenToViewportPoint(ctypes.byref(pos), self.ptr, ctypes.pointer(mouse_pos), self._il2cpp._methodInfoData['_UnityEngine_Camera__ScreenToViewportPoint'])
+            return pos
+        except:
+            return None
 
 class Collider(Component):
     @property
