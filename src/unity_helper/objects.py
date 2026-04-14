@@ -292,7 +292,7 @@ class Component(UnityObject):
 
     def destroy(self) -> None:
         try:
-            self._il2cpp._UnityEngine_Object__Destroy(self.ptr, 0, self._il2cpp._methodInfoData['_UnityEngine_Object__Destroy'])
+            self._il2cpp._UnityEngine_Object__Destroy(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Object__Destroy'])
             return 1
         except:
             return None
