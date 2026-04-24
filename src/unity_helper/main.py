@@ -19,13 +19,15 @@ class Il2cpp(Bindings):
     High-level wrapper for unity IL2CPP based games to be able to interact with its information.
 
     Args:
-        warn_on_missing (bool): If True, emits a warning when a built in requested method is not found; if False, missing methods fail silently.
+        warn_on_missing (bool): If True, emits a warning when a built in requested method is not found; if False, missing methods fail silently. Defaults to True.
+        init_il2cpp (bool): If True it manually calls il2cpp_init to prevent crashing when attemping to call functions that rely on il2cpp to be initialized first (may break some games). Defaults to True.
     """
     inst = None
-    def __init__(self, warn_on_missing:bool=True):
+    def __init__(self, warn_on_missing:bool=True, init_il2cpp:bool=True):
         self.game_asm = ctypes.WinDLL("GameAssembly.dll")
         self.PROCESS = Process()
         self.warn_on_missing = warn_on_missing
+        self.init_il2cpp = init_il2cpp
         Il2cpp.inst = self
         self._initialize()
 

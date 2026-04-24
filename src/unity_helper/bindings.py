@@ -60,6 +60,7 @@ class Bindings():
         return 0
 
     def _initialize(self):
+        self._il2cpp_init = self.__DO_API(self.game_asm.il2cpp_init, [], ctypes.c_void_p)
         self._il2cpp_domain_get = self.__DO_API(self.game_asm.il2cpp_domain_get, [], ctypes.c_void_p)
         self._il2cpp_thread_attach = self.__DO_API(self.game_asm.il2cpp_thread_attach, [ctypes.c_void_p], ctypes.c_void_p)
         self._il2cpp_thread_current = self.__DO_API(self.game_asm.il2cpp_thread_current, [], ctypes.c_void_p)
@@ -102,7 +103,10 @@ class Bindings():
         self._image_cache: dict[int, int] = {}
         self._methodInfoData: dict[str, int] = {}
         self._class_cache: list[MonoClass] = []
-    
+
+
+        if self.init_il2cpp:
+            self._il2cpp_init()
 
         self._component = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine', 'Component')
 
