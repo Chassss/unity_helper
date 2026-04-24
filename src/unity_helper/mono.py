@@ -10,7 +10,7 @@ from .objects import Object
 class MonoClass():
     def __init__(self, il2cpp, cls, name, object, _type):
         self._il2cpp:int = il2cpp
-        self.cls:int = cls
+        self._cls:int = cls
         self._name:str = name
         self._object:int = object
         self._type:int = _type
@@ -50,6 +50,14 @@ class MonoClass():
         if not isinstance(value, int):
             raise TypeError("Instance must be an int")
         self._instance = value
+
+    @property
+    def cls(self):
+        """
+        Class metadata pointer
+
+        """
+        return self._cls
 
     def find_method(self, method_name:str, param_count:int=None, cache:bool=True) -> MonoMethod|None:
         """
@@ -352,7 +360,7 @@ class MonoMethod():
             If the function succeeds the value is True otherwise its None 
         """
         try:
-            if not isinstance(code, str):
+            if isinstance(code, str):
                 code = self._il2cpp.PROCESS.assemble(code)
             return self._il2cpp.PROCESS.write_bytes(self.address + offset, code)
         except:
