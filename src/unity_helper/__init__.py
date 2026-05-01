@@ -18,5 +18,6 @@ from . import structures
 from . import mono
 from . import bindings
 from . import objects
+from . import memory
 
 __all__ = ["Il2cpp", "structures", "objects"]
