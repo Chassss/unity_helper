@@ -6,7 +6,7 @@ Reserved for internal use only.
 
 import ctypes, struct, re
 from .objects import Object
-from .memory import PAGE_GUARD, PAGE_NOACCESS, get_pages, read_bytes, is_64bit
+from .memory import get_pages, read_bytes, is_64bit
 
 class MonoClass():
     def __init__(self, il2cpp, cls, name, object, _type):
@@ -210,15 +210,14 @@ class MonoClass():
         found = []
         pages = get_pages()
 
-        for base, size, protect in pages:
-
-            if protect & PAGE_GUARD or protect == PAGE_NOACCESS:
+        for base, size in pages:
+            if size < len(target_bytes):
                 continue
 
             data = read_bytes(base, size)
             if not data:
                 continue
-
+            
             for match in pattern.finditer(data):
                 found.append(base + match.start())
 
