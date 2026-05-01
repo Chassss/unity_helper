@@ -4,8 +4,9 @@ Reserved for internal use only.
 """
 
 
-import ctypes
+import ctypes, struct, re
 from .objects import Object
+from .memory import PAGE_GUARD, PAGE_NOACCESS, get_pages, read_bytes, is_64bit
 
 class MonoClass():
     def __init__(self, il2cpp, cls, name, object, _type):
@@ -165,10 +166,10 @@ class MonoClass():
 
     def find_object_of_type(self, includeInactive=False) -> Object|None:
         """
-        Retreives a object baed on the current objects type
+        Retreives a object baed on the current objects type.
 
         Args:
-            includeInactive (bool): Whether to include incative objects or not
+            includeInactive (bool): Whether to include incative objects.
 
         Returns:
             Object: An object containing various methods and data for interacting with the object.
@@ -180,10 +181,10 @@ class MonoClass():
 
     def find_objects_of_type(self, includeInactive=False) -> list[Object]|None:
         """
-        Retreives a object baed on the current objects type
+        Retreives a object baed on the current objects type.
 
         Args:
-            includeInactive (bool): Whether to include incative objects or not
+            includeInactive (bool): Whether to include incative objects.
 
         Returns:
             list[Object]: A list containing Object objects.
@@ -194,6 +195,34 @@ class MonoClass():
             return objects
         except:
             return None
+
+    def get_instance_addresses(self) -> list[int]:
+        """
+        Retrieves instance addresses by scanning allocated memory.
+
+        Returns:
+            list[int]: A list of instance addresses.
+        """
+        fmt = "<Q" if is_64bit() else "<I"
+        target_bytes = struct.pack(fmt, self.cls)
+        pattern = re.compile(re.escape(target_bytes))
+
+        found = []
+        pages = get_pages()
+
+        for base, size, protect in pages:
+
+            if protect & PAGE_GUARD or protect == PAGE_NOACCESS:
+                continue
+
+            data = read_bytes(base, size)
+            if not data:
+                continue
+
+            for match in pattern.finditer(data):
+                found.append(base + match.start())
+
+        return found
 
 
 class MonoMethod():
