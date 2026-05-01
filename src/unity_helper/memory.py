@@ -23,6 +23,7 @@ _ReadProcessMemory.restype = ctypes.c_bool
 
 _VirtualQuery = ctypes.windll.kernel32.VirtualQuery
 
+_process_handle = ctypes.windll.kernel32.GetCurrentProcess()
 
 def is_64bit():
     if ctypes.sizeof(ctypes.c_void_p) == 8:
@@ -32,8 +33,7 @@ def is_64bit():
 def read_bytes(address, size):
     buff = ctypes.create_string_buffer(size)
 
-
-    if not _ReadProcessMemory(ctypes.windll.kernel32.GetCurrentProcess(), address, buff, size, None):
+    if not _ReadProcessMemory(_process_handle, address, buff, size, None):
         return None
     
     return buff.raw
@@ -53,9 +53,9 @@ def get_pages():
         if result == 0:
             break
 
-        if mbi.State == MEM_COMMIT:
-            regions.append((mbi.BaseAddress, mbi.RegionSize, mbi.Protect))
+        if mbi.State == MEM_COMMIT and mbi.Protect not in [PAGE_GUARD, PAGE_NOACCESS]:
+            regions.append((mbi.BaseAddress, mbi.RegionSize))
 
         address += mbi.RegionSize
-
+    
     return regions
