@@ -72,7 +72,7 @@ time = ref.get_class_from_name(
     'Time'
 )
 
-print('Time info:', time.name, time.object, time.type, time.instance)
+print('Time info:', time.cls, time.name, time.object, time.type, time.instance)
 
 for method in time.list_methods():
     print(
@@ -203,6 +203,10 @@ for clazz in ref.list_classes_in_image('Assembly-CSharp.dll'):
 - Calling a method via the built in __call__ can lead to unexpected behavior sometimes
 
 --
+
+## 📝 TODO
+- Eliminate the `pylocalmem` dependency by reimplementing all required functions in `memory.py` using `ReadProcessMemory`, ensuring crash safety.
+- Add functions to dump image data at runtime, similar to the `Il2CppDumper` tool.
 
 ## 📄 License
 
