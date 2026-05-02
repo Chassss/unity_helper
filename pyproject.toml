@@ -20,7 +20,7 @@ repository = "http://github.com/chassss/unity_helper"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
-pylocalmem = "^1.1.1"
+keystone-engine = "^0.9.2"
 
 [build-system]
 requires = ["poetry-core"]
