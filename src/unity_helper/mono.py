@@ -305,7 +305,18 @@ class MonoMethod():
         """
         return self._flags
     
-
+    @property
+    def instance(self) -> int:
+        """
+        Parent class instance address
+        """
+        return self.__owner.instance
+    
+    @instance.setter
+    def instance(self, value:int):
+        if not isinstance(value, int):
+            raise TypeError("instance must be an int")
+        self.__owner.instance = value
 
     def __call__(self, *args) -> int|ctypes._SimpleCData|None:
         with self._il2cpp._attached_context():
@@ -450,7 +461,7 @@ class MonoField():
     @property
     def instance(self) -> int:
         """
-        Class instance address
+        Parent class instance address
         """
         return self.__owner.instance
     
@@ -472,6 +483,9 @@ class MonoField():
         """
         Current value of the field
         """
+        if not self.__owner.instance and not self.is_static:
+            pass
+
         with self._il2cpp._attached_context():
 
             buf = (ctypes.c_byte * 8)()
