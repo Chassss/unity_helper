@@ -6,6 +6,7 @@ with Unity-based applications, including memory access, and runtime interaction.
 """
 
 import ctypes
+from . import memory
 from pylocalmem import Process
 from contextlib import contextmanager
 from .mono import MonoClass, MonoMethod
@@ -25,7 +26,7 @@ class Il2cpp(Bindings):
     inst = None
     def __init__(self, warn_on_missing:bool=True, init_il2cpp:bool=True):
         self.game_asm = ctypes.WinDLL("GameAssembly.dll")
-        self.PROCESS = Process()
+        self.memory = memory
         self.warn_on_missing = warn_on_missing
         self.init_il2cpp = init_il2cpp
         Il2cpp.inst = self
