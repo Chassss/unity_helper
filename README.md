@@ -205,7 +205,6 @@ for clazz in ref.list_classes_in_image('Assembly-CSharp.dll'):
 --
 
 ## 📝 TODO
-- Eliminate the `pylocalmem` dependency by reimplementing all required functions in `memory.py` using `ReadProcessMemory`, ensuring crash safety.
 - Add functions to dump image data at runtime, similar to the `Il2CppDumper` tool.
 
 ## 📄 License
