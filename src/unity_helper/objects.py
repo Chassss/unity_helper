@@ -290,7 +290,7 @@ class Component(UnityObject):
     def tag(self) -> str|None:
         try:
             addr = self._il2cpp._UnityEngine_Component__get_tag(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Component__get_tag'])
-            return self._il2cpp.PROCESS.read_unicode_string(addr + 0x14, self._il2cpp.PROCESS.read_int(addr + 0x10) * 2)
+            return self._il2cpp.memory.read_unicode_string(addr + 0x14, self._il2cpp.memory.read_int(addr + 0x10) * 2)
         except:
             return None
     
@@ -601,7 +601,7 @@ class Scene(UnityObject):
     def name(self) -> str|None:
         try:
             name_addr = self._il2cpp._UnityEngine_Scene__get_name(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Scene__get_name'])
-            return self._il2cpp.PROCESS.read_unicode_string(name_addr + 0x14, self._il2cpp.PROCESS.read_int(name_addr + 0x10) * 2)
+            return self._il2cpp.memory.read_unicode_string(name_addr + 0x14, self._il2cpp.memory.read_int(name_addr + 0x10) * 2)
         except:
             return None
     
@@ -609,7 +609,7 @@ class Scene(UnityObject):
     def path(self) -> str|None:
         try:
             name_addr = self._il2cpp._UnityEngine_Scene__get_path(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Scene__get_path'])
-            return self._il2cpp.PROCESS.read_unicode_string(name_addr + 0x14, self._il2cpp.PROCESS.read_int(name_addr + 0x10) * 2)
+            return self._il2cpp.memory.read_unicode_string(name_addr + 0x14, self._il2cpp.memory.read_int(name_addr + 0x10) * 2)
         except:
             return None
     
@@ -637,7 +637,7 @@ class Scene(UnityObject):
     def guid(self) -> str|None:
         try:
             name_addr = self._il2cpp._UnityEngine_Scene__get_guid(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Scene__get_guid'])
-            return self._il2cpp.PROCESS.read_unicode_string(name_addr + 0x14, self._il2cpp.PROCESS.read_int(name_addr + 0x10) * 2)
+            return self._il2cpp.memory.read_unicode_string(name_addr + 0x14, self._il2cpp.memory.read_int(name_addr + 0x10) * 2)
         except:
             return None
         
@@ -670,7 +670,7 @@ class Object(UnityObject):
     def name(self) -> str|None:
         try:
             name_addr = self._il2cpp._UnityEngine_Object__get_name(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Object__get_name'])
-            return self._il2cpp.PROCESS.read_unicode_string(name_addr + 0x14, self._il2cpp.PROCESS.read_int(name_addr + 0x10) * 2)
+            return self._il2cpp.memory.read_unicode_string(name_addr + 0x14, self._il2cpp.memory.read_int(name_addr + 0x10) * 2)
         except:
             return None
     
@@ -716,7 +716,7 @@ class Object(UnityObject):
     def tag(self) -> str|None:
         try:
             addr = self._il2cpp._UnityEngine_GameObject__get_tag(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_GameObject__get_tag'])
-            return self._il2cpp.PROCESS.read_unicode_string(addr + 0x14, self._il2cpp.PROCESS.read_int(addr + 0x10) * 2)
+            return self._il2cpp.memory.read_unicode_string(addr + 0x14, self._il2cpp.memory.read_int(addr + 0x10) * 2)
         except:
             return None
     

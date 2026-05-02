@@ -8,6 +8,7 @@ import ctypes, struct, re
 from .objects import Object
 from .memory import get_pages, read_bytes, is_64bit
 
+
 class MonoClass():
     def __init__(self, il2cpp, cls, name, object, _type):
         self._il2cpp:int = il2cpp
@@ -106,7 +107,7 @@ class MonoClass():
                 flags = self._il2cpp._il2cpp_method_get_flags(method, 0)
                 is_static = (flags & 0x0010) != 0
                 
-                method = MonoMethod(self, self._il2cpp, name, self._il2cpp.PROCESS.read_longlong(method), int(method), param_count, param_info, return_value, is_static, flags)
+                method = MonoMethod(self, self._il2cpp, name, self._il2cpp.memory.read_longlong(method), int(method), param_count, param_info, return_value, is_static, flags)
                 if not any(i.name == method.name and i.address == method.address for i in self._methods):
                     self._methods.append(method)
 
@@ -389,8 +390,8 @@ class MonoMethod():
         """
         try:
             if isinstance(code, str):
-                code = self._il2cpp.PROCESS.assemble(code)
-            return self._il2cpp.PROCESS.write_bytes(self.address + offset, code)
+                code = self._il2cpp.memory.assemble(code)
+            return self._il2cpp.memory.write_bytes(self.address + offset, code)
         except:
             return None
         
