@@ -181,18 +181,23 @@ class Il2cpp(Bindings):
             return None
         return data
         
-    def get_class_from_name(self, assembly_name:str, namespace:str, klass:str, cache:bool=True) -> MonoClass:
+    def get_class_from_name(self, assembly_name:str, klass:str, cache:bool=True) -> MonoClass:
         """
         Retrieve a MonoClass object by its name.
 
         Args:
             assembly_name (str): Name of the assembly, e.g., 'UnityEngine.PhysicsModule.dll'.
             namespace (str): Namespace of the class, e.g., 'UnityEngine'.
-            klass (str): Name of the class, e.g., 'Collider'.
+            klass (str): Fully qualified type name, e.g. 'UnityEngine.Collider'
 
         Returns:
             MonoClass: An object containing metadata about the class, including its methods, fields and properties.
         """
+        if '.' in klass:
+            namespace, klass = klass.rsplit('.', 1)
+        else:
+            namespace = ''
+
         if cache:
             if not self._class_cache:
                 self.list_classes_in_image(assembly_name)
@@ -221,14 +226,13 @@ class Il2cpp(Bindings):
 
             return monoclass
 
-    def find_method(self, assembly_name:str, namespace:str, klass:str, method_name:str, param_count:int|None = None, cache:bool = True) -> MonoMethod:
+    def find_method(self, assembly_name:str, klass:str, method_name:str, param_count:int|None = None, cache:bool = True) -> MonoMethod:
         """
         Retrieve a MonoMethod object given its name.
 
         Args:
             assembly_name (str): Name of the assembly, e.g., 'UnityEngine.PhysicsModule.dll'.
-            namespace (str): Namespace of the class, e.g., 'UnityEngine'.
-            klass (str): Name of the class, e.g., 'Collider'.
+            klass (str): Fully qualified type name, e.g. 'UnityEngine.Collider'
             method_name (str): Name of the method, e.g., 'get_enabled'.
             param_count (Optional[int], optional): Param count of the function, e.g., 5. Defaults to None.
             cache (bool, optional): Whether to cache the MonoClass object for faster future lookups. Defaults to True.
@@ -236,6 +240,11 @@ class Il2cpp(Bindings):
         Returns:
             MonoMethod: An object containing metadata about the method.
         """
+        if '.' in klass:
+            namespace, klass = klass.rsplit('.', 1)
+        else:
+            namespace = ''
+
         param_range = [param_count] if param_count is not None else range(0, 11)
         
         if cache and self._class_cache:
