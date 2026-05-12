@@ -59,7 +59,7 @@ def key_handler(key, modifiers=None):
 
 
 # Move is a relative move not an absolute move
-@hook(ctypes.CFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, unity_helper.structures.Vec3, ctypes.c_void_p), ref.find_method('UnityEngine.PhysicsModule.dll', 'UnityEngine', 'CharacterController', 'Move').address)
+@hook(ctypes.CFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, unity_helper.structures.Vec3, ctypes.c_void_p), ref.find_method('UnityEngine.PhysicsModule.dll', 'UnityEngine.CharacterController', 'Move').address)
 def HookedMove(this, pos, method):
     pos.x *= MULT
     # pos.y = pos.y * mult if pos.y > 0.0 else pos.y # Gives us superjump if we want

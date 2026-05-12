@@ -3,7 +3,7 @@ import unity_helper
 
 ref = unity_helper.Il2cpp()
 
-player = ref.get_class_from_name('Assembly-CSharp.dll', '', 'Player')
+player = ref.get_class_from_name('Assembly-CSharp.dll', 'Player')
 IsAIActive = player.find_method('IsAIActive')
 CanBeDamaged = player.find_method('CanBeDamaged')
 

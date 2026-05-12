@@ -25,9 +25,9 @@ player = None
 cam = None
 
 ref = unity_helper.Il2cpp()
-GetKey = ref.find_method('UnityEngine.InputLegacyModule.dll', 'UnityEngine', 'Input', 'GetKey') # Built in unity function
-CharacterController = ref.get_class_from_name('UnityEngine.PhysicsModule.dll', 'UnityEngine', 'CharacterController') # Built in unity function
-FirstPersonController = ref.get_class_from_name('Assembly-CSharp.dll', 'Player.Movement', 'FirstPersonController') # Game specific so you'll need to find out how your game does this
+GetKey = ref.find_method('UnityEngine.InputLegacyModule.dll', 'UnityEngine.Input.GetKey') # Built in unity function
+CharacterController = ref.get_class_from_name('UnityEngine.PhysicsModule.dll', 'UnityEngine.CharacterController') # Built in unity class
+FirstPersonController = ref.get_class_from_name('Assembly-CSharp.dll', 'Player.Movement.FirstPersonController') # Game specific so you'll need to find out how your game does this
 previouslyGrounded = FirstPersonController.find_field('_previouslyGrounded') # Game specific
 
 # Helper for a decorator

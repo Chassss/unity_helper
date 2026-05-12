@@ -36,8 +36,7 @@ ref = Il2cpp()
 # Get a Unity class
 time = ref.get_class_from_name(
     'UnityEngine.CoreModule.dll',
-    'UnityEngine',
-    'Time'
+    'UnityEngine.Time'
 )
 
 print(time.name)
@@ -68,8 +67,7 @@ pip install -U unity_helper
 ```python
 time = ref.get_class_from_name(
     'UnityEngine.CoreModule.dll',
-    'UnityEngine',
-    'Time'
+    'UnityEngine.Time'
 )
 
 print('Time info:', time.cls, time.name, time.object, time.type, time.instance)

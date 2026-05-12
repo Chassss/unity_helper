@@ -3,7 +3,7 @@ import unity_helper
 ref = unity_helper.Il2cpp()
 
 
-DevTools = ref.get_class_from_name('Assembly-CSharp.dll', '', 'DevTools')
+DevTools = ref.get_class_from_name('Assembly-CSharp.dll', 'DevTools')
 EnableDevTools = DevTools.find_field('EnableDevTools')
 
 
