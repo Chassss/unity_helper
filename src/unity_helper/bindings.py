@@ -45,12 +45,17 @@ class Bindings():
                     continue
 
                 if param_types is not None:
-                    if any(m.param_info[i] != v for i, v in enumerate(param_types)):
+                    if m.param_info != param_types:
                         continue
                 
                 # store methodInfo in dict for later use
                 self._methodInfoData[name] = m.methodInfo
                 return m.address
+            
+            if self.warn_on_missing:
+                print(f"Failed to find: {method_name} some built in features wont work")
+            
+            return 0
 
         except Exception as e:
             if self.warn_on_missing:
@@ -72,6 +77,7 @@ class Bindings():
         self._il2cpp_method_get_name = self.__DO_API(self.game_asm.il2cpp_method_get_name, [ctypes.c_void_p], ctypes.c_char_p)
         self._il2cpp_method_get_param_count = self.__DO_API(self.game_asm.il2cpp_method_get_param_count, [ctypes.c_void_p], ctypes.c_int)
         self._il2cpp_method_get_param = self.__DO_API(self.game_asm.il2cpp_method_get_param, [ctypes.c_void_p, ctypes.c_void_p], ctypes.c_void_p)
+        self._il2cpp_method_get_param_name = self.__DO_API(self.game_asm.il2cpp_method_get_param_name, [ctypes.c_void_p, ctypes.c_void_p], ctypes.c_char_p)
         self._il2cpp_runtime_invoke = self.__DO_API(self.game_asm.il2cpp_runtime_invoke, [ctypes.c_void_p, ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_void_p)], ctypes.c_void_p)
         self._il2cpp_class_get_fields = self.__DO_API(self.game_asm.il2cpp_class_get_fields, [ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p)], ctypes.c_void_p)
         self._il2cpp_field_get_name = self.__DO_API(self.game_asm.il2cpp_field_get_name, [ctypes.c_void_p], ctypes.c_char_p)
@@ -110,7 +116,7 @@ class Bindings():
 
         self._component = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine.Component')
 
-        self._UnityEngine_Component__GetComponent = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Component__GetComponent', self._component, 'GetComponent', 1, ['Parameter 0 type: System.String']))
+        self._UnityEngine_Component__GetComponent = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Component__GetComponent', self._component, 'GetComponent', 1, 'System.Type type'))
         self._UnityEngine_Component__get_transform = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Component__get_transform', self._component, 'get_transform'))
         self._UnityEngine_Component__get_gameObject = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Component__get_gameObject', self._component, 'get_gameObject'))
         self._UnityEngine_Component__get_tag = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Component__get_tag', self._component, 'get_tag'))
@@ -119,8 +125,8 @@ class Bindings():
 
         self._gameobject = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine.GameObject')
 
-        self._UnityEngine_GameObject__GetComponents = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_GameObject__GetComponents', self._gameobject, 'GetComponents', 1, ['Parameter 0 type: System.Type']))
-        self._UnityEngine_GameObject__AddComponent = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_GameObject__AddComponent', self._gameobject, 'AddComponent', 1, ['Parameter 0 type: System.Type']))
+        self._UnityEngine_GameObject__GetComponents = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_GameObject__GetComponents', self._gameobject, 'GetComponents', 1, 'System.Type type'))
+        self._UnityEngine_GameObject__AddComponent = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_GameObject__AddComponent', self._gameobject, 'AddComponent', 1, 'System.Type type'))
         self._UnityEngine_GameObject__Find = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__Find', self._gameobject, 'Find'))
         self._UnityEngine_GameObject__FindGameObjectWithTag = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__FindGameObjectWithTag', self._gameobject, 'FindGameObjectWithTag'))
         self._UnityEngine_GameObject__SetActive = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__SetActive', self._gameobject, 'SetActive'))
@@ -134,7 +140,7 @@ class Bindings():
         self._UnityEngine_GameObject__get_activeInHierarchy = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_activeInHierarchy', self._gameobject, 'get_activeInHierarchy'))
         self._UnityEngine_GameObject__get_activeSelf = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_activeSelf', self._gameobject, 'get_activeSelf'))
         self._UnityEngine_GameObject__get_sceneCullingMask = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_sceneCullingMask', self._gameobject, 'get_sceneCullingMask'))
-        self._UnityEngine_GameObject__GetComponent = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_GameObject__GetComponent', self._gameobject, 'GetComponent', 1, ['Parameter 0 type: System.Type']))
+        self._UnityEngine_GameObject__GetComponent = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_GameObject__GetComponent', self._gameobject, 'GetComponent', 1, 'System.Type type'))
 
         self._behaviour = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine.Behaviour')
 
@@ -193,14 +199,14 @@ class Bindings():
         self._UnityEngine_Camera__set_useOcclusionCulling = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Camera__set_useOcclusionCulling', self._camera, 'set_useOcclusionCulling'))
         self._UnityEngine_Camera__get_usePhysicalProperties = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Camera__get_orthographic', self._camera, 'get_orthographic'))
         self._UnityEngine_Camera__set_usePhysicalProperties = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Camera__set_usePhysicalProperties', self._camera, 'set_usePhysicalProperties'))
-        self._UnityEngine_Camera__ScreenPointToRay = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Ray), ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Camera__ScreenPointToRay', self._camera, 'ScreenPointToRay', param_count=1, param_types=['Parameter 0 type: UnityEngine.Vector3']))
-        self._UnityEngine_Camera__ScreenToWorldPoint = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Camera__ScreenToWorldPoint', self._camera, 'ScreenToWorldPoint', param_count=1, param_types=['Parameter 0 type: UnityEngine.Vector3']))
-        self._UnityEngine_Camera__ScreenToViewportPoint = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Camera__ScreenToViewportPoint', self._camera, 'ScreenToViewportPoint', param_count=1, param_types=['Parameter 0 type: UnityEngine.Vector3']))
-        self._UnityEngine_Camera__WorldToScreenPoint = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Camera__WorldToScreenPoint', self._camera, 'WorldToScreenPoint', param_count=1, param_types=['Parameter 0 type: UnityEngine.Vector3']))
+        self._UnityEngine_Camera__ScreenPointToRay = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Ray), ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Camera__ScreenPointToRay', self._camera, 'ScreenPointToRay', param_count=1, param_types='UnityEngine.Vector3 pos'))
+        self._UnityEngine_Camera__ScreenToWorldPoint = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Camera__ScreenToWorldPoint', self._camera, 'ScreenToWorldPoint', param_count=1, param_types='UnityEngine.Vector3 pos'))
+        self._UnityEngine_Camera__ScreenToViewportPoint = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Camera__ScreenToViewportPoint', self._camera, 'ScreenToViewportPoint', param_count=1, param_types='UnityEngine.Vector3 pos'))
+        self._UnityEngine_Camera__WorldToScreenPoint = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Camera__WorldToScreenPoint', self._camera, 'WorldToScreenPoint', param_count=1, param_types='UnityEngine.Vector3 pos'))
 
         self._object = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine.Object')
 
-        self._UnityEngine_Object__Instantiate = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Object__Instantiate', self._object, 'Instantiate', 1, ['Parameter 0 type: UnityEngine.Object']))
+        self._UnityEngine_Object__Instantiate = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Object__Instantiate', self._object, 'Instantiate', 1, 'UnityEngine.Object original'))
         self._UnityEngine_Object__FindObjectOfType = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Object__FindObjectOfType', self._object, 'FindObjectOfType', param_count=2))
         self._UnityEngine_Object__FindObjectsOfType = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Object__FindObjectsOfType', self._object, 'FindObjectsOfType', param_count=2))
         self._UnityEngine_Object__get_name = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Object__get_name', self._object, 'get_name'))
@@ -286,8 +292,8 @@ class Bindings():
         self._UnityEngine_Physics_Simulate = ctypes.WINFUNCTYPE(None, ctypes.c_float, ctypes.c_void_p)(self.__find_method('_UnityEngine_Physics_Simulate', self._physics, 'Simulate'))
         self._UnityEngine_Physics_get_autoSimulation = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Physics_get_autoSimulation', self._physics, 'get_autoSimulation'))
         self._UnityEngine_Physics_set_autoSimulation = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Physics_set_autoSimulation', self._physics, 'set_autoSimulation'))
-        self._UnityEngine_Physics_Raycast = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(Vec3), ctypes.POINTER(Vec3), ctypes.POINTER(RaycastHit), ctypes.c_float, ctypes.c_int, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Physics_Raycast', self._physics, 'Raycast', 5, ['Parameter 0 type: UnityEngine.Vector3', 'Parameter 1 type: UnityEngine.Vector3', 'Parameter 2 type: UnityEngine.RaycastHit&', 'Parameter 3 type: System.Single', 'Parameter 4 type: System.Int32']))
-        self._UnityEngine_Physics_RaycastRay = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(Ray), ctypes.POINTER(RaycastHit), ctypes.c_float, ctypes.c_int, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Physics_RaycastRay', self._physics, 'Raycast', 4, ['Parameter 0 type: UnityEngine.Ray', 'Parameter 1 type: UnityEngine.RaycastHit&', 'Parameter 2 type: System.Single', 'Parameter 3 type: System.Int32']))
+        self._UnityEngine_Physics_Raycast = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(Vec3), ctypes.POINTER(Vec3), ctypes.POINTER(RaycastHit), ctypes.c_float, ctypes.c_int, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Physics_Raycast', self._physics, 'Raycast', 5, 'UnityEngine.Vector3 origin UnityEngine.Vector3 direction UnityEngine.RaycastHit* hitInfo System.Single maxDistance System.Int32 layerMask'))
+        self._UnityEngine_Physics_RaycastRay = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(Ray), ctypes.POINTER(RaycastHit), ctypes.c_float, ctypes.c_int, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Physics_RaycastRay', self._physics, 'Raycast', 4, 'UnityEngine.Ray ray UnityEngine.RaycastHit* hitInfo System.Single maxDistance System.Int32 layerMask'))
 
         self._collider = self.get_class_from_name('UnityEngine.PhysicsModule.dll', 'UnityEngine.Collider')
         
@@ -297,7 +303,7 @@ class Bindings():
         self._UnityEngine_Collider_set_enabled = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Collider_set_enabled', self._collider, 'set_enabled'))
         self._UnityEngine_Collider_get_isTrigger = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Collider_get_isTrigger', self._collider, 'get_isTrigger'))
         self._UnityEngine_Collider_set_isTrigger = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_Collider_set_isTrigger', self._collider, 'set_isTrigger'))
-        self._UnityEngine_Collider_Raycast = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.POINTER(Ray), ctypes.POINTER(RaycastHit), ctypes.c_float, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Collider_Raycast', self._collider, 'Raycast', 3, ['Parameter 0 type: UnityEngine.Ray', 'Parameter 1 type: UnityEngine.RaycastHit&', 'Parameter 2 type: System.Single']))
+        self._UnityEngine_Collider_Raycast = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.POINTER(Ray), ctypes.POINTER(RaycastHit), ctypes.c_float, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_Collider_Raycast', self._collider, 'Raycast', 3,  'UnityEngine.Ray ray UnityEngine.RaycastHit* hitInfo System.Single maxDistance'))
 
 
         self._input = self.get_class_from_name('UnityEngine.InputLegacyModule.dll', 'UnityEngine.Input')

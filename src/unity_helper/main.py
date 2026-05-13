@@ -187,7 +187,6 @@ class Il2cpp(Bindings):
 
         Args:
             assembly_name (str): Name of the assembly, e.g., 'UnityEngine.PhysicsModule.dll'.
-            namespace (str): Namespace of the class, e.g., 'UnityEngine'.
             klass (str): Fully qualified type name, e.g. 'UnityEngine.Collider'
 
         Returns:
@@ -423,3 +422,29 @@ class Il2cpp(Bindings):
                 assemblies.append(name)
 
         return assemblies
+    
+    def dump_methods(self, image:str) -> dict:
+        classes = self.list_classes_in_image(image)
+
+        base_dict = {"ScriptMethod": [], "Addresses": []}
+
+        if not classes:
+            return None
+        
+        base = self.memory.get_module_handle('gameassembly.dll')
+
+        if not base:
+            return None
+
+        for i in classes:
+            methods = i.list_methods()
+            for method in methods:
+                signature = f'{method.return_value} {i.name.replace('.', '_')}__{method.name} ({method.signature});'
+                base_dict['ScriptMethod'].append({"Address": method.address - base, "Name": f'{i.name.replace('.', '_')}$${method.name}', "Signature": signature})
+                base_dict['Addresses'].append(method.address - base)
+
+        return base_dict
+
+    # def dump_cs(self, image:str) -> str:
+    #     # TODO
+    #     ...

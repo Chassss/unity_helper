@@ -147,12 +147,14 @@ class MonoClass():
                 name_ptr = self._il2cpp._il2cpp_method_get_name(method)
                 name = name_ptr.decode() if name_ptr else ""
                 param_count = self._il2cpp._il2cpp_method_get_param_count(method)
-                param_info = [f"Parameter {i} type: " + self._il2cpp._il2cpp_type_get_name(self._il2cpp._il2cpp_method_get_param(method, i)).decode() for i in range(param_count)]
+                param_info = ' '.join([f'{self._il2cpp._il2cpp_type_get_name(self._il2cpp._il2cpp_method_get_param(method, i)).decode()} {self._il2cpp._il2cpp_method_get_param_name(method, i).decode()}' for i in range(param_count)]).replace('&', '*')
+
                 return_value = self._il2cpp._il2cpp_type_get_name(self._il2cpp._il2cpp_method_get_return_type(method)).decode()
+                signature = f'{return_value} {self.name.replace('.', '_')}__{name} ({self.name.replace('.', '_')}_o* __this {param_info} const MethoInfo* method);'
                 flags = self._il2cpp._il2cpp_method_get_flags(method, 0)
                 is_static = (flags & 0x0010) != 0
                 
-                method = MonoMethod(self, self._il2cpp, name, self._il2cpp.memory.read_longlong(method), int(method), param_count, param_info, return_value, is_static, flags)
+                method = MonoMethod(self, self._il2cpp, name, self._il2cpp.memory.read_longlong(method), int(method), param_count, param_info, signature, return_value, is_static, flags)
                 if not any(i.name == method.name and i.address == method.address for i in self._methods):
                     self._methods.append(method)
 
@@ -271,7 +273,7 @@ class MonoClass():
 
 
 class MonoMethod():
-    def __init__(self, owner, il2cpp, name, address, methodInfo, param_count, param_info, return_value, is_static, flags):
+    def __init__(self, owner, il2cpp, name, address, methodInfo, param_count, param_info, signature, return_value, is_static, flags):
         self._il2cpp = il2cpp
         self.__owner = owner
         self._type_dict = {
@@ -296,6 +298,7 @@ class MonoMethod():
         self._methodInfo:int = methodInfo
         self._param_count:int = param_count
         self._param_info:list = param_info
+        self._signature:str = signature
         self._return_value:str = return_value
         self._is_static:bool = is_static
         self._flags:int = flags
@@ -325,11 +328,17 @@ class MonoMethod():
         """
         return self._param_count
     @property
-    def param_info(self) -> list[str]:
+    def param_info(self) -> str:
         """
         Information about the passed in parameters if any
         """
         return self._param_info
+    @property
+    def signature(self) -> str:
+        """
+        Full signature of the function
+        """
+        return self._signature
     @property
     def return_value(self) -> str:
         """

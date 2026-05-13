@@ -28,6 +28,10 @@ _WriteProcessMemory.restype = ctypes.c_int
 
 _VirtualQuery = ctypes.windll.kernel32.VirtualQuery
 
+_GetModuleHandleW = ctypes.windll.kernel32.GetModuleHandleW
+_GetModuleHandleW.argtypes = [ctypes.c_wchar_p]
+_GetModuleHandleW.restype = ctypes.c_void_p
+
 _process_handle = ctypes.windll.kernel32.GetCurrentProcess()
 
 def is_64bit():
@@ -177,3 +181,6 @@ def get_pages() -> list[int, int]:
         address += mbi.RegionSize
     
     return regions
+
+def get_module_handle(module:str) -> int:
+    return _GetModuleHandleW(module)
