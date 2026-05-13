@@ -257,7 +257,7 @@ class Il2cpp(Bindings):
                                 return method
                             
 
-        cls = self.get_class_from_name(assembly_name, namespace, klass)
+        cls = self.get_class_from_name(assembly_name, klass)
         methods = cls.list_methods()
         for method in methods:
             for count in param_range:
