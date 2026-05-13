@@ -91,6 +91,7 @@ for method in time.list_methods():
 import ctypes
 
 set_timeScale = time.find_method('set_timeScale')
+set_timeScale = time.method.set_timeScale # Getting a method the lazy way
 
 if not set_timeScale.is_static:
     time.instance = 123456789
@@ -118,6 +119,8 @@ for field in time.list_fields():
     print('Field:', field.name, field.type, field.is_static)
 
 example_field = time.find_field('example_field')
+example_field = time.field.example_field # Getting a field the lazy way
+
 
 if not example_field.is_static:
     time.instance = 123456789
