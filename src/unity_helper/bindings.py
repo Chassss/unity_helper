@@ -126,7 +126,7 @@ class Bindings():
         self._gameobject = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine.GameObject')
 
         self._UnityEngine_GameObject__GetComponents = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_GameObject__GetComponents', self._gameobject, 'GetComponents', 1, 'System.Type type'))
-        self._UnityEngine_GameObject__AddComponent = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_GameObject__AddComponent', self._gameobject, 'AddComponent', 1, 'System.Type type'))
+        self._UnityEngine_GameObject__AddComponent = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_GameObject__AddComponent', self._gameobject, 'AddComponent', 1, 'System.Type componentType'))
         self._UnityEngine_GameObject__Find = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__Find', self._gameobject, 'Find'))
         self._UnityEngine_GameObject__FindGameObjectWithTag = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__FindGameObjectWithTag', self._gameobject, 'FindGameObjectWithTag'))
         self._UnityEngine_GameObject__SetActive = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__SetActive', self._gameobject, 'SetActive'))
