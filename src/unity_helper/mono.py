@@ -9,6 +9,32 @@ from .objects import Object
 from .memory import get_pages, read_bytes, is_64bit
 
 
+class _FieldAccessor:
+    def __init__(self, mono_class):
+        self._mono_class = mono_class
+
+    def __getattr__(self, name) -> MonoField:
+        field = self._mono_class.find_field(name)
+
+        if field is None:
+            raise AttributeError(name)
+
+        return field
+
+
+class _MethodAccessor:
+    def __init__(self, mono_class):
+        self._mono_class = mono_class
+
+    def __getattr__(self, name) -> MonoMethod:
+        method = self._mono_class.find_method(name)
+
+        if method is None:
+            raise AttributeError(name)
+
+        return method
+
+
 class MonoClass():
     def __init__(self, il2cpp, cls, name, object, _type):
         self._il2cpp:int = il2cpp
@@ -23,7 +49,7 @@ class MonoClass():
     @property
     def name(self) -> str:
         """
-        Namespace + class name of the monoclass
+        Full name of the monoclass
         """
         return self._name
     
@@ -60,6 +86,22 @@ class MonoClass():
 
         """
         return self._cls
+    
+    @property
+    def field(self):
+        """
+        Provides attribute-style access to class fields.
+        """
+
+        return _FieldAccessor(self)
+    
+    @property
+    def method(self):
+        """
+        Provides attribute-style access to class fields.
+        """
+
+        return _MethodAccessor(self)
 
     def find_method(self, method_name:str, param_count:int=None, cache:bool=True) -> MonoMethod|None:
         """
@@ -78,7 +120,10 @@ class MonoClass():
             param_range = [param_count] if param_count is not None else range(0, 11)
             for count in param_range:
                 for method in methods:
-                    if method.name == method_name and method.param_count == count:
+                    if method.name != method_name:
+                        continue
+
+                    if method.param_count == count:
                         return method
 
     def list_methods(self, cache=True) -> list[MonoMethod]|None:
