@@ -439,8 +439,7 @@ class Il2cpp(Bindings):
         for i in classes:
             methods = i.list_methods()
             for method in methods:
-                signature = f'{method.return_value} {i.name.replace('.', '_')}__{method.name} ({method.signature});'
-                base_dict['ScriptMethod'].append({"Address": method.address - base, "Name": f'{i.name.replace('.', '_')}$${method.name}', "Signature": signature})
+                base_dict['ScriptMethod'].append({"Address": method.address - base, "Name": f'{i.name.replace('.', '_')}$${method.name}', "Signature": method.signature})
                 base_dict['Addresses'].append(method.address - base)
 
         return base_dict
