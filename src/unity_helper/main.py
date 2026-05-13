@@ -443,7 +443,3 @@ class Il2cpp(Bindings):
                 base_dict['Addresses'].append(method.address - base)
 
         return base_dict
-
-    # def dump_cs(self, image:str) -> str:
-    #     # TODO
-    #     ...

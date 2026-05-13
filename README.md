@@ -206,7 +206,7 @@ for clazz in ref.list_classes_in_image('Assembly-CSharp.dll'):
 --
 
 ## 📝 TODO
-- Add functions to dump image data at runtime, similar to the `Il2CppDumper` tool.
+
 
 ## 📄 License
 
