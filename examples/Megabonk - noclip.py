@@ -14,7 +14,7 @@ WM_KEYDOWN = 0x0100
 toggled = False
 
 ref = unity_helper.Il2cpp()
-GetKey = ref.find_method('UnityEngine.InputLegacyModule.dll', 'UnityEngine.Input.GetKey') # Built in unity function
+GetKey = ref.find_method('UnityEngine.InputLegacyModule.dll', 'UnityEngine.Input', 'GetKey') # Built in unity function
 PlayerMovement = ref.get_class_from_name('Assembly-CSharp.dll', 'PlayerMovement') # Game specific
 NoclipMovement = PlayerMovement.find_method('NoclipMovement') # Game specific
 
