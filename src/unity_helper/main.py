@@ -7,7 +7,6 @@ with Unity-based applications, including memory access, and runtime interaction.
 
 import ctypes
 from . import memory
-from pylocalmem import Process
 from contextlib import contextmanager
 from .mono import MonoClass, MonoMethod
 from .objects import Camera, Object
