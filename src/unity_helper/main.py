@@ -239,17 +239,11 @@ class Il2cpp(Bindings):
         Returns:
             MonoMethod: An object containing metadata about the method.
         """
-        if '.' in klass:
-            namespace, klass = klass.rsplit('.', 1)
-        else:
-            namespace = ''
-
         param_range = [param_count] if param_count is not None else range(0, 11)
         
         if cache and self._class_cache:
-            name = ".".join(filter(None, [namespace, klass]))
             for clazz in self._class_cache:
-                if clazz.name == name:
+                if clazz.name == klass:
                     for method in clazz.list_methods():
                         for count in param_range:
                             if method.name == method_name and method.param_count == count:
