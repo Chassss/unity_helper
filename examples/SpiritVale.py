@@ -6,29 +6,26 @@ from typing import Callable, TypeVar, Protocol, Any, ParamSpec
 
 # 1. Run game
 # 2. Join a server and pick your character
-# 3. Sit down (press x)
-# 4. Move your cursor where you want to teleport to
-# 5. Run this script
-# 6 (optional, read the bottom of the file). Press right shift to teleport around 
+# 3. Move your cursor where you want to teleport to
+# 4. Run this script
+# 5 (optional, read the bottom of the file). Press right shift to teleport around 
 
 
-TP_HOTKEY = 16 # rshift
 EXIT_HOOKS_HOTKEY = 35 # end
 
 
 ref = unity_helper.Il2cpp(warn_on_missing=False)
 
-MoveComponent = ref.get_class_from_name('Assembly-CSharp.dll', 'MoveComponent')
-isSitting = MoveComponent.field.IsSitting
-BaseSpeed = MoveComponent.field.BaseSpeed
-physics = unity_helper.objects.Physics()
-
+Physics = unity_helper.objects.Physics()
+NetworkObject = ref.get_class_from_name('FishNet.Runtime.dll', 'FishNet.Object.NetworkObject')
+HasAuthority = NetworkObject.method.get_HasAuthority
 
 
 P = ParamSpec("P")
 R = TypeVar("R")
 __ACTIVE_HOOKS = []
 WM_KEYDOWN = 0x0100
+WM_MBUTTONDOWN = 0x0207
 
 class HookedFunction(Protocol[P, R]):
     original: Callable[P, R]
@@ -70,9 +67,6 @@ def key_handler(key, modifiers=None):
         for i in __ACTIVE_HOOKS:
             i.close()
 
-    elif key == 16:
-        tp()
-
 
 def tp():
     cam = ref.get_mainCamera()
@@ -83,14 +77,14 @@ def tp():
     if not ray:
         return
     
-    result = physics.RaycastRay(ray, 9999, -1) # Create our ray so we can raycast
+    result = Physics.RaycastRay(ray, 9999, -1) # Create our ray so we can raycast
 
     if result: # Result returns non False if a hit was made
-        for comp in MoveComponent.find_objects_of_type():
-            MoveComponent.instance = comp.ptr
-            
-            if isSitting.value == True and BaseSpeed.value == 7.5:
-                comp = unity_helper.objects.Component(comp.ptr)
+        for i in NetworkObject.find_objects_of_type(): # Get all network objects 
+            NetworkObject.instance = i.ptr
+            if HasAuthority(): # Check if we are the owner of the network object
+
+                comp = unity_helper.objects.Component(i.ptr)
                 player = comp.gameObject
                 
                 NavMeshAgent = None # Define this for when we try and access it later
@@ -122,4 +116,6 @@ tp()
 #     normal = HookedDispatchMessageW.original(lpMsg)
 #     if lpMsg[0].message == WM_KEYDOWN:
 #         key_handler(lpMsg[0].wParam, lpMsg[0].lParam)
+#     elif lpMsg[0].message == WM_MBUTTONDOWN:
+#         tp()
 #     return normal
