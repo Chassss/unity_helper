@@ -8,7 +8,7 @@ from typing import Callable, TypeVar, Protocol, Any, ParamSpec
 # 2. Join a server and pick your character
 # 3. Move your cursor where you want to teleport to
 # 4. Run this script
-# 5 (optional, read the bottom of the file). Press right shift to teleport around 
+# 5 (optional, read the bottom of the file). Press middle mouse to teleport around 
 
 
 EXIT_HOOKS_HOTKEY = 35 # end
