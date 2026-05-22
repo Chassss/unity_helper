@@ -12,7 +12,7 @@ from .mono import MonoClass, MonoMethod
 from .objects import Camera, Object
 from .bindings import Bindings
 from .structures import Il2CppArray, Vec3, Il2CppAssembly, Quaternion, Color, Vec2, Rect
-
+from .constants import TYPE_ATTRIBUTE_ABSTRACT as _TYPE_ATTRIBUTE_ABSTRACT, TYPE_ATTRIBUTE_SEALED as _TYPE_ATTRIBUTE_SEALED
 
 class Il2cpp(Bindings):
     """
@@ -134,7 +134,7 @@ class Il2cpp(Bindings):
         """
         if isinstance(data, (list, tuple)):
             x,y = data
-            data = Vec3(x,y)
+            data = Vec2(x,y)
         elif isinstance(data, (Vec2)):
             return data
         else:
@@ -217,8 +217,10 @@ class Il2cpp(Bindings):
             
             type_ = self._il2cpp_class_get_type(ctypes.c_void_p(cls))
             type_obj = self._il2cpp_type_get_object(type_)
+            flags = self._il2cpp_class_get_flags(cls)
+            is_static = ((flags & _TYPE_ATTRIBUTE_ABSTRACT) != 0 and (flags & _TYPE_ATTRIBUTE_SEALED) != 0)
 
-            monoclass = MonoClass(self, int(cls), klass, type_obj, type_)
+            monoclass = MonoClass(self, int(cls), klass, type_obj, type_, is_static)
             if not any(i.name == monoclass.name and i.cls == monoclass.cls for i in self._class_cache):
                 self._class_cache.append(monoclass)
 
@@ -331,6 +333,24 @@ class Il2cpp(Bindings):
         except:
             return None
         
+
+    def find_objects_with_tag(self, tag_str:str) -> list[Object]:
+        """
+        Retreives a list of objects based on the given name
+
+        Args:
+            tag_str (str): Object name e.g., 'Player'
+
+        Returns:
+            List[Object]: A list containing object objects.
+        """
+        try:
+            arr = self._UnityEngine_GameObject__FindGameObjectsWithTag(self._il2cpp_string_new(tag_str.encode()), self._methodInfoData['_UnityEngine_GameObject__FindGameObjectsWithTag'])
+            objs = [Object(i) for i in self._read_il2cpp_array(arr) if i]
+            return objs
+        except:
+            return None
+        
     def list_classes_in_image(self, assembly_name:str) -> list[MonoClass]:
         """
         Retrieves a List containing MonoClass objects of each class in an imagine
@@ -364,8 +384,10 @@ class Il2cpp(Bindings):
                 type_obj = self._il2cpp_type_get_object(type_)
                 
                 full_name = ".".join(filter(None, [cls_namespace, cls_name]))
+                flags = self._il2cpp_class_get_flags(cls_ptr)
+                is_static = ((flags & _TYPE_ATTRIBUTE_ABSTRACT) != 0 and (flags & _TYPE_ATTRIBUTE_SEALED) != 0)
 
-                cls = MonoClass(self, cls_ptr, full_name, type_obj, type_)
+                cls = MonoClass(self, cls_ptr, full_name, type_obj, type_, is_static)
                 
                 if not any(i.name == cls.name and i.object == i.object for i in self._class_cache):
                     self._class_cache.append(cls)

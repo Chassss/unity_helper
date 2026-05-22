@@ -7,6 +7,8 @@ Reserved for internal use only.
 import ctypes, struct, re
 from .objects import Object
 from .memory import get_pages, read_bytes, is_64bit
+from .constants import TYPE_CTYPE_MAP as _TYPE_CTYPE_MAP, METHOD_ATTRIBUTE_STATIC as _METHOD_ATTRIBUTE_STATIC, FIELD_ATTRIBUTE_STATIC as _FIELD_ATTRIBUTE_STATIC
+from functools import cached_property
 
 
 class _FieldAccessor:
@@ -36,12 +38,13 @@ class _MethodAccessor:
 
 
 class MonoClass():
-    def __init__(self, il2cpp, cls, name, object, _type):
+    def __init__(self, il2cpp, cls, name, object, _type, is_static):
         self._il2cpp:int = il2cpp
         self._cls:int = cls
         self._name:str = name
         self._object:int = object
         self._type:int = _type
+        self._is_static:bool = is_static
         self._methods:list[MonoMethod] = []
         self._fields:list[MonoField] = []
         self._instance:int = None
@@ -102,6 +105,36 @@ class MonoClass():
         """
 
         return _MethodAccessor(self)
+    
+    @property
+    def is_static(self) -> bool:
+        """
+        If the class is a static class or a instance class.
+        """
+        return self._is_static
+    
+    @cached_property
+    def traits(self):
+        """
+        Class information like Enum, Abstract, etc.
+        """
+        def get(call, default=None):
+            try:
+                return call(self.cls)
+            except Exception:
+                return default
+
+        return {
+            "Enum": get(self._il2cpp._il2cpp_class_is_enum, False),
+            "Interface": get(self._il2cpp._il2cpp_class_is_interface, False),
+            "Abstract": get(self._il2cpp._il2cpp_class_is_abstract, False),
+            "ValueType": get(self._il2cpp._il2cpp_class_is_valuetype, False),
+
+            "Generic": get(self._il2cpp._il2cpp_class_is_generic, False),
+            "Inflated": get(self._il2cpp._il2cpp_class_is_inflated, False),
+
+            "DeclaringType": get(self._il2cpp._il2cpp_class_get_declaring_type, None),
+        }
 
     def find_method(self, method_name:str, param_count:int=None, cache:bool=True) -> MonoMethod|None:
         """
@@ -152,7 +185,7 @@ class MonoClass():
                 return_value = self._il2cpp._il2cpp_type_get_name(self._il2cpp._il2cpp_method_get_return_type(method)).decode()
                 signature = f'{return_value} {self.name.replace('.', '_')}__{name} ({self.name.replace('.', '_')}_o* __this {param_info} const MethoInfo* method);'
                 flags = self._il2cpp._il2cpp_method_get_flags(method, 0)
-                is_static = (flags & 0x0010) != 0
+                is_static = (flags & _METHOD_ATTRIBUTE_STATIC) != 0
                 
                 method = MonoMethod(self, self._il2cpp, name, self._il2cpp.memory.read_longlong(method), int(method), param_count, param_info, signature, return_value, is_static, flags)
                 if not any(i.name == method.name and i.address == method.address for i in self._methods):
@@ -200,7 +233,7 @@ class MonoClass():
                     type_ptr = self._il2cpp._il2cpp_field_get_type(field)
                     type_name = (self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else "")
                     flags = self._il2cpp._il2cpp_field_get_flags(field)
-                    is_static = (flags & 0x0010) != 0
+                    is_static = (flags & _FIELD_ATTRIBUTE_STATIC) != 0
                     monofield = MonoField(self, self._il2cpp, name, int(field), type_name, is_static, flags)
 
                     if not any(i.name == monofield.name for i in self._fields):
@@ -276,23 +309,6 @@ class MonoMethod():
     def __init__(self, owner, il2cpp, name, address, methodInfo, param_count, param_info, signature, return_value, is_static, flags):
         self._il2cpp = il2cpp
         self.__owner = owner
-        self._type_dict = {
-                "System.Single": ctypes.c_float,
-                "System.Double": ctypes.c_double,
-                "System.SByte": ctypes.c_byte,
-                "System.Byte": ctypes.c_ubyte,
-                "System.Int16": ctypes.c_short,
-                "System.UInt16": ctypes.c_ushort,
-                "System.Int32": ctypes.c_int,
-                "System.UInt32": ctypes.c_uint,
-                "System.Int64": ctypes.c_longlong,
-                "System.UInt64": ctypes.c_ulonglong,
-                "System.Boolean": ctypes.c_bool,
-                "System.Char": ctypes.c_wchar,
-                "System.IntPtr": ctypes.c_void_p,
-                "System.UIntPtr": ctypes.c_void_p,
-                "System.Void": None
-            }
         self._name = name
         self._address:int = address
         self._methodInfo:int = methodInfo
@@ -372,6 +388,23 @@ class MonoMethod():
             raise TypeError("instance must be an int")
         self.__owner.instance = value
 
+    @cached_property
+    def traits(self):
+        """
+        Method information like Instance, Generic, etc
+        """
+        def get(call, default=None):
+            try:
+                return call(self.methodInfo)
+            except Exception:
+                return default
+            
+        return {
+            "Instance": get(self._il2cpp._il2cpp_method_is_instance, False),
+            "Generic": get(self._il2cpp._il2cpp_method_is_generic, False),
+            "Inflated": get(self._il2cpp._il2cpp_method_is_inflated, False),
+        }
+
     def __call__(self, *args) -> int|ctypes._SimpleCData|None:
         with self._il2cpp._attached_context():
             argc = len(args)
@@ -414,7 +447,7 @@ class MonoMethod():
             else:
                 raw_ptr = ctypes.cast(ret, ctypes.c_void_p)
 
-            type_ = self._type_dict.get(self.return_value)
+            type_ = _TYPE_CTYPE_MAP.get(self.return_value)
 
             if type_ is None:
                 return raw_ptr
@@ -469,23 +502,6 @@ class MonoField():
         self._type:str = type_name
         self._is_static:bool = is_static
         self._flags:int = flags
-        self._type_dict = {
-                "System.Single": ctypes.c_float,
-                "System.Double": ctypes.c_double,
-                "System.SByte": ctypes.c_byte,
-                "System.Byte": ctypes.c_ubyte,
-                "System.Int16": ctypes.c_short,
-                "System.UInt16": ctypes.c_ushort,
-                "System.Int32": ctypes.c_int,
-                "System.UInt32": ctypes.c_uint,
-                "System.Int64": ctypes.c_longlong,
-                "System.UInt64": ctypes.c_ulonglong,
-                "System.Boolean": ctypes.c_bool,
-                "System.Char": ctypes.c_wchar,
-                "System.IntPtr": ctypes.c_void_p,
-                "System.UIntPtr": ctypes.c_void_p,
-                "System.Void": None
-            }
 
     @property
     def name(self) -> str:
@@ -537,14 +553,18 @@ class MonoField():
         """
         Current value of the field
         """
-        if not self.__owner.instance and not self.is_static:
-            pass
+        if not self.instance and not self.is_static:
+            raise RuntimeError("Non-static field access requires an instance")
 
         with self._il2cpp._attached_context():
 
             buf = (ctypes.c_byte * 8)()
 
-            self._il2cpp._il2cpp_field_get_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr),ctypes.byref(buf)) if not self.is_static else self._il2cpp._il2cpp_field_static_get_value(ctypes.c_void_p(self.ptr), ctypes.byref(buf))
+            if self.is_static:
+                self._il2cpp._il2cpp_field_static_get_value(ctypes.c_void_p(self.ptr), ctypes.byref(buf))
+            
+            else:
+                self._il2cpp._il2cpp_field_get_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr), ctypes.byref(buf))
 
             type_ptr = self._il2cpp._il2cpp_field_get_type(ctypes.c_void_p(self.ptr))
             type_name = self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else ""
@@ -552,36 +572,27 @@ class MonoField():
         raw = ctypes.addressof(buf)
 
         return ctypes.cast(raw, ctypes.POINTER(self.__get_type(type_name)))[0]
-        
-
 
     @value.setter
     def value(self, value):
 
-        if not self.__owner.instance and not self.is_static:
-            pass
+        if not self.instance and not self.is_static:
+            raise RuntimeError("Non-static field access requires an instance")
 
         with self._il2cpp._attached_context():
             type_ptr = self._il2cpp._il2cpp_field_get_type(ctypes.c_void_p(self.ptr))
             type_name = self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else ""
 
             cval = self.__get_type(type_name)(value)
-            if not self.is_static:
-                self._il2cpp._il2cpp_field_set_value(
-                    ctypes.c_void_p(self.instance),
-                    ctypes.c_void_p(self.ptr),
-                    ctypes.byref(cval)
-                )
+            if self.is_static:
+                self._il2cpp._il2cpp_field_static_set_value(ctypes.c_void_p(self.ptr), ctypes.byref(cval))
+            
             else:
-                self._il2cpp._il2cpp_field_static_set_value(
-                    ctypes.c_void_p(self.ptr),
-                    ctypes.byref(cval)
-                )
-
-
+                self._il2cpp._il2cpp_field_set_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr), ctypes.byref(cval))
+            
     def __get_type(self, type_name) -> ctypes._SimpleCData|None:
         try:
-            ret = self._type_dict.get(type_name)
+            ret = _TYPE_CTYPE_MAP.get(type_name)
             if not ret:
                 ret = ctypes.c_void_p
 

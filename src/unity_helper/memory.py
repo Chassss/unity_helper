@@ -1,3 +1,8 @@
+"""
+Main module for interacting with process memory.
+
+"""
+
 import ctypes
 from keystone import Ks, KS_ARCH_X86, KS_MODE_64, KS_MODE_32
 

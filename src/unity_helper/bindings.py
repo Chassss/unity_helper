@@ -102,6 +102,17 @@ class Bindings():
         self._il2cpp_class_get_field_from_name = self.__DO_API(self.game_asm.il2cpp_class_get_field_from_name, [ctypes.c_void_p, ctypes.c_char_p], ctypes.c_void_p)
         self._il2cpp_domain_get_assemblies = self.__DO_API(self.game_asm.il2cpp_domain_get_assemblies, [ctypes.c_void_p, ctypes.POINTER(ctypes.c_size_t)], ctypes.POINTER(Il2CppAssembly))
         self._il2cpp_class_get_parent = self.__DO_API(self.game_asm.il2cpp_class_get_parent, [ctypes.c_void_p], ctypes.c_void_p)
+        self._il2cpp_class_is_enum = self.__DO_API(self.game_asm.il2cpp_class_is_enum, [ctypes.c_void_p], ctypes.c_bool)
+        self._il2cpp_class_is_abstract = self.__DO_API(self.game_asm.il2cpp_class_is_abstract, [ctypes.c_void_p], ctypes.c_bool)
+        self._il2cpp_class_is_generic = self.__DO_API(self.game_asm.il2cpp_class_is_generic, [ctypes.c_void_p], ctypes.c_bool)
+        self._il2cpp_class_is_inflated = self.__DO_API(self.game_asm.il2cpp_class_is_inflated, [ctypes.c_void_p], ctypes.c_bool)
+        self._il2cpp_class_is_interface = self.__DO_API(self.game_asm.il2cpp_class_is_interface, [ctypes.c_void_p], ctypes.c_bool)
+        self._il2cpp_class_is_valuetype = self.__DO_API(self.game_asm.il2cpp_class_is_valuetype, [ctypes.c_void_p], ctypes.c_bool)
+        self._il2cpp_class_get_declaring_type = self.__DO_API(self.game_asm.il2cpp_class_get_declaring_type, [ctypes.c_void_p], ctypes.c_void_p)
+        self._il2cpp_class_get_flags = self.__DO_API(self.game_asm.il2cpp_class_get_flags, [ctypes.c_void_p], ctypes.c_int)
+        self._il2cpp_method_is_inflated = self.__DO_API(self.game_asm.il2cpp_class_is_abstract, [ctypes.c_void_p], ctypes.c_bool)
+        self._il2cpp_method_is_generic = self.__DO_API(self.game_asm.il2cpp_class_is_generic, [ctypes.c_void_p], ctypes.c_bool)
+        self._il2cpp_method_is_instance = self.__DO_API(self.game_asm.il2cpp_class_is_inflated, [ctypes.c_void_p], ctypes.c_bool)
 
         self._domain: int|None = None
         self._attached = False
@@ -129,6 +140,7 @@ class Bindings():
         self._UnityEngine_GameObject__AddComponent = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_GameObject__AddComponent', self._gameobject, 'AddComponent', 1, 'System.Type componentType'))
         self._UnityEngine_GameObject__Find = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__Find', self._gameobject, 'Find'))
         self._UnityEngine_GameObject__FindGameObjectWithTag = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__FindGameObjectWithTag', self._gameobject, 'FindGameObjectWithTag'))
+        self._UnityEngine_GameObject__FindGameObjectsWithTag = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__FindGameObjectsWithTag', self._gameobject, 'FindGameObjectsWithTag'))
         self._UnityEngine_GameObject__SetActive = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__SetActive', self._gameobject, 'SetActive'))
         self._UnityEngine_GameObject__get_transform = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_transform', self._gameobject, 'get_transform', param_count=0))
         self._UnityEngine_GameObject__get_tag = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_tag', self._gameobject, 'get_tag'))

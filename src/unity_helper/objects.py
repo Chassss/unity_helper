@@ -32,15 +32,6 @@ class Physics(UnityObject):
             return None
 
     @property
-    def Simulate(self, value:float) -> int|None:
-        try:
-            self._il2cpp._UnityEngine_Physics_Simulate(value, self._il2cpp._methodInfoData['_UnityEngine_Physics_Simulate'])
-            return 1
-        except:
-            return None
-    
-
-    @property
     def simulation(self) -> float|None:
         try:
             return self._il2cpp._UnityEngine_Physics_get_autoSimulation(self._il2cpp._methodInfoData['_UnityEngine_Physics_get_autoSimulation'])
@@ -54,6 +45,13 @@ class Physics(UnityObject):
             return self._il2cpp._UnityEngine_Physics_set_autoSimulation(value, self._il2cpp._methodInfoData['_UnityEngine_Physics_set_autoSimulation'])
         except:
             pass
+
+    def Simulate(self, value:float) -> int|None:
+        try:
+            self._il2cpp._UnityEngine_Physics_Simulate(value, self._il2cpp._methodInfoData['_UnityEngine_Physics_Simulate'])
+            return 1
+        except:
+            return None
 
     def Raycast(self, origin:list|tuple|Vec3, direction:list|tuple|Vec3, maxDistance:float, layerMask:int) -> bool|RaycastHit|None:
         try:

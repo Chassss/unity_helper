@@ -10,6 +10,12 @@ structures:
 objects:
     Provides high-level wrappers for Unity objects, including
     Component-based systems like Transform, Camera, and Scene, etc.
+
+memory:
+    Provides high-level wrappers around windows api to be able to access and manipulate memory.
+
+constants:
+    Shared constant values used across the project.
 """
 
 
@@ -19,5 +25,6 @@ from . import mono
 from . import bindings
 from . import objects
 from . import memory
+from . import constants
 
-__all__ = ["Il2cpp", "structures", "objects"]
+__all__ = ["Il2cpp", "structures", "objects", "constants", "memory"]
