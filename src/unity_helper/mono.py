@@ -7,7 +7,7 @@ Reserved for internal use only.
 import ctypes, struct, re
 from .objects import Object
 from .memory import get_pages, read_bytes, is_64bit
-from .constants import TYPE_CTYPE_MAP as _TYPE_CTYPE_MAP, METHOD_ATTRIBUTE_STATIC as _METHOD_ATTRIBUTE_STATIC, FIELD_ATTRIBUTE_STATIC as _FIELD_ATTRIBUTE_STATIC
+from .constants import FieldAttribute, MethodAttribute, TypeAttribute, TYPE_CTYPE_MAP
 from functools import cached_property
 
 
@@ -38,10 +38,11 @@ class _MethodAccessor:
 
 
 class MonoClass():
-    def __init__(self, il2cpp, cls, name, object, _type, is_static):
+    def __init__(self, il2cpp, cls, name, flags, object, _type, is_static):
         self._il2cpp:int = il2cpp
         self._cls:int = cls
         self._name:str = name
+        self._flags:int = flags
         self._object:int = object
         self._type:int = _type
         self._is_static:bool = is_static
@@ -52,27 +53,27 @@ class MonoClass():
     @property
     def name(self) -> str:
         """
-        Full name of the monoclass
+        Full name of the monoclass.
         """
         return self._name
     
     @property
     def object(self) -> int:
         """
-        Class type object address in memory
+        Class type object address in memory.
         """
         return self._object
     @property
     def type(self) -> int:
         """
-        Class type address in memory
+        Class type address in memory.
         """
         return self._type
     
     @property
     def instance(self) -> int:
         """
-        Class instance address
+        Class instance address.
         """
         return self._instance
 
@@ -85,7 +86,7 @@ class MonoClass():
     @property
     def cls(self):
         """
-        Class metadata pointer
+        Class metadata pointer.
 
         """
         return self._cls
@@ -113,10 +114,17 @@ class MonoClass():
         """
         return self._is_static
     
-    @cached_property
-    def traits(self):
+    @property
+    def flags(self) -> int:
         """
-        Class information like Enum, Abstract, etc.
+        Bitmask of class attribute flags.
+        """
+        return self._flags
+    
+    @cached_property
+    def traits(self) -> dict[str, bool]:
+        """
+        Class trait information.
         """
         def get(call, default=None):
             try:
@@ -135,6 +143,13 @@ class MonoClass():
 
             "DeclaringType": get(self._il2cpp._il2cpp_class_get_declaring_type, None),
         }
+    
+    @cached_property
+    def attributes(self) -> dict[str, bool]:
+        """
+        Class attribute information.
+        """
+        return {i.name: i in self.flags for i in TypeAttribute}
 
     def find_method(self, method_name:str, param_count:int=None, cache:bool=True) -> MonoMethod|None:
         """
@@ -184,8 +199,8 @@ class MonoClass():
 
                 return_value = self._il2cpp._il2cpp_type_get_name(self._il2cpp._il2cpp_method_get_return_type(method)).decode()
                 signature = f'{return_value} {self.name.replace('.', '_')}__{name} ({self.name.replace('.', '_')}_o* __this {param_info} const MethoInfo* method);'
-                flags = self._il2cpp._il2cpp_method_get_flags(method, 0)
-                is_static = (flags & _METHOD_ATTRIBUTE_STATIC) != 0
+                flags = MethodAttribute(self._il2cpp._il2cpp_method_get_flags(method, 0))
+                is_static = MethodAttribute.STATIC in flags
                 
                 method = MonoMethod(self, self._il2cpp, name, self._il2cpp.memory.read_longlong(method), int(method), param_count, param_info, signature, return_value, is_static, flags)
                 if not any(i.name == method.name and i.address == method.address for i in self._methods):
@@ -232,8 +247,8 @@ class MonoClass():
                     name = name_ptr.decode() if name_ptr else ""
                     type_ptr = self._il2cpp._il2cpp_field_get_type(field)
                     type_name = (self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else "")
-                    flags = self._il2cpp._il2cpp_field_get_flags(field)
-                    is_static = (flags & _FIELD_ATTRIBUTE_STATIC) != 0
+                    flags = FieldAttribute(self._il2cpp._il2cpp_field_get_flags(field))
+                    is_static = FieldAttribute.STATIC in flags
                     monofield = MonoField(self, self._il2cpp, name, int(field), type_name, is_static, flags)
 
                     if not any(i.name == monofield.name for i in self._fields):
@@ -245,7 +260,7 @@ class MonoClass():
         return self._fields
     
 
-    def find_object_of_type(self, includeInactive=False) -> Object|None:
+    def findObject_of_type(self, includeInactive=False) -> Object|None:
         """
         Retreives a object baed on the current objects type.
 
@@ -256,11 +271,11 @@ class MonoClass():
             Object: An object containing various methods and data for interacting with the object.
         """
         try:
-            return Object(self._il2cpp._UnityEngine_Object__FindObjectOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectOfType']))
+            return Object(self._il2cpp._UnityEngineObject__FindObjectOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngineObject__FindObjectOfType']))
         except:
             return None
 
-    def find_objects_of_type(self, includeInactive=False) -> list[Object]|None:
+    def findObjects_of_type(self, includeInactive=False) -> list[Object]|None:
         """
         Retreives a object baed on the current objects type.
 
@@ -271,7 +286,7 @@ class MonoClass():
             list[Object]: A list containing Object objects.
         """
         try:
-            arr = self._il2cpp._UnityEngine_Object__FindObjectsOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectsOfType'])
+            arr = self._il2cpp._UnityEngineObject__FindObjectsOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngineObject__FindObjectsOfType'])
             objects = [Object(i) for i in self._il2cpp._read_il2cpp_array(arr)]
             return objects
         except:
@@ -322,63 +337,63 @@ class MonoMethod():
     @property
     def name(self) -> str:
         """
-        Name of the method
+        Name of the method.
         """
         return self._name
     @property
     def address(self) -> int:
         """
-        Actual address of the method in memory
+        Actual address of the method in memory.
         """
         return self._address
     @property
     def methodInfo(self) -> int:
         """
-        Address of the methodInfo object in memory
+        Address of the methodInfo object in memory.
         """
         return self._methodInfo
     @property
     def param_count(self) -> int:
         """
-        Amount of parameters passed into the method
+        Amount of parameters passed into the method.
         """
         return self._param_count
     @property
     def param_info(self) -> str:
         """
-        Information about the passed in parameters if any
+        Information about the passed in parameters if any.
         """
         return self._param_info
     @property
     def signature(self) -> str:
         """
-        Full signature of the function
+        Full signature of the function.
         """
         return self._signature
     @property
     def return_value(self) -> str:
         """
-        Information about the return value of the method
+        Information about the return value of the method.
         """
         return self._return_value
     @property
     def is_static(self) -> bool:
         """
-        If the method is a static method or a instance method
+        If the method is a static method or a instance method.
         """
         return self._is_static
     
     @property
     def flags(self) -> int:
         """
-        Bitmask of method attribute flags
+        Bitmask of method attribute flags.
         """
         return self._flags
     
     @property
     def instance(self) -> int:
         """
-        Parent class instance address
+        Parent class instance address.
         """
         return self.__owner.instance
     
@@ -389,9 +404,9 @@ class MonoMethod():
         self.__owner.instance = value
 
     @cached_property
-    def traits(self):
+    def traits(self) -> dict[str, bool]:
         """
-        Method information like Instance, Generic, etc
+        Method trait information.
         """
         def get(call, default=None):
             try:
@@ -404,6 +419,13 @@ class MonoMethod():
             "Generic": get(self._il2cpp._il2cpp_method_is_generic, False),
             "Inflated": get(self._il2cpp._il2cpp_method_is_inflated, False),
         }
+
+    @cached_property
+    def attributes(self) -> dict[str, bool]:
+        """
+        Method attribute information.
+        """
+        return {i.name: i in self.flags for i in MethodAttribute}
 
     def __call__(self, *args) -> int|ctypes._SimpleCData|None:
         with self._il2cpp._attached_context():
@@ -447,14 +469,14 @@ class MonoMethod():
             else:
                 raw_ptr = ctypes.cast(ret, ctypes.c_void_p)
 
-            type_ = _TYPE_CTYPE_MAP.get(self.return_value)
+            type_ = TYPE_CTYPE_MAP.get(self.return_value)
 
             if type_ is None:
                 return raw_ptr
 
             unboxed = None
             try:
-                unboxed = self._il2cpp._il2cpp_object_unbox(raw_ptr)
+                unboxed = self._il2cpp._il2cppObject_unbox(raw_ptr)
             except:
                 unboxed = None
 
@@ -506,32 +528,32 @@ class MonoField():
     @property
     def name(self) -> str:
         """
-        Name of the field
+        Name of the field.
         """
         return self._name
     @property
     def ptr(self) -> int:
         """
-        Address of the field in memory
+        Address of the field in memory.
         """
         return self._ptr
     @property
     def type(self) -> str:
         """
-        Unity type of the field
+        Unity type of the field.
         """
         return self._type
     @property
     def is_static(self) -> bool:
         """
-        If the field is a static field or a instance field
+        If the field is a static field or a instance field.
         """
         return self._is_static
     
     @property
     def instance(self) -> int:
         """
-        Parent class instance address
+        Parent class instance address.
         """
         return self.__owner.instance
     
@@ -544,9 +566,16 @@ class MonoField():
     @property
     def flags(self) -> int:
         """
-        Bitmask of flags describing field attributes
+        Bitmask of field attribute flags.
         """
         return self._flags
+    
+    @cached_property
+    def attributes(self) -> dict[str, bool]:
+        """
+        Field attribute information.
+        """
+        return {i.name: i in self.flags for i in FieldAttribute}
         
     @property
     def value(self):
@@ -589,10 +618,18 @@ class MonoField():
             
             else:
                 self._il2cpp._il2cpp_field_set_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr), ctypes.byref(cval))
+
+
+    @cached_property
+    def attributes(self) -> dict[str, bool]:
+        """
+        Field attribute information.
+        """
+        return {i.name: i in self.flags for i in FieldAttribute}
             
     def __get_type(self, type_name) -> ctypes._SimpleCData|None:
         try:
-            ret = _TYPE_CTYPE_MAP.get(type_name)
+            ret = TYPE_CTYPE_MAP.get(type_name)
             if not ret:
                 ret = ctypes.c_void_p
 

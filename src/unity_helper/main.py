@@ -12,7 +12,8 @@ from .mono import MonoClass, MonoMethod
 from .objects import Camera, Object
 from .bindings import Bindings
 from .structures import Il2CppArray, Vec3, Il2CppAssembly, Quaternion, Color, Vec2, Rect
-from .constants import TYPE_ATTRIBUTE_ABSTRACT as _TYPE_ATTRIBUTE_ABSTRACT, TYPE_ATTRIBUTE_SEALED as _TYPE_ATTRIBUTE_SEALED
+from .constants import TypeAttribute
+
 
 class Il2cpp(Bindings):
     """
@@ -217,10 +218,10 @@ class Il2cpp(Bindings):
             
             type_ = self._il2cpp_class_get_type(ctypes.c_void_p(cls))
             type_obj = self._il2cpp_type_get_object(type_)
-            flags = self._il2cpp_class_get_flags(cls)
-            is_static = ((flags & _TYPE_ATTRIBUTE_ABSTRACT) != 0 and (flags & _TYPE_ATTRIBUTE_SEALED) != 0)
-
-            monoclass = MonoClass(self, int(cls), klass, type_obj, type_, is_static)
+            flags = TypeAttribute(self._il2cpp_class_get_flags(cls))
+            is_static = (TypeAttribute.ABSTRACT in flags) and (TypeAttribute.SEALED in flags)
+    
+            monoclass = MonoClass(self, int(cls), klass, flags, type_obj, type_, is_static)
             if not any(i.name == monoclass.name and i.cls == monoclass.cls for i in self._class_cache):
                 self._class_cache.append(monoclass)
 
@@ -260,7 +261,7 @@ class Il2cpp(Bindings):
 
     def get_mainCamera(self) -> Camera|None:
         """
-        Retreives the main Camera object
+        Retreives the main Camera object.
 
         Returns:
             Camera: An object containing various methods and data for interacting with the camera
@@ -274,6 +275,12 @@ class Il2cpp(Bindings):
             return None
     
     def get_currentCamera(self) -> Camera|None:
+        """
+        Retreives the current Camera object.
+
+        Returns:
+            Camera: An object containing various methods and data for interacting with the camera
+        """
         try:
             addr = self._UnityEngine_Camera_get_current(self._methodInfoData['_UnityEngine_Camera_get_current'])
             if not addr:
@@ -283,6 +290,12 @@ class Il2cpp(Bindings):
             return None
     
     def get_allCameras(self) -> list[Camera]|None:
+        """
+        Retreives all active Camera objects.
+
+        Returns:
+            list[Camera]: A list containing Camera objects
+        """
         try:
             arr = self._UnityEngine_Camera_get_allCameras(self._methodInfoData['_UnityEngine_Camera_get_allCameras'])
             cameras = [Camera(i) for i in self._read_il2cpp_array(arr) if i]
@@ -291,6 +304,12 @@ class Il2cpp(Bindings):
             return None
     
     def get_all_camerasCount(self) -> int|None:
+        """
+        Retreives the amount of active cameras
+
+        Returns:
+            int: A value indicating the amount of active cameras
+        """
         try:
             return self._UnityEngine_Camera_get_allCamerasCount(0, self._methodInfoData['_UnityEngine_Camera_get_allCamerasCount'])
         except:
@@ -384,10 +403,10 @@ class Il2cpp(Bindings):
                 type_obj = self._il2cpp_type_get_object(type_)
                 
                 full_name = ".".join(filter(None, [cls_namespace, cls_name]))
-                flags = self._il2cpp_class_get_flags(cls_ptr)
-                is_static = ((flags & _TYPE_ATTRIBUTE_ABSTRACT) != 0 and (flags & _TYPE_ATTRIBUTE_SEALED) != 0)
+                flags = TypeAttribute(self._il2cpp_class_get_flags(cls_ptr))
+                is_static = (TypeAttribute.ABSTRACT in flags) and (TypeAttribute.SEALED in flags)
 
-                cls = MonoClass(self, cls_ptr, full_name, type_obj, type_, is_static)
+                cls = MonoClass(self, cls_ptr, full_name, flags, type_obj, type_, is_static)
                 
                 if not any(i.name == cls.name and i.object == i.object for i in self._class_cache):
                     self._class_cache.append(cls)

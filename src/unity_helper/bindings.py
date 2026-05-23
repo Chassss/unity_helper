@@ -5,7 +5,7 @@ Reserved for internal use only.
 
 import ctypes
 from .structures import Vec3, Quaternion, Il2CppAssembly, Bounds, RaycastHit, Ray, Matrix4x4, Color, Vec2, Rect
-from.mono import MonoClass
+from .mono import MonoClass
 
 
 class Bindings():

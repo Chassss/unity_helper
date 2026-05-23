@@ -6,16 +6,16 @@ For information on any of the functions in this module refer too the official un
 
 """
 
-import ctypes
-from .structures import Vec3, Quaternion, RaycastHit, Bounds, Ray, Matrix4x4, Color, Vec2, Rect
+import ctypes as _ctypes
+from . import structures as _struct
 
-class UnityObject():
+class _UnityObject():
     def __init__(self, ptr=None):
         from .main import Il2cpp
         self._il2cpp:Il2cpp = Il2cpp.inst
         self.ptr:int = ptr
 
-class Physics(UnityObject):
+class Physics(_UnityObject):
     """
     Represents a physics class object
 
@@ -23,10 +23,10 @@ class Physics(UnityObject):
     """
 
     @property
-    def gravity(self) -> Vec3|None:
+    def gravity(self) -> _struct.Vec3|None:
         try:
-            gravity = Vec3()
-            self._il2cpp._UnityEngine_Physics_get_gravity(ctypes.byref(gravity), self._il2cpp._methodInfoData['_UnityEngine_Physics_get_gravity'])
+            gravity = _struct.Vec3()
+            self._il2cpp._UnityEngine_Physics_get_gravity(_ctypes.byref(gravity), self._il2cpp._methodInfoData['_UnityEngine_Physics_get_gravity'])
             return gravity
         except:
             return None
@@ -53,12 +53,12 @@ class Physics(UnityObject):
         except:
             return None
 
-    def Raycast(self, origin:list|tuple|Vec3, direction:list|tuple|Vec3, maxDistance:float, layerMask:int) -> bool|RaycastHit|None:
+    def Raycast(self, origin:list|tuple|_struct.Vec3, direction:list|tuple|_struct.Vec3, maxDistance:float, layerMask:int) -> bool|_struct.RaycastHit|None:
         try:
             origin = self._il2cpp._vec3_helper(origin)
             direction = self._il2cpp._vec3_helper(direction)
-            hitInfo = RaycastHit()
-            result = self._il2cpp._UnityEngine_Physics_Raycast(ctypes.pointer(origin), ctypes.pointer(direction), ctypes.byref(hitInfo), maxDistance, layerMask, self._il2cpp._methodInfoData['_UnityEngine_Physics_Raycast'])
+            hitInfo = _struct.RaycastHit()
+            result = self._il2cpp._UnityEngine_Physics_Raycast(_ctypes.pointer(origin), _ctypes.pointer(direction), _ctypes.byref(hitInfo), maxDistance, layerMask, self._il2cpp._methodInfoData['_UnityEngine_Physics_Raycast'])
             if result:
                 hitInfo.collider = self._il2cpp._UnityEngine_Object__FindObjectFromInstanceID(hitInfo.collider, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectFromInstanceID'])
                 return hitInfo
@@ -66,10 +66,10 @@ class Physics(UnityObject):
         except:
             return None
         
-    def RaycastRay(self, ray:Ray, maxDistance:float, layerMask:int) -> bool|RaycastHit|None:
+    def RaycastRay(self, ray:_struct.Ray, maxDistance:float, layerMask:int) -> bool|_struct.RaycastHit|None:
         try:
-            hitInfo = RaycastHit()
-            result = self._il2cpp._UnityEngine_Physics_RaycastRay(ctypes.pointer(ray), ctypes.byref(hitInfo), maxDistance, layerMask, self._il2cpp._methodInfoData['_UnityEngine_Physics_RaycastRay'])
+            hitInfo = _struct.RaycastHit()
+            result = self._il2cpp._UnityEngine_Physics_RaycastRay(_ctypes.pointer(ray), _ctypes.byref(hitInfo), maxDistance, layerMask, self._il2cpp._methodInfoData['_UnityEngine_Physics_RaycastRay'])
             if result:
                 hitInfo.collider = self._il2cpp._UnityEngine_Object__FindObjectFromInstanceID(hitInfo.collider, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectFromInstanceID'])
                 return hitInfo
@@ -77,7 +77,7 @@ class Physics(UnityObject):
         except:
             return None
 
-class Rigidbody(UnityObject):
+class Rigidbody(_UnityObject):
     """
     Represents a physics body with mass, velocity, and forces.
     
@@ -85,67 +85,67 @@ class Rigidbody(UnityObject):
     and then do Rigidbody(address)
     """
     @property
-    def velocity(self) -> Vec3|None:
+    def velocity(self) -> _struct.Vec3|None:
         try:
-            vel = Vec3()
-            self._il2cpp._UnityEngine_Rigidbody_get_velocity(ctypes.byref(vel), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_get_velocity'])
+            vel = _struct.Vec3()
+            self._il2cpp._UnityEngine_Rigidbody_get_velocity(_ctypes.byref(vel), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_get_velocity'])
             return vel
         except:
             return None
     
     @velocity.setter
-    def velocity(self, pos:list|tuple|Vec3):
+    def velocity(self, pos:list|tuple|_struct.Vec3):
         try:
             pos = self._il2cpp._vec3_helper(pos)
             if not pos:
                 pass
-            self._il2cpp._UnityEngine_Rigidbody_set_velocity(self.ptr, ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_set_velocity'])
+            self._il2cpp._UnityEngine_Rigidbody_set_velocity(self.ptr, _ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_set_velocity'])
         except:
             pass
 
     @property
-    def angularVelocity(self) -> Vec3|None:
+    def angularVelocity(self) -> _struct.Vec3|None:
         try:
-            vel = Vec3()
-            self._il2cpp._UnityEngine_Rigidbody_get_angularVelocity(ctypes.byref(vel), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_get_angularVelocity'])
+            vel = _struct.Vec3()
+            self._il2cpp._UnityEngine_Rigidbody_get_angularVelocity(_ctypes.byref(vel), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_get_angularVelocity'])
             return vel
         except:
             return None
     
     @angularVelocity.setter
-    def angularVelocity(self, pos:list|tuple|Vec3):
+    def angularVelocity(self, pos:list|tuple|_struct.Vec3):
         try:
             pos = self._il2cpp._vec3_helper(pos)
             if not pos:
                 pass
-            self._il2cpp._UnityEngine_Rigidbody_set_angularVelocity(self.ptr, ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_set_angularVelocity'])
+            self._il2cpp._UnityEngine_Rigidbody_set_angularVelocity(self.ptr, _ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_set_angularVelocity'])
         except:
             pass
 
     @property
     def position(self) -> None:
         try:
-            pos = Vec3()
-            self._il2cpp._UnityEngine_Rigidbody_get_position(ctypes.byref(pos), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_get_position'])
+            pos = _struct.Vec3()
+            self._il2cpp._UnityEngine_Rigidbody_get_position(_ctypes.byref(pos), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_get_position'])
             return pos
         except:
             return None
     
     @position.setter
-    def position(self, pos:list|tuple|Vec3):
+    def position(self, pos:list|tuple|_struct.Vec3):
         try:
             pos = self._il2cpp._vec3_helper(pos)
             if not pos:
                 pass
-            self._il2cpp._UnityEngine_Rigidbody_set_position(self.ptr, ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_set_position'])
+            self._il2cpp._UnityEngine_Rigidbody_set_position(self.ptr, _ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_set_position'])
         except:
             pass
     
     @property
-    def centerOfMass(self) -> Vec3|None:
+    def centerOfMass(self) -> _struct.Vec3|None:
         try:
-            pos = Vec3()
-            self._il2cpp._UnityEngine_Rigidbody_get_centerOfMass(ctypes.byref(pos), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_get_centerOfMass'])
+            pos = _struct.Vec3()
+            self._il2cpp._UnityEngine_Rigidbody_get_centerOfMass(_ctypes.byref(pos), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_get_centerOfMass'])
             return pos
         except:
             return None
@@ -179,21 +179,21 @@ class Rigidbody(UnityObject):
             pass
 
     @property
-    def rotation(self) -> Quaternion|None:
+    def rotation(self) -> _struct.Quaternion|None:
         try:
-            rot = Quaternion()
-            self._il2cpp._UnityEngine_Rigidbody_get_rotation(ctypes.byref(rot), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_get_rotation'])
+            rot = _struct.Quaternion()
+            self._il2cpp._UnityEngine_Rigidbody_get_rotation(_ctypes.byref(rot), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_get_rotation'])
             return rot
         except:
             return None
         
     @rotation.setter
-    def rotation(self, rot:list|tuple|Quaternion):
+    def rotation(self, rot:list|tuple|_struct.Quaternion):
         try:
             rot = self._il2cpp._quaternion_helper(rot)
             if not rot:
                 pass
-            self._il2cpp._UnityEngine_Rigidbody_set_rotation(self.ptr, ctypes.pointer(rot), self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_set_rotation'])
+            self._il2cpp._UnityEngine_Rigidbody_set_rotation(self.ptr, _ctypes.pointer(rot), self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_set_rotation'])
         except:
             pass
 
@@ -226,18 +226,18 @@ class Rigidbody(UnityObject):
         except:
             return
         
-    def addForce(self, force:list|tuple|Vec3, mode:int) -> int|None:
+    def addForce(self, force:list|tuple|_struct.Vec3, mode:int) -> int|None:
         try:
             force = self._il2cpp._vec3_helper(force)
             if not force:
                 return None
             
-            self._il2cpp._UnityEngine_Rigidbody_AddForce(self.ptr, ctypes.pointer(force), mode, self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_AddForce'])
+            self._il2cpp._UnityEngine_Rigidbody_AddForce(self.ptr, _ctypes.pointer(force), mode, self._il2cpp._methodInfoData['_UnityEngine_Rigidbody_AddForce'])
             return 1
         except:
             return None
 
-class Component(UnityObject):
+class Component(_UnityObject):
     """
     Base class for objects that can be attached to objects to define behavior.
     
@@ -306,7 +306,6 @@ class Component(UnityObject):
         except:
             return None
 
-
 class Transform(Component):
     """
     Represents the position, rotation, and scale of an entity.
@@ -316,40 +315,40 @@ class Transform(Component):
     """
 
     @property
-    def position(self) -> Vec3|None:
+    def position(self) -> _struct.Vec3|None:
         try:
-            pos = Vec3()
-            self._il2cpp._UnityEngine_Transform__get_position(ctypes.byref(pos), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform__get_position'])
+            pos = _struct.Vec3()
+            self._il2cpp._UnityEngine_Transform__get_position(_ctypes.byref(pos), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform__get_position'])
             return pos
         except:
             return None
     
     @position.setter
-    def position(self, pos:list|tuple|Vec3):
+    def position(self, pos:list|tuple|_struct.Vec3):
         try:
             pos = self._il2cpp._vec3_helper(pos)
             if not pos:
                 pass
-            self._il2cpp._UnityEngine_Transform__set_position(self.ptr, ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Transform__set_position'])
+            self._il2cpp._UnityEngine_Transform__set_position(self.ptr, _ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Transform__set_position'])
         except:
             pass
     
     @property
-    def rotation(self) -> Quaternion|None:
+    def rotation(self) -> _struct.Quaternion|None:
         try:
-            rot = Quaternion()
-            self._il2cpp._UnityEngine_Transform__get_rotation(ctypes.byref(rot), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform__get_rotation'])
+            rot = _struct.Quaternion()
+            self._il2cpp._UnityEngine_Transform__get_rotation(_ctypes.byref(rot), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform__get_rotation'])
             return rot
         except:
             return None
     
     @rotation.setter
-    def rotation(self, rot:list|tuple|Quaternion):
+    def rotation(self, rot:list|tuple|_struct.Quaternion):
         try:
             rot = self._il2cpp._quaternion_helper(rot)
             if not rot:
                 pass
-            self._il2cpp._UnityEngine_Transform__set_rotation(self.ptr, ctypes.byref(rot), self._il2cpp._methodInfoData['_UnityEngine_Transform__set_rotation'])
+            self._il2cpp._UnityEngine_Transform__set_rotation(self.ptr, _ctypes.byref(rot), self._il2cpp._methodInfoData['_UnityEngine_Transform__set_rotation'])
         except:
             pass
 
@@ -388,77 +387,77 @@ class Transform(Component):
             return None
     
     @property
-    def forward(self)-> Vec3|None:
+    def forward(self)-> _struct.Vec3|None:
         try:
-            forward = Vec3()
-            self._il2cpp._UnityEngine_Transform__get_forward(ctypes.byref(forward), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform__get_forward'])
+            forward = _struct.Vec3()
+            self._il2cpp._UnityEngine_Transform__get_forward(_ctypes.byref(forward), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform__get_forward'])
             return forward
         except:
             return None
     
     @forward.setter
-    def forward(self, pos:list|tuple|Vec3):
+    def forward(self, pos:list|tuple|_struct.Vec3):
         try:
             pos = self._il2cpp._vec3_helper(pos)
             if not pos:
                 pass
-            self._il2cpp._UnityEngine_Transform__set_forward(self.ptr, ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Transform__set_forward'])
+            self._il2cpp._UnityEngine_Transform__set_forward(self.ptr, _ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Transform__set_forward'])
         except:
             pass
 
     @property
-    def up(self)-> Vec3|None:
+    def up(self)-> _struct.Vec3|None:
         try:
-            up = Vec3()
-            self._il2cpp._UnityEngine_Transform__get_up(ctypes.byref(up), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform__get_up'])
+            up = _struct.Vec3()
+            self._il2cpp._UnityEngine_Transform__get_up(_ctypes.byref(up), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform__get_up'])
             return up
         except:
             return None
         
     @property
-    def right(self)-> Vec3|None:
+    def right(self)-> _struct.Vec3|None:
         try:
-            right = Vec3()
-            self._il2cpp._UnityEngine_Transform__get_right(ctypes.byref(right), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform__get_right'])
+            right = _struct.Vec3()
+            self._il2cpp._UnityEngine_Transform__get_right(_ctypes.byref(right), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform__get_right'])
             return right
         except:
             return None
 
     @property
-    def eulerAngles(self)-> Vec3|None:
+    def eulerAngles(self)-> _struct.Vec3|None:
         try:
-            angles = Vec3()
-            self._il2cpp._UnityEngine_Transform_get_eulerAngles(ctypes.byref(angles), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform_get_eulerAngles'])
+            angles = _struct.Vec3()
+            self._il2cpp._UnityEngine_Transform_get_eulerAngles(_ctypes.byref(angles), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform_get_eulerAngles'])
             return angles
         except:
             return None
     
     @eulerAngles.setter
-    def eulerAngles(self, angles:list|tuple|Vec3):
+    def eulerAngles(self, angles:list|tuple|_struct.Vec3):
         try:
             angles = self._il2cpp._vec3_helper(angles)
             if not angles:
                 pass
-            self._il2cpp._UnityEngine_Transform_set_eulerAngles(self.ptr, ctypes.pointer(angles), self._il2cpp._methodInfoData['_UnityEngine_Transform_set_eulerAngles'])
+            self._il2cpp._UnityEngine_Transform_set_eulerAngles(self.ptr, _ctypes.pointer(angles), self._il2cpp._methodInfoData['_UnityEngine_Transform_set_eulerAngles'])
         except:
             pass
 
     @property
-    def localPosition(self)-> Vec3|None:
+    def localPosition(self)-> _struct.Vec3|None:
         try:
-            pos = Vec3()
-            self._il2cpp._UnityEngine_Transform_get_localPosition(ctypes.byref(pos), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform_get_localPosition'])
+            pos = _struct.Vec3()
+            self._il2cpp._UnityEngine_Transform_get_localPosition(_ctypes.byref(pos), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform_get_localPosition'])
             return pos
         except:
             return None
     
     @localPosition.setter
-    def localPosition(self, pos:list|tuple|Vec3):
+    def localPosition(self, pos:list|tuple|_struct.Vec3):
         try:
             pos = self._il2cpp._vec3_helper(pos)
             if not pos:
                 pass
-            self._il2cpp._UnityEngine_Transform_set_localPosition(self.ptr, ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Transform_set_localPosition'])
+            self._il2cpp._UnityEngine_Transform_set_localPosition(self.ptr, _ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Transform_set_localPosition'])
         except:
             pass
 
@@ -478,57 +477,57 @@ class Transform(Component):
 
 
     @property
-    def localScale(self)-> Vec3|None:
+    def localScale(self)-> _struct.Vec3|None:
         try:
-            scale = Vec3()
-            self._il2cpp._UnityEngine_Transform_get_localScale(ctypes.byref(scale), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform_get_localScale'])
+            scale = _struct.Vec3()
+            self._il2cpp._UnityEngine_Transform_get_localScale(_ctypes.byref(scale), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform_get_localScale'])
             return scale
         except:
             return None
     
     @localScale.setter
-    def localScale(self, pos:list|tuple|Vec3):
+    def localScale(self, pos:list|tuple|_struct.Vec3):
         try:
             pos = self._il2cpp._vec3_helper(pos)
             if not pos:
                 pass
-            self._il2cpp._UnityEngine_Transform_set_localScale(self.ptr, ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Transform_set_localScale'])
+            self._il2cpp._UnityEngine_Transform_set_localScale(self.ptr, _ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Transform_set_localScale'])
         except:
             pass
 
     @property
-    def localEulerAngles(self)-> Vec3|None:
+    def localEulerAngles(self)-> _struct.Vec3|None:
         try:
-            angles = Vec3()
-            self._il2cpp._UnityEngine_Transform_get_localEulerAngles(ctypes.byref(angles), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform_get_localEulerAngles'])
+            angles = _struct.Vec3()
+            self._il2cpp._UnityEngine_Transform_get_localEulerAngles(_ctypes.byref(angles), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform_get_localEulerAngles'])
             return angles
         except:
             return None
     
     @localEulerAngles.setter
-    def localEulerAngles(self, pos:list|tuple|Vec3):
+    def localEulerAngles(self, pos:list|tuple|_struct.Vec3):
         try:
             pos = self._il2cpp._vec3_helper(pos)
             if not pos:
                 pass
-            self._il2cpp._UnityEngine_Transform_set_localEulerAngles(self.ptr, ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Transform_set_localEulerAngles'])
+            self._il2cpp._UnityEngine_Transform_set_localEulerAngles(self.ptr, _ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Transform_set_localEulerAngles'])
         except:
             pass
 
     @property
-    def worldToLocalMatrix(self)-> Matrix4x4|None:
+    def worldToLocalMatrix(self)-> _struct.Matrix4x4|None:
         try:
-            matrix = Matrix4x4()
-            self._il2cpp._UnityEngine_Transform_get_worldToLocalMatrix(ctypes.byref(matrix), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform_get_worldToLocalMatrix'])
+            matrix = _struct.Matrix4x4()
+            self._il2cpp._UnityEngine_Transform_get_worldToLocalMatrix(_ctypes.byref(matrix), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform_get_worldToLocalMatrix'])
             return matrix
         except:
             return None
         
     @property
-    def localToWorldMatrix(self)-> Vec3|None:
+    def localToWorldMatrix(self)-> _struct.Vec3|None:
         try:
-            matrix = Matrix4x4()
-            self._il2cpp._UnityEngine_Transform_get_localToWorldMatrix(ctypes.byref(matrix), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform_get_localToWorldMatrix'])
+            matrix = _struct.Matrix4x4()
+            self._il2cpp._UnityEngine_Transform_get_localToWorldMatrix(_ctypes.byref(matrix), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Transform_get_localToWorldMatrix'])
             return matrix
         except:
             return None
@@ -548,13 +547,13 @@ class Transform(Component):
         except:
             return None
         
-    def LookAt_pos(self, pos:list|tuple|Vec3, direction:list|tuple|Vec3) -> int|None:
+    def LookAt_pos(self, pos:list|tuple|_struct.Vec3, direction:list|tuple|_struct.Vec3) -> int|None:
         try:
             pos = self._il2cpp._vec3_helper(pos)
             direction = self._il2cpp._vec3_helper(direction)
             if not pos or not direction:
                 return None
-            self._il2cpp._UnityEngine_Transform__LookAt_pos(self.ptr, ctypes.pointer(pos), ctypes.pointer(direction), self._il2cpp._methodInfoData['_UnityEngine_Transform__LookAt_pos'])
+            self._il2cpp._UnityEngine_Transform__LookAt_pos(self.ptr, _ctypes.pointer(pos), _ctypes.pointer(direction), self._il2cpp._methodInfoData['_UnityEngine_Transform__LookAt_pos'])
             return 1
         except:
             return None
@@ -566,12 +565,12 @@ class Transform(Component):
         except:
             return None
         
-    def translate(self, translation:list|tuple|Vec3, relativeTo:int) -> int|None:
+    def translate(self, translation:list|tuple|_struct.Vec3, relativeTo:int) -> int|None:
         try:
             translation = self._il2cpp._vec3_helper(translation)
             if not translation:
                 return None
-            self._il2cpp._UnityEngine_Transform__translate(self.ptr, ctypes.pointer(translation), relativeTo, self._il2cpp._methodInfoData['_UnityEngine_Transform__translate'])
+            self._il2cpp._UnityEngine_Transform__translate(self.ptr, _ctypes.pointer(translation), relativeTo, self._il2cpp._methodInfoData['_UnityEngine_Transform__translate'])
             return 1
         except:
             return None
@@ -585,10 +584,7 @@ class Transform(Component):
         except:
             return None
         
-
-
-
-class Scene(UnityObject):
+class Scene(_UnityObject):
     """
     Represents a collection of entities and components.
     
@@ -655,7 +651,7 @@ class Scene(UnityObject):
         
     
 
-class Object(UnityObject):
+class Object(_UnityObject):
     """
     Base class for all engine objects.
     
@@ -836,7 +832,7 @@ class Camera(Component):
     @fov.setter
     def fov(self, fov:float):
         try:
-            self._il2cpp._UnityEngine_Camera__set_fieldOfView(self.ptr, ctypes.c_float(fov), self._il2cpp._methodInfoData['_UnityEngine_Camera__set_fieldOfView'])
+            self._il2cpp._UnityEngine_Camera__set_fieldOfView(self.ptr, _ctypes.c_float(fov), self._il2cpp._methodInfoData['_UnityEngine_Camera__set_fieldOfView'])
         except:
             pass
     
@@ -850,7 +846,7 @@ class Camera(Component):
     @depth.setter
     def depth(self, depth:float):
         try:
-            self._il2cpp._UnityEngine_Camera__set_depth(self.ptr, ctypes.c_float(depth), self._il2cpp._methodInfoData['_UnityEngine_Camera__set_depth'])
+            self._il2cpp._UnityEngine_Camera__set_depth(self.ptr, _ctypes.c_float(depth), self._il2cpp._methodInfoData['_UnityEngine_Camera__set_depth'])
         except:
             pass
 
@@ -905,26 +901,26 @@ class Camera(Component):
             pass
 
     @property
-    def backgroundColor(self) -> Color|None:
+    def backgroundColor(self) -> _struct.Color|None:
         try:
-            color = Color()
-            self._il2cpp._UnityEngine_Camera__get_backgroundColor(ctypes.byref(color), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Camera__get_backgroundColor'])
+            color = _struct.Color()
+            self._il2cpp._UnityEngine_Camera__get_backgroundColor(_ctypes.byref(color), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Camera__get_backgroundColor'])
             return color
         except:
             return None
     
     @backgroundColor.setter
-    def backgroundColor(self, color:Color):
+    def backgroundColor(self, color:_struct.Color):
         try:
-            self._il2cpp._UnityEngine_Camera__set_backgroundColor(self.ptr, ctypes.pointer(color), self._il2cpp._methodInfoData['_UnityEngine_Camera__set_backgroundColor'])
+            self._il2cpp._UnityEngine_Camera__set_backgroundColor(self.ptr, _ctypes.pointer(color), self._il2cpp._methodInfoData['_UnityEngine_Camera__set_backgroundColor'])
         except:
             pass
     
     @property
-    def cameraToWorldMatrix(self) -> Matrix4x4|None:
+    def cameraToWorldMatrix(self) -> _struct.Matrix4x4|None:
         try:
-            matrix = Matrix4x4()
-            self._il2cpp._UnityEngine_Camera__get_cameraToWorldMatrix(ctypes.byref(Matrix4x4), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Camera__get_cameraToWorldMatrix'])
+            matrix = _struct.Matrix4x4()
+            self._il2cpp._UnityEngine_Camera__get_cameraToWorldMatrix(_ctypes.byref(_struct.Matrix4x4), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Camera__get_cameraToWorldMatrix'])
             return matrix
         except:
             return None
@@ -1029,19 +1025,19 @@ class Camera(Component):
             pass
 
     @property
-    def lensShift(self) -> Vec2|None:
+    def lensShift(self) -> _struct.Vec2|None:
         try:
-            lens = Vec2()
-            self._il2cpp._UnityEngine_Camera__get_lensShift(ctypes.byref(lens), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Camera__get_lensShift'])
+            lens = _struct.Vec2()
+            self._il2cpp._UnityEngine_Camera__get_lensShift(_ctypes.byref(lens), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Camera__get_lensShift'])
             return lens
         except:
             return None
     
     @lensShift.setter
-    def lensShift(self, value:list|tuple|Vec2):
+    def lensShift(self, value:list|tuple|_struct.Vec2):
         try:
             lens = self._il2cpp._vec2_helper(value)
-            self._il2cpp._UnityEngine_Camera__set_lensShift(ctypes.pointer(lens), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Camera__set_lensShift'])
+            self._il2cpp._UnityEngine_Camera__set_lensShift(_ctypes.pointer(lens), self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Camera__set_lensShift'])
         except:
             pass
 
@@ -1089,17 +1085,17 @@ class Camera(Component):
         
 
     @property
-    def pixelRect(self) -> Rect|None:
+    def pixelRect(self) -> _struct.Rect|None:
         try:
             return self._il2cpp._UnityEngine_Camera__get_pixelRect(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Camera__get_pixelRect'])
         except:
             return None
     
     @pixelRect.setter
-    def pixelRect(self, rect:list|tuple|Rect):
+    def pixelRect(self, rect:list|tuple|_struct.Rect):
         try:
             rect = self._il2cpp._rect_helper(rect)
-            self._il2cpp._UnityEngine_Camera__set_pixelRect(self.ptr, ctypes.pointer(rect), self._il2cpp._methodInfoData['_UnityEngine_Camera__set_pixelRect'])
+            self._il2cpp._UnityEngine_Camera__set_pixelRect(self.ptr, _ctypes.pointer(rect), self._il2cpp._methodInfoData['_UnityEngine_Camera__set_pixelRect'])
         except:
             pass
 
@@ -1145,41 +1141,41 @@ class Camera(Component):
         except:
             pass
 
-    def ScreenPointToRay(self) -> Ray|None:
+    def ScreenPointToRay(self) -> _struct.Ray|None:
         try:
-            ray = Ray()
-            pos = Vec3()
-            self._il2cpp._UnityEngine_Input__get_mousePosition(ctypes.byref(pos), self._il2cpp._methodInfoData['_UnityEngine_Input__get_mousePosition'])
-            self._il2cpp._UnityEngine_Camera__ScreenPointToRay(ctypes.byref(ray), self.ptr, ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Camera__ScreenPointToRay'])
+            ray = _struct.Ray()
+            pos = _struct.Vec3()
+            self._il2cpp._UnityEngine_Input__get_mousePosition(_ctypes.byref(pos), self._il2cpp._methodInfoData['_UnityEngine_Input__get_mousePosition'])
+            self._il2cpp._UnityEngine_Camera__ScreenPointToRay(_ctypes.byref(ray), self.ptr, _ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Camera__ScreenPointToRay'])
             return ray
         except:
             return None
         
-    def ScreenToWorldPoint(self) -> Vec3|None:
+    def ScreenToWorldPoint(self) -> _struct.Vec3|None:
         try:
-            mouse_pos = Vec3()
-            pos = Vec3()
-            self._il2cpp._UnityEngine_Input__get_mousePosition(ctypes.byref(mouse_pos), self._il2cpp._methodInfoData['_UnityEngine_Input__get_mousePosition'])
-            self._il2cpp._UnityEngine_Camera__ScreenToWorldPoint(ctypes.byref(pos), self.ptr, ctypes.pointer(mouse_pos), self._il2cpp._methodInfoData['_UnityEngine_Camera__ScreenToWorldPoint'])
+            mouse_pos = _struct.Vec3()
+            pos = _struct.Vec3()
+            self._il2cpp._UnityEngine_Input__get_mousePosition(_ctypes.byref(mouse_pos), self._il2cpp._methodInfoData['_UnityEngine_Input__get_mousePosition'])
+            self._il2cpp._UnityEngine_Camera__ScreenToWorldPoint(_ctypes.byref(pos), self.ptr, _ctypes.pointer(mouse_pos), self._il2cpp._methodInfoData['_UnityEngine_Camera__ScreenToWorldPoint'])
             return pos
         except:
             return None
         
-    def WorldToScreenPoint(self, pos:list|tuple|Vec3) -> Vec3|None:
+    def WorldToScreenPoint(self, pos:list|tuple|_struct.Vec3) -> _struct.Vec3|None:
         try:
             pos = self._il2cpp._vec3_helper(pos)
-            screen_pos = Vec3()
-            self._il2cpp._UnityEngine_Camera__WorldToScreenPoint(ctypes.byref(screen_pos), self.ptr, ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Camera__WorldToScreenPoint'])
+            screen_pos = _struct.Vec3()
+            self._il2cpp._UnityEngine_Camera__WorldToScreenPoint(_ctypes.byref(screen_pos), self.ptr, _ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Camera__WorldToScreenPoint'])
             return screen_pos
         except:
             return None
 
 
-    def ScreenToViewportPoint(self, pos:list|tuple|Vec3) -> Vec3|None:
+    def ScreenToViewportPoint(self, pos:list|tuple|_struct.Vec3) -> _struct.Vec3|None:
         try:
             pos = self._il2cpp._vec3_helper(pos)
-            viewport_pos = Vec3()
-            self._il2cpp._UnityEngine_Camera__ScreenToViewportPoint(ctypes.byref(viewport_pos), self.ptr, ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Camera__ScreenToViewportPoint'])
+            viewport_pos = _struct.Vec3()
+            self._il2cpp._UnityEngine_Camera__ScreenToViewportPoint(_ctypes.byref(viewport_pos), self.ptr, _ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Camera__ScreenToViewportPoint'])
             return viewport_pos
         except:
             return None
@@ -1196,7 +1192,7 @@ class Collider(Component):
             return None
         
     @property
-    def bounds(self) -> Bounds|None:
+    def bounds(self) -> _struct.Bounds|None:
         try:
             return self._il2cpp._UnityEngine_Collider_get_bounds(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Collider_get_bounds'])
         except:
@@ -1230,10 +1226,10 @@ class Collider(Component):
         except:
             pass
 
-    def Raycast(self, ray:Ray, maxDistance:float) -> bool|RaycastHit|None:
+    def Raycast(self, ray:_struct.Ray, maxDistance:float) -> bool|_struct.RaycastHit|None:
         try:
-            hitInfo = RaycastHit()
-            result = self._il2cpp._UnityEngine_Collider_Raycast(self.ptr, ctypes.pointer(ray), ctypes.byref(hitInfo), maxDistance, self._il2cpp._methodInfoData['_UnityEngine_Collider_Raycast'])
+            hitInfo = _struct.RaycastHit()
+            result = self._il2cpp._UnityEngine_Collider_Raycast(self.ptr, _ctypes.pointer(ray), _ctypes.byref(hitInfo), maxDistance, self._il2cpp._methodInfoData['_UnityEngine_Collider_Raycast'])
             if result:
                 hitInfo.collider = self._il2cpp._UnityEngine_Object__FindObjectFromInstanceID(hitInfo.collider, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectFromInstanceID'])
                 return hitInfo
