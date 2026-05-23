@@ -149,3 +149,11 @@ TYPE_CTYPE_MAP = {
     "System.UIntPtr": _ctypes.c_void_p,
     "System.Void": None
 }
+
+PYTHON_TO_CTYPES = {
+    int: _ctypes.c_longlong,
+    float: _ctypes.c_float,
+    bool: _ctypes.c_bool,
+    bytes: _ctypes.c_char_p,
+    str: _ctypes.c_char_p,
+}

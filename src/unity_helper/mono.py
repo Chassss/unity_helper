@@ -7,7 +7,7 @@ Reserved for internal use only.
 import ctypes, struct, re
 from .objects import Object
 from .memory import get_pages, read_bytes, is_64bit
-from .constants import FieldAttribute, MethodAttribute, TypeAttribute, TYPE_CTYPE_MAP
+from .constants import FieldAttribute, MethodAttribute, TypeAttribute, TYPE_CTYPE_MAP, PYTHON_TO_CTYPES
 from functools import cached_property
 
 
@@ -260,7 +260,7 @@ class MonoClass():
         return self._fields
     
 
-    def findObject_of_type(self, includeInactive=False) -> Object|None:
+    def find_object_of_type(self, includeInactive=False) -> Object|None:
         """
         Retreives a object baed on the current objects type.
 
@@ -271,11 +271,11 @@ class MonoClass():
             Object: An object containing various methods and data for interacting with the object.
         """
         try:
-            return Object(self._il2cpp._UnityEngineObject__FindObjectOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngineObject__FindObjectOfType']))
+            return Object(self._il2cpp._UnityEngine_Object__FindObjectOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectOfType']))
         except:
             return None
 
-    def findObjects_of_type(self, includeInactive=False) -> list[Object]|None:
+    def find_objects_of_type(self, includeInactive=False) -> list[Object]|None:
         """
         Retreives a object baed on the current objects type.
 
@@ -286,7 +286,7 @@ class MonoClass():
             list[Object]: A list containing Object objects.
         """
         try:
-            arr = self._il2cpp._UnityEngineObject__FindObjectsOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngineObject__FindObjectsOfType'])
+            arr = self._il2cpp._UnityEngine_Object__FindObjectsOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectsOfType'])
             objects = [Object(i) for i in self._il2cpp._read_il2cpp_array(arr)]
             return objects
         except:
@@ -430,32 +430,22 @@ class MonoMethod():
     def __call__(self, *args) -> int|ctypes._SimpleCData|None:
         with self._il2cpp._attached_context():
             argc = len(args)
-
+            
             c_args = (ctypes.c_void_p * max(1, argc))()
             for i, v in enumerate(args):
-                if isinstance(v, ctypes.c_void_p):
+                if not isinstance(v, ctypes.c_void_p):
+                    if isinstance(v, str):
+                        v = self._il2cpp._il2cpp_string_new(v.encode())
+                        c_args[i] = ctypes.cast(v, ctypes.c_void_p)
+                    else:
+                        v = PYTHON_TO_CTYPES.get(type(v), lambda x: x)(v)
+                        c_args[i] = ctypes.cast(ctypes.pointer(v), ctypes.c_void_p)
+                else:
                     c_args[i] = v
-                else:
-                    c_args[i] = ctypes.cast(ctypes.pointer(v), ctypes.c_void_p)
-
-            instance = self.__owner.instance
-            if instance:
-                if isinstance(instance, ctypes.c_void_p):
-                    instance_ptr = instance
-                elif isinstance(instance, int):
-                    instance_ptr = ctypes.c_void_p(instance)
-                else:
-                    instance_ptr = ctypes.cast(instance, ctypes.c_void_p)
-            else:
-                instance_ptr = None
+                
 
             exc = ctypes.c_void_p()
-            ret = self._il2cpp._il2cpp_runtime_invoke(
-                ctypes.c_void_p(self.methodInfo),
-                instance_ptr,
-                c_args if argc else None,
-                ctypes.byref(exc)
-            )
+            ret = self._il2cpp._il2cpp_runtime_invoke(ctypes.c_void_p(self.methodInfo), ctypes.c_void_p(self.instance), c_args if argc else None, ctypes.byref(exc))
 
             if not ret:
                 return None
