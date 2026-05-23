@@ -81,7 +81,7 @@ class Rigidbody(_UnityObject):
     """
     Represents a physics body with mass, velocity, and forces.
     
-    To create your own Rigidbody class simply get the address of the Rigidbody object
+    To create your own Rigidbody class simply get the address of the Rigidbody object\n
     and then do Rigidbody(address)
     """
     @property
@@ -241,7 +241,7 @@ class Component(_UnityObject):
     """
     Base class for objects that can be attached to objects to define behavior.
     
-    To create your own Component class simply get the address of the Component object
+    To create your own Component class simply get the address of the Component object\n
     and then do Component(address)
     """
     @property
@@ -308,9 +308,9 @@ class Component(_UnityObject):
 
 class Transform(Component):
     """
-    Represents the position, rotation, and scale of an entity.
+    Represents a Transform class object with position, mass, scale, rotation. 
     
-    To create your own Transform class simply get the address of the Transform object
+    To create your own Transform class simply get the address of the Transform object\n
     and then do Transform(address)
     """
 
@@ -588,7 +588,7 @@ class Scene(_UnityObject):
     """
     Represents a collection of entities and components.
     
-    To create your own Scene class simply get the address of the Scene object
+    To create your own Scene class simply get the address of the Scene object\n
     and then do Scene(address)
     """
     @property
@@ -655,7 +655,7 @@ class Object(_UnityObject):
     """
     Base class for all engine objects.
     
-    To create your own Object class simply get the address of the Object object
+    To create your own Object class simply get the address of the Object object\n
     and then do Object(address)
 
     Not all functions will work as expected because all GameObjects are objects but not all Objects are GameObjects
@@ -819,7 +819,7 @@ class Camera(Component):
     """
     Defines a viewpoint into the scene.
     
-    To create your own Camera class simply get the address of the Camera object
+    To create your own Camera class simply get the address of the Camera object\n
     and then do Camera(address)
     """
     @property
@@ -1181,6 +1181,12 @@ class Camera(Component):
             return None
 
 class Collider(Component):
+    """
+    Represents a Collider class object.
+    
+    To create your own Collider class simply get the address of the Collider object\n
+    and then do Collider(address)
+    """
     @property
     def attachedRigidbody(self) -> Rigidbody|None:
         try:

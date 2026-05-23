@@ -20,8 +20,8 @@ class Il2cpp(Bindings):
     High-level wrapper for unity IL2CPP based games to be able to interact with its information.
 
     Args:
-        warn_on_missing (bool): If True, emits a warning when a built in requested method is not found; if False, missing methods fail silently. Defaults to True.
-        init_il2cpp (bool): If True it manually calls il2cpp_init to prevent crashing when attemping to call functions that rely on il2cpp to be initialized first (may break some games). Defaults to True.
+        warn_on_missing (bool): If True, emits a warning when a built in requested method is not found; if False, missing methods fail silently. Defaults to `True`.
+        init_il2cpp (bool): If True it manually calls il2cpp_init to prevent crashing when attemping to call functions that rely on il2cpp to be initialized first (may break some games). Defaults to `True`.
     """
     inst = None
     def __init__(self, warn_on_missing:bool=True, init_il2cpp:bool=True):
@@ -183,11 +183,11 @@ class Il2cpp(Bindings):
         
     def get_class_from_name(self, assembly_name:str, klass:str, cache:bool=True) -> MonoClass:
         """
-        Retrieve a MonoClass object by its name.
+        Retrieve a ``MonoClass`` object by its name.
 
         Args:
-            assembly_name (str): Name of the assembly, e.g., 'UnityEngine.PhysicsModule.dll'.
-            klass (str): Fully qualified type name, e.g. 'UnityEngine.Collider'
+            assembly_name (str): Name of the assembly, e.g., ``'UnityEngine.PhysicsModule.dll'``.
+            klass (str): Fully qualified type name, e.g. ``'UnityEngine.Collider'``.
 
         Returns:
             MonoClass: An object containing metadata about the class, including its methods, fields and properties.
@@ -227,19 +227,19 @@ class Il2cpp(Bindings):
 
             return monoclass
 
-    def find_method(self, assembly_name:str, klass:str, method_name:str, param_count:int|None = None, cache:bool = True) -> MonoMethod:
+    def find_method(self, assembly_name:str, klass:str, method_name:str, param_count:int|None = None, cache:bool = True) -> MonoMethod|None:
         """
-        Retrieve a MonoMethod object given its name.
+        Retrieve a ``MonoMethod`` object given its name.
 
         Args:
-            assembly_name (str): Name of the assembly, e.g., 'UnityEngine.PhysicsModule.dll'.
-            klass (str): Fully qualified type name, e.g. 'UnityEngine.Collider'
-            method_name (str): Name of the method, e.g., 'get_enabled'.
-            param_count (Optional[int], optional): Param count of the function, e.g., 5. Defaults to None.
-            cache (bool, optional): Whether to cache the MonoClass object for faster future lookups. Defaults to True.
+            assembly_name (str): Name of the assembly, e.g., ``'UnityEngine.PhysicsModule.dll'``.
+            klass (str): Fully qualified type name, e.g. ``'UnityEngine.Collider'``.
+            method_name (str): Name of the method, e.g., ``'get_enabled'``.
+            param_count (Optional[int], optional): Param count of the function, e.g., 5. Defaults to ``None``.
+            cache (bool, optional): Whether to cache the ``MonoClass`` object for faster future lookups. Defaults to `True`.
 
         Returns:
-            MonoMethod: An object containing metadata about the method.
+            MonoMethod | None: An object representing the method and its metadata.
         """
         param_range = [param_count] if param_count is not None else range(0, 11)
         
@@ -264,7 +264,7 @@ class Il2cpp(Bindings):
         Retreives the main Camera object.
 
         Returns:
-            Camera: An object containing various methods and data for interacting with the camera
+            Camera | None: Main camera if available, otherwise ``None``.
         """
         try:
             addr = self._UnityEngine_Camera_get_main(self._methodInfoData['_UnityEngine_Camera_get_main'])
@@ -276,10 +276,10 @@ class Il2cpp(Bindings):
     
     def get_currentCamera(self) -> Camera|None:
         """
-        Retreives the current Camera object.
+        Retrieve the current camera object.
 
         Returns:
-            Camera: An object containing various methods and data for interacting with the camera
+            Camera | None: Current camera if available, otherwise ``None``.
         """
         try:
             addr = self._UnityEngine_Camera_get_current(self._methodInfoData['_UnityEngine_Camera_get_current'])
@@ -291,10 +291,10 @@ class Il2cpp(Bindings):
     
     def get_allCameras(self) -> list[Camera]|None:
         """
-        Retreives all active Camera objects.
+        Retrieve all active camera objects.
 
         Returns:
-            list[Camera]: A list containing Camera objects
+            list[Camera] | None: List of active cameras if found, otherwise ``None``.
         """
         try:
             arr = self._UnityEngine_Camera_get_allCameras(self._methodInfoData['_UnityEngine_Camera_get_allCameras'])
@@ -305,10 +305,10 @@ class Il2cpp(Bindings):
     
     def get_all_camerasCount(self) -> int|None:
         """
-        Retreives the amount of active cameras
+        Retrieve the number of active cameras.
 
         Returns:
-            int: A value indicating the amount of active cameras
+            int | None: Number of active cameras, otherwise ``None``.
         """
         try:
             return self._UnityEngine_Camera_get_allCamerasCount(0, self._methodInfoData['_UnityEngine_Camera_get_allCamerasCount'])
@@ -316,15 +316,15 @@ class Il2cpp(Bindings):
             return None
 
 
-    def find_object(self, object_str:str) -> Object:
+    def find_object(self, object_str:str) -> Object|None:
         """
-        Retreives a object based on the given name
+        Retrieve an object by name.
 
         Args:
-            object_str (str): Object name e.g., 'Player'
+            object_str (str): Object name e.g., ``'Player'``.
 
         Returns:
-            Object: An object containing various methods and data for interacting with the object.
+            Object | None: Matching object if found, otherwise ``None``.
         """
         try:
             obj = self._UnityEngine_GameObject__Find(self._il2cpp_string_new(object_str.encode()), self._methodInfoData['_UnityEngine_GameObject__Find'])
@@ -334,15 +334,15 @@ class Il2cpp(Bindings):
         except:
             return None
     
-    def find_object_with_tag(self, tag_str:str) -> Object:
+    def find_object_with_tag(self, tag_str:str) -> Object|None:
         """
-        Retreives a object based on the given name
+        Retreives a object by tag
 
         Args:
-            tag_str (str): Object name e.g., 'Player'
+            tag_str (str): Object name e.g., ``'Player'``.
 
         Returns:
-            Object: An object containing various methods and data for interacting with the object.
+            Object | None: Matching object if found, otherwise ``None``.
         """
         try:
             obj = self._UnityEngine_GameObject__FindGameObjectWithTag(self._il2cpp_string_new(tag_str.encode()), self._methodInfoData['_UnityEngine_GameObject__FindGameObjectWithTag'])
@@ -361,7 +361,7 @@ class Il2cpp(Bindings):
             tag_str (str): Object name e.g., 'Player'
 
         Returns:
-            List[Object]: A list containing object objects.
+            List[Object]: A list containing object objects if found otherwise ``None``.
         """
         try:
             arr = self._UnityEngine_GameObject__FindGameObjectsWithTag(self._il2cpp_string_new(tag_str.encode()), self._methodInfoData['_UnityEngine_GameObject__FindGameObjectsWithTag'])
@@ -372,13 +372,13 @@ class Il2cpp(Bindings):
         
     def list_classes_in_image(self, assembly_name:str) -> list[MonoClass]:
         """
-        Retrieves a List containing MonoClass objects of each class in an imagine
+        Retrieve all classes in an assembly image.
 
         Args:
-            assembly_name (str): Name of the assembly, e.g., 'Assembly-CSharp.dll'.
+            assembly_name (str): Assembly name e.g., ``'Assembly-CSharp.dll'``.
 
         Returns:
-            List[MonoClass]: A List containing MonoClass objects
+            list[MonoClass]: List of ``MonoClass`` objects.
         """
         asm_ptr = self.__open_assembly(assembly_name)
         if not asm_ptr:
@@ -420,7 +420,7 @@ class Il2cpp(Bindings):
         Retrieves a list of assembly names.
 
         Returns:
-            list[int]: List containing all the loaded assemblies names
+            list[str]: List containing all the loaded assemblies names.
         """
         assemblies = []
 
@@ -457,7 +457,16 @@ class Il2cpp(Bindings):
 
         return assemblies
     
-    def dump_methods(self, image:str) -> dict:
+    def dump_methods(self, image:str) -> dict|None:
+        """
+        Dumps all methods in an image in the ``Il2cppDumper`` format
+
+        Args:
+            image (str): Name of the assembly, e.g., ``'UnityEngine.PhysicsModule.dll'``.
+
+        Returns:
+            dict[str, list] | None: Structured Il2cppDumper-style output or ``None`` if unavailable.
+        """
         classes = self.list_classes_in_image(image)
 
         base_dict = {"ScriptMethod": [], "Addresses": []}

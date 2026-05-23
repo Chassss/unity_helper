@@ -153,15 +153,15 @@ class MonoClass():
 
     def find_method(self, method_name:str, param_count:int=None, cache:bool=True) -> MonoMethod|None:
         """
-        Retrieve a MonoMethod object given its name.
+        Retrieve a ``MonoMethod`` object given its name.
 
         Args:
-            method_name (str): Name of the method, e.g., 'set_timeScale'.
-            param_count (Optional[int], optional): Param count of the function, e.g., 5. Defaults to None.
-            cache (bool, optional): Whether to cache the MonoClass object for faster future lookups. Defaults to True.
+            method_name (str): Name of the method, e.g., `'set_timeScale'`.
+            param_count (Optional[int], optional): Param count of the function, e.g., ``5``. Defaults to ``None``.
+            cache (bool, optional): Whether to cache the ``MonoClass`` object for faster future lookups. Defaults to ``True``.
 
         Returns:
-            MonoMethod: An object containing metadata about the method.
+            MonoMethod | None: An object representing the method and its metadata if found otherwise ``None``.
         """   
         methods = self.list_methods(cache)
         if methods:
@@ -176,13 +176,13 @@ class MonoClass():
 
     def list_methods(self, cache=True) -> list[MonoMethod]|None:
         """
-        Retrieve a list of MonoMethod objects.
+        Retrieve a list of ``MonoMethod`` objects.
 
         Args:
-            cache (bool, optional): Whether to cache the MonoClass object for faster future lookups. Defaults to True.
+            cache (bool, optional): Whether to cache the ``MonoClass`` object for faster future lookups. Defaults to ``True``.
 
         Returns:
-            list[MonoMethod]: A list containing MonoMethod objects.
+            list[MonoMethod]: A list containing ``MonoMethod`` objects.
         """   
         if cache and self._methods:
             return self._methods
@@ -211,13 +211,13 @@ class MonoClass():
 
     def find_field(self, field:str, cache=True) -> MonoField|None:
         """
-        Retrieve a MonoField object given its name.
+        Retrieve a ``MonoField`` object given its name.
 
         Args:
-            field (str): Name of the method, e.g., 'set_timeScale'.
+            field (str): Name of the method, e.g., `'set_timeScale'`.
             
         Returns:
-            MonoField: An object containing metadata about the method.
+            MonoField | None: An object containing metadata about the method if found otherwise ``None``.
         """   
         for i in self.list_fields(cache):
             if i.name == field:
@@ -225,7 +225,13 @@ class MonoClass():
 
     def list_fields(self, cache=True) -> list[MonoField] | None:
         """
-        Retrieve a list of MonoField objects, including inherited fields.
+        Retrieve a list of ``MonoField`` objects, including inherited fields.
+
+        Args:
+            cache (bool, optional): Whether to cache the ``MonoClass`` object for faster future lookups. Defaults to ``True``.
+
+        Returns:
+            list[MonoField] | None: A list containing ``MonoField`` objects if found otherwise ``None``.
         """
         if cache and self._fields:
             return self._fields
@@ -268,7 +274,7 @@ class MonoClass():
             includeInactive (bool): Whether to include incative objects.
 
         Returns:
-            Object: An object containing various methods and data for interacting with the object.
+            Object | None: An object containing various methods and data for interacting with the object if found otherwise ``None``.
         """
         try:
             return Object(self._il2cpp._UnityEngine_Object__FindObjectOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectOfType']))
@@ -277,13 +283,13 @@ class MonoClass():
 
     def find_objects_of_type(self, includeInactive=False) -> list[Object]|None:
         """
-        Retreives a object baed on the current objects type.
+        Retrieves all objects matching the current object's type.
 
         Args:
             includeInactive (bool): Whether to include incative objects.
 
         Returns:
-            list[Object]: A list containing Object objects.
+            list[Object] | None: A list containing `Object` objects if found otherwise ``None``.
         """
         try:
             arr = self._il2cpp._UnityEngine_Object__FindObjectsOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectsOfType'])
@@ -343,7 +349,7 @@ class MonoMethod():
     @property
     def address(self) -> int:
         """
-        Actual address of the method in memory.
+        Address of the method in memory.
         """
         return self._address
     @property
@@ -492,11 +498,11 @@ class MonoMethod():
         Writes bytes at the function and given offset
 
         Args:
-            code (str | bytes): Data to be written e.g., 'mov al,01;ret' or b'\xb0\x01\xc3' 
-            offset (int, optional): Offset at which the code will be written to. Defaults to 0.
+            code (str | bytes): Data to be written e.g., ``'mov al,01;ret'`` or ``b'\\xb0\\x01\\xc3'``.
+            offset (int, optional): Offset at which the code will be written to. Defaults to ``0``.
 
         Returns:
-            If the function succeeds the value is True otherwise its None 
+            If the function succeeds the value is ``True`` otherwise ``None`` 
         """
         try:
             if isinstance(code, str):
@@ -584,7 +590,7 @@ class MonoField():
     @property
     def value(self):
         """
-        Current value of the field
+        Current value of the field.
         """
         if not self.instance and not self.is_static:
             raise RuntimeError("Non-static field access requires an instance")
