@@ -324,7 +324,7 @@ class MonoMethod():
     def __init__(self, owner, il2cpp, name, address, methodInfo, param_count, param_info, signature, return_value, is_static, flags):
         self._il2cpp = il2cpp
         self.__owner = owner
-        self._name = name
+        self._name:str = name
         self._address:int = address
         self._methodInfo:int = methodInfo
         self._param_count:int = param_count
@@ -524,7 +524,7 @@ class MonoField():
     @property
     def ptr(self) -> int:
         """
-        Address of the field in memory.
+        Pointer to the IL2CPP field metadata.
         """
         return self._ptr
     @property
@@ -546,7 +546,7 @@ class MonoField():
         Parent class instance address.
         """
         return self.__owner.instance
-    
+
     @instance.setter
     def instance(self, value:int):
         if not isinstance(value, int):
@@ -567,6 +567,20 @@ class MonoField():
         """
         return {i.name: i in self.flags for i in FieldAttribute}
         
+    @property
+    def offset(self) -> int:
+        """
+        Field offset in the class.
+        """
+        return self._il2cpp._il2cpp_field_get_offset(self.ptr)
+    
+    @property
+    def address(self) -> int:
+        """
+        Field address in memory.
+        """
+        return self.instance + self.offset if self.instance else None
+    
     @property
     def value(self):
         """
