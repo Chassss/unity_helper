@@ -594,7 +594,7 @@ class Scene(_UnityObject):
     @property
     def name(self) -> str|None:
         try:
-            name_addr = self._il2cpp._UnityEngine_Scene__get_name(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Scene__get_name'])
+            name_addr = self._il2cpp._UnityEngine_Scene__get_name(_ctypes.byref(self.ptr), self._il2cpp._methodInfoData['_UnityEngine_Scene__get_name'])
             return self._il2cpp.memory.read_unicode_string(name_addr + 0x14, self._il2cpp.memory.read_int(name_addr + 0x10) * 2)
         except:
             return None
@@ -602,7 +602,7 @@ class Scene(_UnityObject):
     @property
     def path(self) -> str|None:
         try:
-            name_addr = self._il2cpp._UnityEngine_Scene__get_path(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Scene__get_path'])
+            name_addr = self._il2cpp._UnityEngine_Scene__get_path(_ctypes.byref(self.ptr), self._il2cpp._methodInfoData['_UnityEngine_Scene__get_path'])
             return self._il2cpp.memory.read_unicode_string(name_addr + 0x14, self._il2cpp.memory.read_int(name_addr + 0x10) * 2)
         except:
             return None
@@ -610,27 +610,27 @@ class Scene(_UnityObject):
     @property
     def rootCount(self) -> int|None:
         try:
-            return self._il2cpp._UnityEngine_Scene__get_rootCount(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Scene__get_rootCount'])
+            return self._il2cpp._UnityEngine_Scene__get_rootCount(_ctypes.byref(self.ptr), self._il2cpp._methodInfoData['_UnityEngine_Scene__get_rootCount'])
         except:
             return None
         
     @property
     def loaded(self) -> bool|None:
         try:
-            return self._il2cpp._UnityEngine_Scene__get_isLoaded(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Scene__get_isLoaded'])
+            return self._il2cpp._UnityEngine_Scene__get_isLoaded(_ctypes.byref(self.ptr), self._il2cpp._methodInfoData['_UnityEngine_Scene__get_isLoaded'])
         except:
             return None
         
     def IsValid(self) -> bool|None:
         try:
-            return self._il2cpp._UnityEngine_Scene__IsValid(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Scene__IsValid'])
+            return self._il2cpp._UnityEngine_Scene__IsValid(_ctypes.byref(self.ptr), self._il2cpp._methodInfoData['_UnityEngine_Scene__IsValid'])
         except:
             return None
     
     @property
     def guid(self) -> str|None:
         try:
-            name_addr = self._il2cpp._UnityEngine_Scene__get_guid(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Scene__get_guid'])
+            name_addr = self._il2cpp._UnityEngine_Scene__get_guid(_ctypes.byref(self.ptr), self._il2cpp._methodInfoData['_UnityEngine_Scene__get_guid'])
             return self._il2cpp.memory.read_unicode_string(name_addr + 0x14, self._il2cpp.memory.read_int(name_addr + 0x10) * 2)
         except:
             return None
@@ -638,14 +638,14 @@ class Scene(_UnityObject):
     @property
     def buildIndex(self) -> int|None:
         try:
-            return self._il2cpp._UnityEngine_Scene__get_buildIndex(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Scene__get_buildIndex'])
+            return self._il2cpp._UnityEngine_Scene__get_buildIndex(_ctypes.byref(self.ptr), self._il2cpp._methodInfoData['_UnityEngine_Scene__get_buildIndex'])
         except:
             return None
         
     @property
     def handle(self) -> int|None:
         try:
-            return self._il2cpp._UnityEngine_Scene__get_handle(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_Scene__get_handle'])
+            return self._il2cpp._UnityEngine_Scene__get_handle(_ctypes.byref(self.ptr), self._il2cpp._methodInfoData['_UnityEngine_Scene__get_handle'])
         except:
             return None
         
@@ -1240,5 +1240,70 @@ class Collider(Component):
                 hitInfo.collider = self._il2cpp._UnityEngine_Object__FindObjectFromInstanceID(hitInfo.collider, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectFromInstanceID'])
                 return hitInfo
             return result
+        except:
+            return None
+        
+
+
+
+class SceneManager(_UnityObject):
+    """
+    Represents a SceneManager class object.
+    
+    All methods in this class are static so you can just do some_variable = SceneManager() and then call any function within this class
+    """
+    @property
+    def sceneCount(self) -> int|None:
+        try:
+            return self._il2cpp._UnityEngine_SceneManager__get_sceneCount(self._il2cpp._methodInfoData['_UnityEngine_SceneManager__get_sceneCount'])
+        except:
+            return None
+
+    def CreateScene(self, name:str) -> Scene|None:
+        try:
+            scene = self._il2cpp._UnityEngine_SceneManager__CreateScene(self._il2cpp._il2cpp_string_new(name.encode()), self._il2cpp._methodInfoData['_UnityEngine_SceneManager__CreateScene'])
+            if scene:
+                return Scene(scene)
+            return None
+        except:
+            return None
+        
+    def GetActiveScene(self) -> Scene|None:
+        try:
+            scene = self._il2cpp._UnityEngine_SceneManager__GetActiveScene(self._il2cpp._methodInfoData['_UnityEngine_SceneManager__GetActiveScene'])
+            if scene:
+                return Scene(scene)
+            return None
+        except:
+            return None
+        
+    def GetSceneAt(self, index:int) -> Scene|None:
+        try:
+            scene = self._il2cpp._UnityEngine_SceneManager__GetSceneAt(index, self._il2cpp._methodInfoData['_UnityEngine_SceneManager__GetSceneAt'])
+            if scene:
+                return Scene(scene)
+            return None
+        except:
+            return None
+        
+    def GetSceneByName(self, name:str) -> Scene|None:
+        try:
+            scene = self._il2cpp._UnityEngine_SceneManager__GetSceneByName(self._il2cpp._il2cpp_string_new(name.encode()), self._il2cpp._methodInfoData['_UnityEngine_SceneManager__GetSceneByName'])
+            if scene:
+                return Scene(scene)
+            return None
+        except:
+            return None
+        
+    def LoadScene(self, name:str) -> int|None:
+        try:
+            self._il2cpp._UnityEngine_SceneManager__LoadScene(self._il2cpp._il2cpp_string_new(name.encode()), self._il2cpp._methodInfoData['_UnityEngine_SceneManager__LoadScene'])
+            return 1
+        except:
+            return None
+        
+    def SetActiveScene(self, scene:_struct.Scene) -> bool|None:
+        try:
+            return self._il2cpp._UnityEngine_SceneManager__SetActiveScene(_ctypes.byref(scene), self._il2cpp._methodInfoData['_UnityEngine_SceneManager__SetActiveScene'])
         except:
             return None

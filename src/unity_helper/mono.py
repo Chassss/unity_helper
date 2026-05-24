@@ -628,14 +628,6 @@ class MonoField():
             
             else:
                 self._il2cpp._il2cpp_field_set_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr), ctypes.byref(cval))
-
-
-    @cached_property
-    def attributes(self) -> dict[str, bool]:
-        """
-        Field attribute information.
-        """
-        return {i.name: i in self.flags for i in FieldAttribute}
             
     def __get_type(self, type_name) -> ctypes._SimpleCData|None:
         try:

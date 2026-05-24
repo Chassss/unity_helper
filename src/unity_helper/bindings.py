@@ -4,7 +4,7 @@ Reserved for internal use only.
 """
 
 import ctypes
-from .structures import Vec3, Quaternion, Il2CppAssembly, Bounds, RaycastHit, Ray, Matrix4x4, Color, Vec2, Rect
+from .structures import Vec3, Quaternion, Il2CppAssembly, Bounds, RaycastHit, Ray, Matrix4x4, Color, Vec2, Rect, Scene
 from .mono import MonoClass
 
 
@@ -146,7 +146,7 @@ class Bindings():
         self._UnityEngine_GameObject__get_tag = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_tag', self._gameobject, 'get_tag'))
         self._UnityEngine_GameObject__set_tag = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__set_tag', self._gameobject, 'set_tag'))
         self._UnityEngine_GameObject__get_isStatic = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_isStatic', self._gameobject, 'get_isStatic'))
-        self._UnityEngine_GameObject__get_scene = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_scene', self._gameobject, 'get_scene'))
+        self._UnityEngine_GameObject__get_scene = ctypes.WINFUNCTYPE(Scene, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_scene', self._gameobject, 'get_scene'))
         self._UnityEngine_GameObject__get_layer = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_layer', self._gameobject, 'get_layer'))
         self._UnityEngine_GameObject__set_layer = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__set_layer', self._gameobject, 'set_layer'))
         self._UnityEngine_GameObject__get_activeInHierarchy = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_activeInHierarchy', self._gameobject, 'get_activeInHierarchy'))
@@ -286,16 +286,33 @@ class Bindings():
         self._UnityEngine_Rigidbody_get_constraints = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Rigidbody_get_constraints', self._rigidbody, 'get_constraints'))
         self._UnityEngine_Rigidbody_set_constraints = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)(self.__find_method('_UnityEngine_Rigidbody_set_constraints', self._rigidbody, 'set_constraints'))
 
-        self._scene = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine.SceneManagement', 'Scene')
+        self._scene = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine.SceneManagement.Scene')
 
-        self._UnityEngine_Scene__get_name = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__get_name', self._scene, 'get_name'))
-        self._UnityEngine_Scene__get_path = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__get_path', self._scene, 'get_path'))
-        self._UnityEngine_Scene__get_rootCount = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__get_rootCount', self._scene, 'get_rootCount'))
-        self._UnityEngine_Scene__get_isLoaded = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__get_isLoaded', self._scene, 'get_isLoaded'))
-        self._UnityEngine_Scene__get_guid = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__get_guid', self._scene, 'get_guid'))
-        self._UnityEngine_Scene__get_buildIndex = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__get_buildIndex', self._scene, 'get_buildIndex'))
-        self._UnityEngine_Scene__get_handle = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__get_handle', self._scene, 'get_handle'))
-        self._UnityEngine_Scene__IsValid = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__IsValid', self._scene, 'IsValid'))
+        # For some stupid fucking reason get_scene returns a Scene structure object not a pointer (or even an address to the start of the structure), and the only
+        # data this stupid struct has is m_Handle.
+        # This handle for example can be -92 and every single function that gets a scene "object" actually just does this stupid fucking behavior.
+        # In order to actually invoke functions properly we have to have a pointer to the Scene structure and ONLY then can we invoke these functions properly.
+        # Any function that has a return like this: UnityEngine_SceneManagement_Scene_o and not UnityEngine_SceneManagement_Scene_o* has to return the actual struct
+        # and be called via some_func(ctypes.byref(this_dumb_structure)) and NOT some_func(this_dump_structure).
+        self._UnityEngine_Scene__get_name = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.POINTER(Scene), ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__get_name', self._scene, 'get_name'))
+        self._UnityEngine_Scene__get_path = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.POINTER(Scene), ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__get_path', self._scene, 'get_path'))
+        self._UnityEngine_Scene__get_rootCount = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.POINTER(Scene), ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__get_rootCount', self._scene, 'get_rootCount'))
+        self._UnityEngine_Scene__get_isLoaded = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(Scene), ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__get_isLoaded', self._scene, 'get_isLoaded'))
+        self._UnityEngine_Scene__get_guid = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.POINTER(Scene), ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__get_guid', self._scene, 'get_guid'))
+        self._UnityEngine_Scene__get_buildIndex = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.POINTER(Scene), ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__get_buildIndex', self._scene, 'get_buildIndex'))
+        self._UnityEngine_Scene__get_handle = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.POINTER(Scene), ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__get_handle', self._scene, 'get_handle'))
+        self._UnityEngine_Scene__IsValid = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(Scene), ctypes.c_void_p)(self.__find_method('_UnityEngine_Scene__IsValid', self._scene, 'IsValid'))
+
+
+        self._scene_manager = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine.SceneManagement.SceneManager')
+
+        self._UnityEngine_SceneManager__get_sceneCount = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p)(self.__find_method('_UnityEngine_SceneManager__get_sceneCount', self._scene_manager, 'get_sceneCount'))
+        self._UnityEngine_SceneManager__CreateScene = ctypes.WINFUNCTYPE(Scene, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_SceneManager__CreateScene', self._scene_manager, 'CreateScene', 1))
+        self._UnityEngine_SceneManager__GetActiveScene = ctypes.WINFUNCTYPE(Scene, ctypes.c_void_p)(self.__find_method('_UnityEngine_SceneManager__GetActiveScene', self._scene_manager, 'GetActiveScene'))
+        self._UnityEngine_SceneManager__GetSceneByName = ctypes.WINFUNCTYPE(Scene, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_SceneManager__GetSceneByName', self._scene_manager, 'GetSceneByName'))
+        self._UnityEngine_SceneManager__LoadScene = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_SceneManager__LoadScene', self._scene_manager, 'LoadScene', 1))
+        self._UnityEngine_SceneManager__SetActiveScene = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_SceneManager__SetActiveScene', self._scene_manager, 'SetActiveScene'))
+        self._UnityEngine_SceneManager__GetSceneAt = ctypes.WINFUNCTYPE(Scene, ctypes.c_int, ctypes.c_void_p)(self.__find_method('_UnityEngine_SceneManager__GetSceneAt', self._scene_manager, 'GetSceneAt', 1))
 
 
         self._physics = self.get_class_from_name('UnityEngine.PhysicsModule.dll', 'UnityEngine.Physics')
