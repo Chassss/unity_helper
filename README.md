@@ -96,10 +96,11 @@ set_timeScale = time.method.set_timeScale # Getting a method the lazy way
 if not set_timeScale.is_static:
     time.instance = 123456789
 
-set_timeScale(ctypes.c_float(5))
+set_timeScale(ctypes.c_float(5)) # Invoke set_timeScale with an explicit native float type
+set_timeScale_m(5.0) # Invoke set_timeScale with automatic type conversion
 ```
 
-Using ctypes directly:
+Using ctypes directly (most consistent):
 
 ```python
 new_set_timeScale = ctypes.WINFUNCTYPE(
@@ -196,16 +197,21 @@ for clazz in ref.list_classes_in_image('Assembly-CSharp.dll'):
 - This is a Python script that **must be executed within the game's process**.
 - It **does not work as a standalone script** and cannot interact with external processes.
 - Running it outside of the game environment will not work.
+- Directly calling a `MonoMethod` can lead to inconsistencies due to the vast number of underlying engine data types. For best results, dynamically create a `WINFUNCTYPE` or `CFUNCTYPE` wrapper and invoke it that way.
 
 ---
 
 ## 🔴 Known issues
-- Accessing the scene property on a GameObject returns an invalid scene object
+- None! All known bugs have been squashed. If you run into any unexpected behavior or crashes, please feel free to open an **Issue** on GitHub.
 
---
+---
 
-## 📝 TODO
-- Add detection for obfuscation and de-obfuscate any obfuscated names.
+## 📝 Future Roadmap / TODO
+- [x] Eliminate the `pylocalmem` dependency by reimplementing all required functions in `memory.py` using `ReadProcessMemory`, ensuring crash safety.
+- [ ] Add obfuscation detection and implement basic name de-obfuscation. *(Experimental / Tentative)*
+- [ ] Create advanced usage examples.
+
+---
 
 ## 📄 License
 
