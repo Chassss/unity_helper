@@ -209,7 +209,6 @@ for clazz in ref.list_classes_in_image('Assembly-CSharp.dll'):
 ## 📝 Future Roadmap / TODO
 - [x] Eliminate the `pylocalmem` dependency by reimplementing all required functions in `memory.py` using `ReadProcessMemory`, ensuring crash safety.
 - [ ] Add obfuscation detection and implement basic name de-obfuscation. *(Experimental / Tentative)*
-- [ ] Create advanced usage examples.
 
 ---
 
