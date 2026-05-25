@@ -765,7 +765,20 @@ class Object(_UnityObject):
             return self._il2cpp._UnityEngine_GameObject__get_sceneCullingMask(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_GameObject__get_sceneCullingMask'])
         except:
             return None
+        
+    @property
+    def active(self) -> bool|None:
+        try:
+            return self._il2cpp._UnityEngine_GameObject__get_active(self.ptr, self._il2cpp._methodInfoData['_UnityEngine_GameObject__get_active'])
+        except:
+            return None
     
+    @active.setter
+    def active(self, value:bool):
+        try:
+            self._il2cpp._UnityEngine_GameObject__set_active(self.ptr, value, self._il2cpp._methodInfoData['_UnityEngine_GameObject__set_active'])
+        except:
+            pass
         
     def SetActive(self, value:bool) -> int|None:
         try:

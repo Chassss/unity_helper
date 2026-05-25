@@ -472,7 +472,7 @@ class MonoMethod():
 
             unboxed = None
             try:
-                unboxed = self._il2cpp._il2cppObject_unbox(raw_ptr)
+                unboxed = self._il2cpp._il2cpp_object_unbox(raw_ptr)
             except:
                 unboxed = None
 

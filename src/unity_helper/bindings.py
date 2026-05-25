@@ -153,6 +153,8 @@ class Bindings():
         self._UnityEngine_GameObject__get_activeSelf = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_activeSelf', self._gameobject, 'get_activeSelf'))
         self._UnityEngine_GameObject__get_sceneCullingMask = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_sceneCullingMask', self._gameobject, 'get_sceneCullingMask'))
         self._UnityEngine_GameObject__GetComponent = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method_by_criteria('_UnityEngine_GameObject__GetComponent', self._gameobject, 'GetComponent', 1, 'System.Type type'))
+        self._UnityEngine_GameObject__get_active = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__get_active', self._gameobject, 'get_active'))
+        self._UnityEngine_GameObject__set_active = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_bool, ctypes.c_void_p)(self.__find_method('_UnityEngine_GameObject__set_active', self._gameobject, 'set_active'))
 
         self._behaviour = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine.Behaviour')
 
