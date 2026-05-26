@@ -134,7 +134,7 @@ def get_player():
 
 # This game is a bit different from the rest, our Move function Vec3 isnt the coordinates of where we move to but rather our .forward Vec3
 @hook(ctypes.CFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, unity_helper.structures.Vec3, ctypes.c_void_p), Move.address)
-def HookedMove(this, pos, method):
+def HookedMove(this, position, method):
     global toggled
 
     if toggled and player:
@@ -171,7 +171,7 @@ def HookedMove(this, pos, method):
         player.transform.localPosition = pos
 
 
-    return HookedMove.original(this, pos, method)
+    return HookedMove.original(this, position, method)
 
 
 @hook(ctypes.WINFUNCTYPE(ctypes.c_ssize_t, ctypes.POINTER(MSG)), ctypes.windll.user32.DispatchMessageW)
