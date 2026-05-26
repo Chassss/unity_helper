@@ -26,7 +26,7 @@ class Il2cpp(Bindings):
     inst = None
     def __init__(self, warn_on_missing:bool=True, init_il2cpp:bool=True):
         self.game_asm = ctypes.WinDLL("GameAssembly.dll")
-        super().__init__()
+
         self.memory = memory
         self.warn_on_missing = warn_on_missing
         self.init_il2cpp = init_il2cpp
@@ -34,6 +34,11 @@ class Il2cpp(Bindings):
         self._tls.attached = None
         self._tls.thread_ptr = None
         self._tls.external_attach = None
+
+        self._assembly_cache: dict[str, int] = {}
+        self._image_cache: dict[int, int] = {}
+        self._methodInfoData: dict[str, int] = {}
+        self._class_cache: list[MonoClass] = []
 
         Il2cpp.inst = self
         self._initialize_internals()

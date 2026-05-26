@@ -113,19 +113,11 @@ class Bindings():
         self._il2cpp_method_is_instance = self.__DO_API(self.game_asm.il2cpp_class_is_inflated, [ctypes.c_void_p], ctypes.c_bool)
         self._il2cpp_object_new = self.__DO_API(self.game_asm.il2cpp_object_new, [ctypes.c_void_p], ctypes.c_void_p)
 
-        self._domain: int|None = None
-        self._attached = False
-        self._assembly_cache: dict[str, int] = {}
-        self._image_cache: dict[int, int] = {}
-        self._methodInfoData: dict[str, int] = {}
-        self._class_cache: list[MonoClass] = []
-
-
         if self.init_il2cpp:
             self._il2cpp_init()
 
     def _initialize_class_bindings(self):
-        self.ensure_attached()
+        self._ensure_attached()
 
         self._component = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine.Component')
 
