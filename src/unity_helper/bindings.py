@@ -113,6 +113,7 @@ class Bindings():
         self._il2cpp_method_is_inflated = self.__DO_API(self.game_asm.il2cpp_class_is_abstract, [ctypes.c_void_p], ctypes.c_bool)
         self._il2cpp_method_is_generic = self.__DO_API(self.game_asm.il2cpp_class_is_generic, [ctypes.c_void_p], ctypes.c_bool)
         self._il2cpp_method_is_instance = self.__DO_API(self.game_asm.il2cpp_class_is_inflated, [ctypes.c_void_p], ctypes.c_bool)
+        self._il2cpp_object_new = self.__DO_API(self.game_asm.il2cpp_object_new, [ctypes.c_void_p], ctypes.c_void_p)
 
         self._domain: int|None = None
         self._attached = False

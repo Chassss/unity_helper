@@ -10,6 +10,8 @@ from .memory import get_pages, read_bytes, is_64bit
 from .constants import FieldAttribute, MethodAttribute, TypeAttribute, TYPE_CTYPE_MAP, PYTHON_TO_CTYPES
 from functools import cached_property
 
+class AbstractClassInstantiationError(Exception):
+    pass
 
 class _FieldAccessor:
     def __init__(self, mono_class):
@@ -295,6 +297,38 @@ class MonoClass():
             arr = self._il2cpp._UnityEngine_Object__FindObjectsOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectsOfType'])
             objects = [Object(i) for i in self._il2cpp._read_il2cpp_array(arr)]
             return objects
+        except:
+            return None
+        
+    
+    def Instantiate(self) -> Object|None:
+        """
+        Creates a new instance of the specified class.
+
+        Raises:
+            AbstractClassInstantiationError:
+                If the class is abstract.
+
+        Returns:
+            Object|None: The created object if successful, otherwise ``None``.
+        """
+        if self.attributes.get("ABSTRACT"):
+            raise AbstractClassInstantiationError(f"Cannot instantiate abstract class '{self.name}'")
+        try:
+            with self._attached_context():
+                obj = self._il2cpp_object_new(self.cls)
+                
+                ctor = self._il2cpp_class_get_method_from_name(self.cls, b'.ctor', 0)
+
+                if not ctor:
+                    return None
+                
+                exc = ctypes.c_void_p()
+                self._il2cpp_runtime_invoke(ctor, obj, None, ctypes.byref(exc))
+            
+            if obj:
+                return Object(obj)
+            return None
         except:
             return None
 
