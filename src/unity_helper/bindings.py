@@ -62,9 +62,7 @@ class Bindings():
                 print(f"Failed to find: {method_name} some built in features wont work")
             return 0
 
-        return 0
-
-    def _initialize(self):
+    def _initialize_internals(self):
         self._il2cpp_init = self.__DO_API(self.game_asm.il2cpp_init, [], ctypes.c_void_p)
         self._il2cpp_domain_get = self.__DO_API(self.game_asm.il2cpp_domain_get, [], ctypes.c_void_p)
         self._il2cpp_thread_attach = self.__DO_API(self.game_asm.il2cpp_thread_attach, [ctypes.c_void_p], ctypes.c_void_p)
@@ -125,6 +123,9 @@ class Bindings():
 
         if self.init_il2cpp:
             self._il2cpp_init()
+
+    def _initialize_class_bindings(self):
+        self.ensure_attached()
 
         self._component = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine.Component')
 

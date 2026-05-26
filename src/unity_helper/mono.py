@@ -189,24 +189,23 @@ class MonoClass():
         if cache and self._methods:
             return self._methods
         iterator = ctypes.c_void_p()
-        with self._il2cpp._attached_context():
-            while True:
-                method = self._il2cpp._il2cpp_class_get_methods(ctypes.c_void_p(self.cls), ctypes.byref(iterator))
-                if not method:
-                    break
-                name_ptr = self._il2cpp._il2cpp_method_get_name(method)
-                name = name_ptr.decode() if name_ptr else ""
-                param_count = self._il2cpp._il2cpp_method_get_param_count(method)
-                param_info = ' '.join([f'{self._il2cpp._il2cpp_type_get_name(self._il2cpp._il2cpp_method_get_param(method, i)).decode()} {self._il2cpp._il2cpp_method_get_param_name(method, i).decode()}' for i in range(param_count)]).replace('&', '*')
+        while True:
+            method = self._il2cpp._il2cpp_class_get_methods(ctypes.c_void_p(self.cls), ctypes.byref(iterator))
+            if not method:
+                break
+            name_ptr = self._il2cpp._il2cpp_method_get_name(method)
+            name = name_ptr.decode() if name_ptr else ""
+            param_count = self._il2cpp._il2cpp_method_get_param_count(method)
+            param_info = ' '.join([f'{self._il2cpp._il2cpp_type_get_name(self._il2cpp._il2cpp_method_get_param(method, i)).decode()} {self._il2cpp._il2cpp_method_get_param_name(method, i).decode()}' for i in range(param_count)]).replace('&', '*')
 
-                return_value = self._il2cpp._il2cpp_type_get_name(self._il2cpp._il2cpp_method_get_return_type(method)).decode()
-                signature = f'{return_value} {self.name.replace('.', '_')}__{name} ({self.name.replace('.', '_')}_o* __this {param_info} const MethoInfo* method);'
-                flags = MethodAttribute(self._il2cpp._il2cpp_method_get_flags(method, 0))
-                is_static = MethodAttribute.STATIC in flags
-                
-                method = MonoMethod(self, self._il2cpp, name, self._il2cpp.memory.read_longlong(method), int(method), param_count, param_info, signature, return_value, is_static, flags)
-                if not any(i.name == method.name and i.address == method.address for i in self._methods):
-                    self._methods.append(method)
+            return_value = self._il2cpp._il2cpp_type_get_name(self._il2cpp._il2cpp_method_get_return_type(method)).decode()
+            signature = f'{return_value} {self.name.replace('.', '_')}__{name} ({self.name.replace('.', '_')}_o* __this {param_info} const MethoInfo* method);'
+            flags = MethodAttribute(self._il2cpp._il2cpp_method_get_flags(method, 0))
+            is_static = MethodAttribute.STATIC in flags
+            
+            method = MonoMethod(self, self._il2cpp, name, self._il2cpp.memory.read_longlong(method), int(method), param_count, param_info, signature, return_value, is_static, flags)
+            if not any(i.name == method.name and i.address == method.address for i in self._methods):
+                self._methods.append(method)
 
 
         return self._methods
@@ -240,30 +239,29 @@ class MonoClass():
 
         self._fields = []
 
-        with self._il2cpp._attached_context():
-            klass = ctypes.c_void_p(self.cls)
+        klass = ctypes.c_void_p(self.cls)
 
-            while klass:
-                iterator = ctypes.c_void_p()
+        while klass:
+            iterator = ctypes.c_void_p()
 
-                while True:
-                    field = self._il2cpp._il2cpp_class_get_fields(klass, ctypes.byref(iterator))
-                    if not field:
-                        break
+            while True:
+                field = self._il2cpp._il2cpp_class_get_fields(klass, ctypes.byref(iterator))
+                if not field:
+                    break
 
-                    name_ptr = self._il2cpp._il2cpp_field_get_name(field)
-                    name = name_ptr.decode() if name_ptr else ""
-                    type_ptr = self._il2cpp._il2cpp_field_get_type(field)
-                    type_name = (self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else "")
-                    flags = FieldAttribute(self._il2cpp._il2cpp_field_get_flags(field))
-                    is_static = FieldAttribute.STATIC in flags
-                    monofield = MonoField(self, self._il2cpp, name, int(field), type_name, is_static, flags)
+                name_ptr = self._il2cpp._il2cpp_field_get_name(field)
+                name = name_ptr.decode() if name_ptr else ""
+                type_ptr = self._il2cpp._il2cpp_field_get_type(field)
+                type_name = (self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else "")
+                flags = FieldAttribute(self._il2cpp._il2cpp_field_get_flags(field))
+                is_static = FieldAttribute.STATIC in flags
+                monofield = MonoField(self, self._il2cpp, name, int(field), type_name, is_static, flags)
 
-                    if not any(i.name == monofield.name for i in self._fields):
-                        self._fields.append(monofield)
+                if not any(i.name == monofield.name for i in self._fields):
+                    self._fields.append(monofield)
 
-                # move to parent class because classes can inherit fields from parents
-                klass = self._il2cpp._il2cpp_class_get_parent(klass)
+            # move to parent class because classes can inherit fields from parents
+            klass = self._il2cpp._il2cpp_class_get_parent(klass)
 
         return self._fields
     
@@ -315,16 +313,16 @@ class MonoClass():
         if self.attributes.get("ABSTRACT"):
             raise AbstractClassInstantiationError(f"Cannot instantiate abstract class '{self.name}'")
         try:
-            with self._attached_context():
-                obj = self._il2cpp_object_new(self.cls)
-                
-                ctor = self._il2cpp_class_get_method_from_name(self.cls, b'.ctor', 0)
+        
+            obj = self._il2cpp._il2cpp_object_new(self.cls)
+            
+            ctor = self._il2cpp._il2cpp_class_get_method_from_name(self.cls, b'.ctor', 0)
 
-                if not ctor:
-                    return None
-                
-                exc = ctypes.c_void_p()
-                self._il2cpp_runtime_invoke(ctor, obj, None, ctypes.byref(exc))
+            if not ctor:
+                return None
+            
+            exc = ctypes.c_void_p()
+            self._il2cpp._il2cpp_runtime_invoke(ctor, obj, None, ctypes.byref(exc))
             
             if obj:
                 return Object(obj)
@@ -468,63 +466,62 @@ class MonoMethod():
         return {i.name: i in self.flags for i in MethodAttribute}
 
     def __call__(self, *args) -> int|ctypes._SimpleCData|None:
-        with self._il2cpp._attached_context():
-            argc = len(args)
-            
-            c_args = (ctypes.c_void_p * max(1, argc))()
-            for i, v in enumerate(args):
-                if not isinstance(v, ctypes.c_void_p):
-                    if isinstance(v, str):
-                        v = self._il2cpp._il2cpp_string_new(v.encode())
-                        c_args[i] = ctypes.cast(v, ctypes.c_void_p)
-                    else:
-                        v = PYTHON_TO_CTYPES.get(type(v), lambda x: x)(v)
-                        c_args[i] = ctypes.cast(ctypes.pointer(v), ctypes.c_void_p)
+        argc = len(args)
+        
+        c_args = (ctypes.c_void_p * max(1, argc))()
+        for i, v in enumerate(args):
+            if not isinstance(v, ctypes.c_void_p):
+                if isinstance(v, str):
+                    v = self._il2cpp._il2cpp_string_new(v.encode())
+                    c_args[i] = ctypes.cast(v, ctypes.c_void_p)
                 else:
-                    c_args[i] = v
-                
-
-            exc = ctypes.c_void_p()
-            ret = self._il2cpp._il2cpp_runtime_invoke(ctypes.c_void_p(self.methodInfo), ctypes.c_void_p(self.instance), c_args if argc else None, ctypes.byref(exc))
-
-            if not ret:
-                return None
-
-            if isinstance(ret, ctypes.c_void_p):
-                raw_ptr = ret
-            elif hasattr(ret, "value"):
-                raw_ptr = ctypes.c_void_p(ret.value)
-            elif isinstance(ret, int):
-                raw_ptr = ctypes.c_void_p(ret)
+                    v = PYTHON_TO_CTYPES.get(type(v), lambda x: x)(v)
+                    c_args[i] = ctypes.cast(ctypes.pointer(v), ctypes.c_void_p)
             else:
-                raw_ptr = ctypes.cast(ret, ctypes.c_void_p)
+                c_args[i] = v
+            
 
-            type_ = TYPE_CTYPE_MAP.get(self.return_value)
+        exc = ctypes.c_void_p()
+        ret = self._il2cpp._il2cpp_runtime_invoke(ctypes.c_void_p(self.methodInfo), ctypes.c_void_p(self.instance), c_args if argc else None, ctypes.byref(exc))
 
-            if type_ is None:
-                return raw_ptr
+        if not ret:
+            return None
 
-            unboxed = None
-            try:
-                unboxed = self._il2cpp._il2cpp_object_unbox(raw_ptr)
-            except:
-                unboxed = None
+        if isinstance(ret, ctypes.c_void_p):
+            raw_ptr = ret
+        elif hasattr(ret, "value"):
+            raw_ptr = ctypes.c_void_p(ret.value)
+        elif isinstance(ret, int):
+            raw_ptr = ctypes.c_void_p(ret)
+        else:
+            raw_ptr = ctypes.cast(ret, ctypes.c_void_p)
 
-            if unboxed:
-                val = ctypes.cast(unboxed, ctypes.POINTER(type_)).contents
-                if hasattr(val, "value"):
-                    return val.value
-                return val
+        type_ = TYPE_CTYPE_MAP.get(self.return_value)
 
-            try:
-                val = ctypes.cast(raw_ptr, ctypes.POINTER(type_)).contents
-                if hasattr(val, "value"):
-                    return val.value
-                return val
-            except:
-                pass
-
+        if type_ is None:
             return raw_ptr
+
+        unboxed = None
+        try:
+            unboxed = self._il2cpp._il2cpp_object_unbox(raw_ptr)
+        except:
+            unboxed = None
+
+        if unboxed:
+            val = ctypes.cast(unboxed, ctypes.POINTER(type_)).contents
+            if hasattr(val, "value"):
+                return val.value
+            return val
+
+        try:
+            val = ctypes.cast(raw_ptr, ctypes.POINTER(type_)).contents
+            if hasattr(val, "value"):
+                return val.value
+            return val
+        except:
+            pass
+
+        return raw_ptr
         
 
     def native_patch(self, code:str|bytes, offset:int=0) -> bool|None:
@@ -629,18 +626,18 @@ class MonoField():
         if not self.instance and not self.is_static:
             raise RuntimeError("Non-static field access requires an instance")
 
-        with self._il2cpp._attached_context():
 
-            buf = (ctypes.c_byte * 8)()
 
-            if self.is_static:
-                self._il2cpp._il2cpp_field_static_get_value(ctypes.c_void_p(self.ptr), ctypes.byref(buf))
-            
-            else:
-                self._il2cpp._il2cpp_field_get_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr), ctypes.byref(buf))
+        buf = (ctypes.c_byte * 8)()
 
-            type_ptr = self._il2cpp._il2cpp_field_get_type(ctypes.c_void_p(self.ptr))
-            type_name = self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else ""
+        if self.is_static:
+            self._il2cpp._il2cpp_field_static_get_value(ctypes.c_void_p(self.ptr), ctypes.byref(buf))
+        
+        else:
+            self._il2cpp._il2cpp_field_get_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr), ctypes.byref(buf))
+
+        type_ptr = self._il2cpp._il2cpp_field_get_type(ctypes.c_void_p(self.ptr))
+        type_name = self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else ""
 
         raw = ctypes.addressof(buf)
 
@@ -652,16 +649,16 @@ class MonoField():
         if not self.instance and not self.is_static:
             raise RuntimeError("Non-static field access requires an instance")
 
-        with self._il2cpp._attached_context():
-            type_ptr = self._il2cpp._il2cpp_field_get_type(ctypes.c_void_p(self.ptr))
-            type_name = self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else ""
 
-            cval = self.__get_type(type_name)(value)
-            if self.is_static:
-                self._il2cpp._il2cpp_field_static_set_value(ctypes.c_void_p(self.ptr), ctypes.byref(cval))
-            
-            else:
-                self._il2cpp._il2cpp_field_set_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr), ctypes.byref(cval))
+        type_ptr = self._il2cpp._il2cpp_field_get_type(ctypes.c_void_p(self.ptr))
+        type_name = self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else ""
+
+        cval = self.__get_type(type_name)(value)
+        if self.is_static:
+            self._il2cpp._il2cpp_field_static_set_value(ctypes.c_void_p(self.ptr), ctypes.byref(cval))
+        
+        else:
+            self._il2cpp._il2cpp_field_set_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr), ctypes.byref(cval))
             
     def __get_type(self, type_name) -> ctypes._SimpleCData|None:
         try:

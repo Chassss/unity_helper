@@ -13,7 +13,7 @@ from .objects import Camera, Object
 from .bindings import Bindings
 from .structures import Il2CppArray, Vec3, Il2CppAssembly, Quaternion, Color, Vec2, Rect
 from .constants import TypeAttribute
-
+import threading
 
 class Il2cpp(Bindings):
     """
@@ -26,15 +26,80 @@ class Il2cpp(Bindings):
     inst = None
     def __init__(self, warn_on_missing:bool=True, init_il2cpp:bool=True):
         self.game_asm = ctypes.WinDLL("GameAssembly.dll")
+        super().__init__()
         self.memory = memory
         self.warn_on_missing = warn_on_missing
         self.init_il2cpp = init_il2cpp
+        self._tls = threading.local()
+        self._tls.attached = None
+        self._tls.thread_ptr = None
+        self._tls.external_attach = None
+
         Il2cpp.inst = self
-        self._initialize()
+        self._initialize_internals()
+        self._initialize_class_bindings()
 
     def _get_domain_raw(self) -> int|None:
         dom = self._il2cpp_domain_get()
         return int(dom) if dom else None
+        
+    def _ensure_attached(self):
+        """
+        Attach current thread once.
+        Safe to call repeatedly.
+        """
+
+        # already attached by us
+        if getattr(self._tls, "attached", False):
+            return self._tls.thread_ptr
+
+        # already attached externally (Unity/game thread)
+        current_thread = None
+
+        if self._il2cpp_thread_current:
+            try:
+                current_thread = self._il2cpp_thread_current()
+            except Exception:
+                current_thread = None
+
+        if current_thread:
+            self._tls.attached = True
+            self._tls.thread_ptr = current_thread
+            self._tls.external_attach = True
+            return current_thread
+
+        # attach ourselves
+        dom = self._get_domain_raw()
+        if not dom:
+            raise RuntimeError("il2cpp domain not available")
+
+        thread_ptr = self._il2cpp_thread_attach(ctypes.c_void_p(dom))
+
+        self._tls.attached = True
+        self._tls.thread_ptr = thread_ptr
+        self._tls.external_attach = False
+
+        return thread_ptr
+    
+    def _detach_current_thread(self):
+        """
+        Detach only if WE attached it.
+        """
+
+        if not getattr(self._tls, "attached", False):
+            return
+
+        if getattr(self._tls, "external_attach", False):
+            return
+
+        try:
+            if self._il2cpp_thread_detach:
+                self._il2cpp_thread_detach(self._tls.thread_ptr)
+        except Exception:
+            pass
+
+        self._tls.attached = False
+        self._tls.thread_ptr = None
     
     
     @contextmanager
@@ -81,27 +146,25 @@ class Il2cpp(Bindings):
 
     
     def __open_assembly(self, assembly_name:str) -> int|None:
-        with self._attached_context():
-            if assembly_name in self._assembly_cache:
-                return self._assembly_cache[assembly_name]
-            dom = self._get_domain_raw()
-            asm = self._il2cpp_domain_assembly_open(ctypes.c_void_p(dom), assembly_name.encode())
-            if not asm:
-                return None
-            self._assembly_cache[assembly_name] = int(asm)
-            return int(asm)
+        if assembly_name in self._assembly_cache:
+            return self._assembly_cache[assembly_name]
+        dom = self._get_domain_raw()
+        asm = self._il2cpp_domain_assembly_open(ctypes.c_void_p(dom), assembly_name.encode())
+        if not asm:
+            return None
+        self._assembly_cache[assembly_name] = int(asm)
+        return int(asm)
 
     def __get_image_from_assembly(self, assembly_ptr: int) -> int|None:
-        with self._attached_context():
-            if assembly_ptr in self._image_cache:
-                return self._image_cache[assembly_ptr]
-            try:
-                ptr = ctypes.cast(ctypes.c_void_p(assembly_ptr), ctypes.POINTER(ctypes.c_void_p))
-                img = int(ptr[0])
-            except Exception:
-                return None
-            self._image_cache[assembly_ptr] = img
-            return img
+        if assembly_ptr in self._image_cache:
+            return self._image_cache[assembly_ptr]
+        try:
+            ptr = ctypes.cast(ctypes.c_void_p(assembly_ptr), ctypes.POINTER(ctypes.c_void_p))
+            img = int(ptr[0])
+        except Exception:
+            return None
+        self._image_cache[assembly_ptr] = img
+        return img
         
 
     def _read_il2cpp_array(self, arr_ptr) -> int|None:
@@ -211,21 +274,21 @@ class Il2cpp(Bindings):
         if not img:
             return None
 
-        with self._attached_context():
-            cls = self._il2cpp_class_from_name(ctypes.c_void_p(img), namespace.encode(), klass.encode())
-            if not cls:
-                return None
-            
-            type_ = self._il2cpp_class_get_type(ctypes.c_void_p(cls))
-            type_obj = self._il2cpp_type_get_object(type_)
-            flags = TypeAttribute(self._il2cpp_class_get_flags(cls))
-            is_static = (TypeAttribute.ABSTRACT in flags) and (TypeAttribute.SEALED in flags)
-    
-            monoclass = MonoClass(self, int(cls), klass, flags, type_obj, type_, is_static)
-            if not any(i.name == monoclass.name and i.cls == monoclass.cls for i in self._class_cache):
-                self._class_cache.append(monoclass)
+        
+        cls = self._il2cpp_class_from_name(ctypes.c_void_p(img), namespace.encode(), klass.encode())
+        if not cls:
+            return None
+        
+        type_ = self._il2cpp_class_get_type(ctypes.c_void_p(cls))
+        type_obj = self._il2cpp_type_get_object(type_)
+        flags = TypeAttribute(self._il2cpp_class_get_flags(cls))
+        is_static = (TypeAttribute.ABSTRACT in flags) and (TypeAttribute.SEALED in flags)
 
-            return monoclass
+        monoclass = MonoClass(self, int(cls), klass, flags, type_obj, type_, is_static)
+        if not any(i.name == monoclass.name and i.cls == monoclass.cls for i in self._class_cache):
+            self._class_cache.append(monoclass)
+
+        return monoclass
 
     def find_method(self, assembly_name:str, klass:str, method_name:str, param_count:int|None = None, cache:bool = True) -> MonoMethod|None:
         """
@@ -389,29 +452,28 @@ class Il2cpp(Bindings):
             return []
 
         classes = []
-        with self._attached_context():
-            class_count = self._il2cpp_image_get_class_count(ctypes.c_void_p(img_ptr))
-            for i in range(class_count):
-                cls_ptr = self._il2cpp_image_get_class(ctypes.c_void_p(img_ptr), i)
-                if not cls_ptr:
-                    continue
-                cls_namespace = self._il2cpp_class_get_namespace(ctypes.c_void_p(cls_ptr))
-                cls_namespace = cls_namespace.decode() if cls_namespace else ""
-                cls_name = self._il2cpp_class_get_name(ctypes.c_void_p(cls_ptr))
-                cls_name = cls_name.decode() if cls_name else ""
-                type_ = self._il2cpp_class_get_type(ctypes.c_void_p(cls_ptr))
-                type_obj = self._il2cpp_type_get_object(type_)
-                
-                full_name = ".".join(filter(None, [cls_namespace, cls_name]))
-                flags = TypeAttribute(self._il2cpp_class_get_flags(cls_ptr))
-                is_static = (TypeAttribute.ABSTRACT in flags) and (TypeAttribute.SEALED in flags)
+        class_count = self._il2cpp_image_get_class_count(ctypes.c_void_p(img_ptr))
+        for i in range(class_count):
+            cls_ptr = self._il2cpp_image_get_class(ctypes.c_void_p(img_ptr), i)
+            if not cls_ptr:
+                continue
+            cls_namespace = self._il2cpp_class_get_namespace(ctypes.c_void_p(cls_ptr))
+            cls_namespace = cls_namespace.decode() if cls_namespace else ""
+            cls_name = self._il2cpp_class_get_name(ctypes.c_void_p(cls_ptr))
+            cls_name = cls_name.decode() if cls_name else ""
+            type_ = self._il2cpp_class_get_type(ctypes.c_void_p(cls_ptr))
+            type_obj = self._il2cpp_type_get_object(type_)
+            
+            full_name = ".".join(filter(None, [cls_namespace, cls_name]))
+            flags = TypeAttribute(self._il2cpp_class_get_flags(cls_ptr))
+            is_static = (TypeAttribute.ABSTRACT in flags) and (TypeAttribute.SEALED in flags)
 
-                cls = MonoClass(self, cls_ptr, full_name, flags, type_obj, type_, is_static)
-                
-                if not any(i.name == cls.name and i.object == i.object for i in self._class_cache):
-                    self._class_cache.append(cls)
+            cls = MonoClass(self, cls_ptr, full_name, flags, type_obj, type_, is_static)
+            
+            if not any(i.name == cls.name and i.object == i.object for i in self._class_cache):
+                self._class_cache.append(cls)
 
-                classes.append(cls)
+            classes.append(cls)
 
         return classes
     
@@ -424,36 +486,35 @@ class Il2cpp(Bindings):
         """
         assemblies = []
 
-        with self._attached_context():
-            domain = self._get_domain_raw()
+        domain = self._get_domain_raw()
 
-            size = ctypes.c_size_t()
-            assembly_array_ptr = self._il2cpp_domain_get_assemblies(
-                ctypes.c_void_p(domain),
-                ctypes.byref(size)
-            )
+        size = ctypes.c_size_t()
+        assembly_array_ptr = self._il2cpp_domain_get_assemblies(
+            ctypes.c_void_p(domain),
+            ctypes.byref(size)
+        )
 
-            assembly_array = ctypes.cast(
-                assembly_array_ptr,
-                ctypes.POINTER(ctypes.POINTER(Il2CppAssembly))
-            )
+        assembly_array = ctypes.cast(
+            assembly_array_ptr,
+            ctypes.POINTER(ctypes.POINTER(Il2CppAssembly))
+        )
 
-            for i in range(size.value):
-                assembly_ptr = assembly_array[i]
-                if not assembly_ptr:
-                    continue
+        for i in range(size.value):
+            assembly_ptr = assembly_array[i]
+            if not assembly_ptr:
+                continue
 
-                assembly = assembly_ptr.contents
-                if not assembly.image:
-                    continue
+            assembly = assembly_ptr.contents
+            if not assembly.image:
+                continue
 
-                image = assembly.image.contents
-                if not image.name:
-                    continue
+            image = assembly.image.contents
+            if not image.name:
+                continue
 
-                name = image.name.decode("utf-8", errors="ignore")
+            name = image.name.decode("utf-8", errors="ignore")
 
-                assemblies.append(name)
+            assemblies.append(name)
 
         return assemblies
     
