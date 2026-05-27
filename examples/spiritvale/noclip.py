@@ -98,7 +98,7 @@ def key_handler(key, modifiers=None):
         
         toggled = not toggled
         NavMeshAgent = None
-        CameraController.instance = cam.transform.parent.parent.gameObject.GetComponent(CameraController.object).ptr # Our CameraController instance is 2 objects away from our Main Camera object
+        CameraController.instance = cam.transform.parent.parent.gameObject.GetComponent(CameraController.object).instance # Our CameraController instance is 2 objects away from our Main Camera object
         
         # Optional
         if zoomMax.value != 999.0: # Allow us to zoom out camera out as far as we wish
@@ -123,9 +123,9 @@ def key_handler(key, modifiers=None):
 
 def get_player():
     for i in NetworkObject.find_objects_of_type():
-        NetworkObject.instance = i.ptr
+        NetworkObject.instance = i.instance
         if HasAuthority():
-            comp = unity_helper.objects.Component(i.ptr)
+            comp = unity_helper.objects.Component(i.instance)
             player = comp.gameObject
             
     return player

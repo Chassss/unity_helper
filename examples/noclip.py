@@ -80,7 +80,7 @@ def key_handler(key, modifiers=None):
 
         for i in player.GetComponents(): # Loop through components to set our gravity so we dont end up smashing into the floor upon disabling noclip
             if i.name == 'FirstPersonController':
-                FirstPersonController.instance = i.ptr
+                FirstPersonController.instance = i.instance
                 break
         
         if toggled: # If we want to disable noclip theres no reason to run the code below so thats what this if is for

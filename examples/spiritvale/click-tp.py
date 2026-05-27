@@ -81,10 +81,10 @@ def tp():
 
     if result: # Result returns non False if a hit was made
         for i in NetworkObject.find_objects_of_type(): # Get all network objects 
-            NetworkObject.instance = i.ptr
+            NetworkObject.instance = i.instance
             if HasAuthority(): # Check if we are the owner of the network object
 
-                comp = unity_helper.objects.Component(i.ptr)
+                comp = unity_helper.objects.Component(i.instance)
                 player = comp.gameObject
                 
                 NavMeshAgent = None # Define this for when we try and access it later
