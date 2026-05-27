@@ -21,15 +21,16 @@ class Il2cpp(Bindings):
 
     Args:
         warn_on_missing (bool): If True, emits a warning when a built in requested method is not found; if False, missing methods fail silently. Defaults to `True`.
-        init_il2cpp (bool): If True it manually calls il2cpp_init to prevent crashing when attemping to call functions that rely on il2cpp to be initialized first (may break some games). Defaults to `True`.
+        init_il2cpp (bool): If True, manually calls il2cpp_init to prevent crashing when attemping to call functions that rely on il2cpp to be initialized first (may break some games). Defaults to `True`.
+        init_helpers (bool): If True, initializes helper functions like UnityEngine_Component__GetComponent which are used within ``objects.py`` module. Defaults to ``True``.
     """
     inst = None
-    def __init__(self, warn_on_missing:bool=True, init_il2cpp:bool=True):
+    def __init__(self, warn_on_missing:bool=True, init_il2cpp:bool=True, init_helpers=True):
         self.game_asm = ctypes.WinDLL("GameAssembly.dll")
 
         self.memory = memory
-        self.warn_on_missing = warn_on_missing
-        self.init_il2cpp = init_il2cpp
+        self.warn_on_missing:bool = warn_on_missing
+        self.init_il2cpp:bool = init_il2cpp
         self._tls = threading.local()
         self._tls.attached = None
         self._tls.thread_ptr = None
@@ -42,7 +43,9 @@ class Il2cpp(Bindings):
 
         Il2cpp.inst = self
         self._initialize_internals()
-        self._initialize_class_bindings()
+        
+        if init_helpers:
+            self._initialize_class_bindings()
 
     def _get_domain_raw(self) -> int|None:
         dom = self._il2cpp_domain_get()

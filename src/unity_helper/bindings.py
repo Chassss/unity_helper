@@ -5,7 +5,6 @@ Reserved for internal use only.
 
 import ctypes
 from .structures import Vec3, Quaternion, Il2CppAssembly, Bounds, RaycastHit, Ray, Matrix4x4, Color, Vec2, Rect, Scene
-from .mono import MonoClass
 
 
 class Bindings():
@@ -88,6 +87,7 @@ class Bindings():
         self._il2cpp_class_get_namespace = self.__DO_API(self.game_asm.il2cpp_class_get_namespace, [ctypes.c_void_p], ctypes.c_char_p)
         self._il2cpp_class_get_name = self.__DO_API(self.game_asm.il2cpp_class_get_name, [ctypes.c_void_p], ctypes.c_char_p)
         self._il2cpp_field_static_get_value = self.__DO_API(self.game_asm.il2cpp_field_static_get_value, [ctypes.c_void_p, ctypes.c_void_p], None)
+        self._il2cpp_field_static_set_value = self.__DO_API(self.game_asm.il2cpp_field_static_set_value, [ctypes.c_void_p, ctypes.c_void_p], None)
         self._il2cpp_field_get_flags = self.__DO_API(self.game_asm.il2cpp_field_get_flags, [ctypes.c_void_p], ctypes.c_int)
         self._il2cpp_field_set_value = self.__DO_API(self.game_asm.il2cpp_field_set_value, [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p], None)
         self._il2cpp_object_unbox = self.__DO_API(self.game_asm.il2cpp_object_unbox, [ctypes.c_void_p], ctypes.c_void_p)
@@ -223,6 +223,8 @@ class Bindings():
         self._UnityEngine_Object__get_hideFlags = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Object__get_hideFlags', self._object, 'get_hideFlags'))
         self._UnityEngine_Object__set_hideFlags = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)(self.__find_method('_UnityEngine_Object__set_hideFlags', self._object, 'set_hideFlags'))
         self._UnityEngine_Object__FindObjectFromInstanceID = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p)(self.__find_method('_UnityEngine_Object__FindObjectFromInstanceID', self._object, 'FindObjectFromInstanceID'))
+        self._UnityEngine_Object__DontDestroyOnLoad = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Object__DontDestroyOnLoad', self._object, 'DontDestroyOnLoad'))
+
 
         self._transform = self.get_class_from_name('UnityEngine.CoreModule.dll', 'UnityEngine.Transform')
         
@@ -309,7 +311,7 @@ class Bindings():
         self._UnityEngine_SceneManager__LoadScene = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_SceneManager__LoadScene', self._scene_manager, 'LoadScene', 1))
         self._UnityEngine_SceneManager__SetActiveScene = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_SceneManager__SetActiveScene', self._scene_manager, 'SetActiveScene'))
         self._UnityEngine_SceneManager__GetSceneAt = ctypes.WINFUNCTYPE(Scene, ctypes.c_int, ctypes.c_void_p)(self.__find_method('_UnityEngine_SceneManager__GetSceneAt', self._scene_manager, 'GetSceneAt', 1))
-
+        self._UnityEngine_SceneManager__MoveGameObjectToScene = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_SceneManager__MoveGameObjectToScene', self._scene_manager, 'MoveGameObjectToScene'))
 
         self._physics = self.get_class_from_name('UnityEngine.PhysicsModule.dll', 'UnityEngine.Physics')
 

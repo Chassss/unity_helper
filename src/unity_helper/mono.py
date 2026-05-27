@@ -3,6 +3,11 @@ Reserved for internal use only.
 
 """
 
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .main import Il2cpp
 
 import ctypes, struct, re
 from .objects import Object
@@ -10,7 +15,14 @@ from .memory import get_pages, read_bytes, is_64bit
 from .constants import FieldAttribute, MethodAttribute, TypeAttribute, TYPE_CTYPE_MAP, PYTHON_TO_CTYPES
 from functools import cached_property
 
+
 class AbstractClassInstantiationError(Exception):
+    pass
+
+class FieldReadonlyError(Exception):
+    pass
+
+class FieldConstError(Exception):
     pass
 
 class _FieldAccessor:
@@ -41,7 +53,7 @@ class _MethodAccessor:
 
 class MonoClass():
     def __init__(self, il2cpp, cls, name, flags, object, _type, is_static):
-        self._il2cpp:int = il2cpp
+        self._il2cpp:Il2cpp = il2cpp
         self._cls:int = cls
         self._name:str = name
         self._flags:int = flags
@@ -360,8 +372,8 @@ class MonoClass():
 
 class MonoMethod():
     def __init__(self, owner, il2cpp, name, address, methodInfo, param_count, param_info, signature, return_value, is_static, flags):
-        self._il2cpp = il2cpp
-        self.__owner = owner
+        self._il2cpp:Il2cpp = il2cpp
+        self.__owner:MonoClass = owner
         self._name:str = name
         self._address:int = address
         self._methodInfo:int = methodInfo
@@ -544,8 +556,8 @@ class MonoMethod():
         
 class MonoField():
     def __init__(self, owner, il2cpp, name, ptr, type_name, is_static, flags):
-        self.__owner = owner
-        self._il2cpp = il2cpp
+        self.__owner:MonoClass = owner
+        self._il2cpp:Il2cpp = il2cpp
         self._name:str = name
         self._ptr:int = ptr
         self._type:str = type_name
@@ -626,8 +638,6 @@ class MonoField():
         if not self.instance and not self.is_static:
             raise RuntimeError("Non-static field access requires an instance")
 
-
-
         buf = (ctypes.c_byte * 8)()
 
         if self.is_static:
@@ -645,20 +655,26 @@ class MonoField():
 
     @value.setter
     def value(self, value):
-
         if not self.instance and not self.is_static:
             raise RuntimeError("Non-static field access requires an instance")
-
 
         type_ptr = self._il2cpp._il2cpp_field_get_type(ctypes.c_void_p(self.ptr))
         type_name = self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else ""
 
-        cval = self.__get_type(type_name)(value)
+        if self.attributes.get('LITERAL'):
+            raise FieldConstError("Unable to set a const fields value.")
+
+        elif self.attributes.get('INIT_ONLY'):
+            raise FieldReadonlyError("Unable to set a readonly fields value.")
+        
+        if not isinstance(value, ctypes._SimpleCData):
+            value = self.__get_type(type_name)(value)
+        
         if self.is_static:
-            self._il2cpp._il2cpp_field_static_set_value(ctypes.c_void_p(self.ptr), ctypes.byref(cval))
+            self._il2cpp._il2cpp_field_static_set_value(ctypes.c_void_p(self.ptr), value)
         
         else:
-            self._il2cpp._il2cpp_field_set_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr), ctypes.byref(cval))
+            self._il2cpp._il2cpp_field_set_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr), ctypes.byref(value))
             
     def __get_type(self, type_name) -> ctypes._SimpleCData|None:
         try:
