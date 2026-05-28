@@ -170,13 +170,15 @@ class MonoClass():
         try:
             cls = self._il2cpp._il2cpp_class_get_parent(ctypes.c_void_p(self.cls))
             
+            namespace = self._il2cpp._il2cpp_class_get_namespace(ctypes.c_void_p(cls))
+            namespace = namespace.decode() if namespace else None
             klass = self._il2cpp._il2cpp_class_get_name(ctypes.c_void_p(cls)).decode()
             type_ = self._il2cpp._il2cpp_class_get_type(ctypes.c_void_p(cls))
             type_obj = self._il2cpp._il2cpp_type_get_object(type_)
             flags = TypeAttribute(self._il2cpp._il2cpp_class_get_flags(cls))
             is_static = (TypeAttribute.ABSTRACT in flags) and (TypeAttribute.SEALED in flags)
 
-            monoclass = MonoClass(self._il2cpp, int(cls), klass, flags, type_obj, type_, is_static)
+            monoclass = MonoClass(self._il2cpp, int(cls), ".".join(filter(None, [namespace, klass])), flags, type_obj, type_, is_static)
         except:
             return None
         return monoclass
@@ -302,22 +304,26 @@ class MonoClass():
             includeInactive (bool): Whether to include incative objects.
 
         Returns:
-            Object | GameObject| Component| None: A class object containing various methods and data for interacting with the object if found otherwise ``None``.
+            Object | GameObject| Component | Transform | None: A class object containing various methods and data for interacting with the object if found otherwise ``None``.
         """
         try:
             obj = self._il2cpp._UnityEngine_Object__FindObjectOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectOfType'])
+            if not obj:
+                return None
             klass = self
             while klass:
-                if klass.name == 'Component':
+                if klass.name == 'UnityEngine.Component':
                     return Component(obj)
-                elif klass.name == 'Object':
+                elif klass.name == 'UnityEngine.Object':
                     return Object(obj)
-                elif klass.name == 'GameObject':
+                elif klass.name == 'UnityEngine.GameObject':
                     return GameObject(obj)
-                elif klass.name == 'Transform':
+                elif klass.name == 'UnityEngine.Transform':
                     return Transform(obj)
 
                 klass = klass.parent
+
+            return GameObject(obj) # Fallback to a GameObject class (more than likely not needed)
         except:
             return None
 
@@ -329,26 +335,28 @@ class MonoClass():
             includeInactive (bool): Whether to include incative objects.
 
         Returns:
-            list[Object | GameObject| Component]  | None: A list containing class objects.
+            list[Object | GameObject| Component | Transform] | None: A list containing class objects.
         """
         try:
             arr = self._il2cpp._UnityEngine_Object__FindObjectsOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectsOfType'])
             
             objects = [i for i in self._il2cpp._read_il2cpp_array(arr)]
+            if not objects:
+                return None
             klass = self
             while klass:
-                if klass.name == 'Component':
+                if klass.name == 'UnityEngine.Component':
                     return [Component(i) for i in objects]
-                elif klass.name == 'Object':
+                elif klass.name == 'UnityEngine.Object':
                     return [Object(i) for i in objects]
-                elif klass.name == 'GameObject':
+                elif klass.name == 'UnityEngine.GameObject':
                     return [GameObject(i) for i in objects]
-                elif klass.name == 'Transform':
+                elif klass.name == 'UnityEngine.Transform':
                     return [Transform(i) for i in objects]
 
                 klass = klass.parent
                 
-            return objects
+            return [GameObject(i) for i in objects] # Fallback to a GameObject class (more than likely not needed)
         except:
             return objects
         
