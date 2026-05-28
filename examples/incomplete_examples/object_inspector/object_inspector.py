@@ -1,4 +1,4 @@
-import unity_helper, ctypes, time
+import unity_helper, ctypes.wintypes, time
 import dearpygui.dearpygui as dpg
 
 # Inspiration was from https://github.com/sinai-dev/UnityExplorer back in the early days of melonloader in 2021/2022
