@@ -8,6 +8,7 @@ For information on any of the functions in this module refer too the official un
 
 import ctypes as _ctypes
 from . import structures as _struct
+from sys import _getframe
 
 class _UnityObject():
     def __init__(self, ptr=None):
@@ -272,9 +273,9 @@ class Component(_UnityObject):
             pass
     
     @property
-    def gameObject(self) -> Object|None:
+    def gameObject(self) -> GameObject|None:
         try:
-            return Object(self._il2cpp._UnityEngine_Component__get_gameObject(self.instance, self._il2cpp._methodInfoData['_UnityEngine_Component__get_gameObject']))
+            return GameObject(self._il2cpp._UnityEngine_Component__get_gameObject(self.instance, self._il2cpp._methodInfoData['_UnityEngine_Component__get_gameObject']))
         except:
             return None
         
@@ -653,7 +654,6 @@ class Scene(_UnityObject):
         except:
             return None
         
-    
 
 class Object(_UnityObject):
     """
@@ -661,8 +661,6 @@ class Object(_UnityObject):
     
     To create your own Object class simply get the address of the Object object\n
     and then do Object(address)
-
-    Not all functions will work as expected because all GameObjects are objects but not all Objects are GameObjects
     """
     @property
     def name(self) -> str|None:
@@ -678,7 +676,57 @@ class Object(_UnityObject):
             self._il2cpp._UnityEngine_Object__set_name(self.instance, self._il2cpp._il2cpp_string_new(value.encode()), self._il2cpp._methodInfoData['_UnityEngine_Object__set_name'])
         except:
             pass
+
+    @property
+    def hideFlags(self) -> int|None:
+        try:
+            return self._il2cpp._UnityEngine_Object__get_hideFlags(self.instance, self._il2cpp._methodInfoData['_UnityEngine_Object__get_hideFlags'])
+        except:
+            return None
     
+    @hideFlags.setter
+    def hideFlags(self, value:int):
+        try:
+            self._il2cpp._UnityEngine_Object__set_hideFlags(self.instance, value, self._il2cpp._methodInfoData['_UnityEngine_Object__get_hideFlags'])
+        except:
+            pass
+
+    def destroy(self) -> int|None:
+        try:
+            self._il2cpp._UnityEngine_Object__Destroy(self.instance, self._il2cpp._methodInfoData['_UnityEngine_Object__Destroy'])
+            return 1
+        except:
+            return None
+        
+    def Instantiate(self) -> Object|GameObject|None:
+        try:
+            new_obj = self._il2cpp._UnityEngine_Object__Instantiate(self.instance, self._il2cpp._methodInfoData['_UnityEngine_Object__Instantiate'])
+            if not new_obj:
+                return None
+            caller = _getframe(1).f_locals.get('self')
+
+            if isinstance(caller, Object):
+                return Object(new_obj)
+            
+            return GameObject(new_obj)
+        except:
+            return None
+        
+    def DontDestroyOnLoad(self) -> int|None:
+        try:
+            self._il2cpp._UnityEngine_Object__DontDestroyOnLoad(self.instance, self._il2cpp._methodInfoData['_UnityEngine_Object__DontDestroyOnLoad'])
+            return 1
+        except:
+            return None
+
+
+class GameObject(Object):
+    """
+    Base class for all engine game objects.
+    
+    To create your own GameObject class simply get the address of the GameObject object\n
+    and then do GameObject(address)
+    """
     @property
     def isStatic(self) -> bool|None:
         try:
@@ -726,20 +774,6 @@ class Object(_UnityObject):
             pass
 
     @property
-    def hideFlags(self) -> int|None:
-        try:
-            return self._il2cpp._UnityEngine_Object__get_hideFlags(self.instance, self._il2cpp._methodInfoData['_UnityEngine_Object__get_hideFlags'])
-        except:
-            return None
-    
-    @hideFlags.setter
-    def hideFlags(self, value:int):
-        try:
-            self._il2cpp._UnityEngine_Object__set_hideFlags(self.instance, value, self._il2cpp._methodInfoData['_UnityEngine_Object__get_hideFlags'])
-        except:
-            pass
-
-    @property
     def scene(self) -> Scene|None:
         try:
             addr = self._il2cpp._UnityEngine_GameObject__get_scene(self.instance, self._il2cpp._methodInfoData['_UnityEngine_GameObject__get_scene'])
@@ -762,7 +796,7 @@ class Object(_UnityObject):
             return self._il2cpp._UnityEngine_GameObject__get_activeSelf(self.instance, self._il2cpp._methodInfoData['_UnityEngine_GameObject__get_activeSelf'])
         except:
             return None
-        
+
     @property
     def sceneCullingMask(self) -> bool|None:
         try:
@@ -790,14 +824,7 @@ class Object(_UnityObject):
             return 1
         except:
             return None
-
-    def destroy(self) -> int|None:
-        try:
-            self._il2cpp._UnityEngine_Object__Destroy(self.instance, self._il2cpp._methodInfoData['_UnityEngine_Object__Destroy'])
-            return 1
-        except:
-            return None
-    
+        
     def GetComponent(self, type_object:int) -> Component|None:
         try:
             addr = self._il2cpp._UnityEngine_GameObject__GetComponent(self.instance, type_object, self._il2cpp._methodInfoData['_UnityEngine_GameObject__GetComponent'])
@@ -821,26 +848,10 @@ class Object(_UnityObject):
             return 1
         except:
             return None
-        
-    def Instantiate(self) -> Object|None:
-        try:
-            new_obj = self._il2cpp._UnityEngine_Object__Instantiate(self.instance, self._il2cpp._methodInfoData['_UnityEngine_Object__Instantiate'])
-            if not new_obj:
-                return None
-            return Object(new_obj)
-        except:
-            return None
-        
+
     def MoveGameObjectToScene(self, scene:Scene) -> int|None:
         try:
             self._il2cpp._UnityEngine_SceneManager__MoveGameObjectToScene(self.instance, scene.handle, self._il2cpp._methodInfoData['_UnityEngine_SceneManager__MoveGameObjectToScene'])
-            return 1
-        except:
-            return None
-        
-    def DontDestroyOnLoad(self) -> int|None:
-        try:
-            self._il2cpp._UnityEngine_Object__DontDestroyOnLoad(self.instance, self._il2cpp._methodInfoData['_UnityEngine_Object__DontDestroyOnLoad'])
             return 1
         except:
             return None

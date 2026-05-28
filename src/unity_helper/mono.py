@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from .main import Il2cpp
 
 import ctypes, struct, re
-from .objects import Object
+from .objects import Object, Component, GameObject, Transform
 from .memory import get_pages, read_bytes, is_64bit
 from .constants import FieldAttribute, MethodAttribute, TypeAttribute, TYPE_CTYPE_MAP, PYTHON_TO_CTYPES
 from functools import cached_property
@@ -164,6 +164,22 @@ class MonoClass():
         Class attribute information.
         """
         return {i.name: i in self.flags for i in TypeAttribute}
+    
+    @property
+    def parent(self) -> MonoClass:
+        try:
+            cls = self._il2cpp._il2cpp_class_get_parent(ctypes.c_void_p(self.cls))
+            
+            klass = self._il2cpp._il2cpp_class_get_name(ctypes.c_void_p(cls)).decode()
+            type_ = self._il2cpp._il2cpp_class_get_type(ctypes.c_void_p(cls))
+            type_obj = self._il2cpp._il2cpp_type_get_object(type_)
+            flags = TypeAttribute(self._il2cpp._il2cpp_class_get_flags(cls))
+            is_static = (TypeAttribute.ABSTRACT in flags) and (TypeAttribute.SEALED in flags)
+
+            monoclass = MonoClass(self._il2cpp, int(cls), klass, flags, type_obj, type_, is_static)
+        except:
+            return None
+        return monoclass
 
     def find_method(self, method_name:str, param_count:int=None, cache:bool=True) -> MonoMethod|None:
         """
@@ -278,7 +294,7 @@ class MonoClass():
         return self._fields
     
 
-    def find_object_of_type(self, includeInactive=False) -> Object|None:
+    def find_object_of_type(self, includeInactive=False) -> Object|GameObject|Component|Transform|None:
         """
         Retreives a object baed on the current objects type.
 
@@ -286,14 +302,26 @@ class MonoClass():
             includeInactive (bool): Whether to include incative objects.
 
         Returns:
-            Object | None: An object containing various methods and data for interacting with the object if found otherwise ``None``.
+            Object | GameObject| Component| None: A class object containing various methods and data for interacting with the object if found otherwise ``None``.
         """
         try:
-            return Object(self._il2cpp._UnityEngine_Object__FindObjectOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectOfType']))
+            obj = self._il2cpp._UnityEngine_Object__FindObjectOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectOfType'])
+            klass = self
+            while klass:
+                if klass.name == 'Component':
+                    return Component(obj)
+                elif klass.name == 'Object':
+                    return Object(obj)
+                elif klass.name == 'GameObject':
+                    return GameObject(obj)
+                elif klass.name == 'Transform':
+                    return Transform(obj)
+
+                klass = klass.parent
         except:
             return None
 
-    def find_objects_of_type(self, includeInactive=False) -> list[Object]|None:
+    def find_objects_of_type(self, includeInactive=False) -> list[Object|GameObject|Component|Transform]:
         """
         Retrieves all objects matching the current object's type.
 
@@ -301,17 +329,31 @@ class MonoClass():
             includeInactive (bool): Whether to include incative objects.
 
         Returns:
-            list[Object] | None: A list containing `Object` objects if found otherwise ``None``.
+            list[Object | GameObject| Component]  | None: A list containing class objects.
         """
         try:
             arr = self._il2cpp._UnityEngine_Object__FindObjectsOfType(self.object, includeInactive, self._il2cpp._methodInfoData['_UnityEngine_Object__FindObjectsOfType'])
-            objects = [Object(i) for i in self._il2cpp._read_il2cpp_array(arr)]
+            
+            objects = [i for i in self._il2cpp._read_il2cpp_array(arr)]
+            klass = self
+            while klass:
+                if klass.name == 'Component':
+                    return [Component(i) for i in objects]
+                elif klass.name == 'Object':
+                    return [Object(i) for i in objects]
+                elif klass.name == 'GameObject':
+                    return [GameObject(i) for i in objects]
+                elif klass.name == 'Transform':
+                    return [Transform(i) for i in objects]
+
+                klass = klass.parent
+                
             return objects
         except:
-            return None
+            return objects
         
     
-    def Instantiate(self) -> Object|None:
+    def Instantiate(self) -> GameObject|None:
         """
         Creates a new instance of the specified class.
 
@@ -320,7 +362,7 @@ class MonoClass():
                 If the class is abstract.
 
         Returns:
-            Object|None: The created object if successful, otherwise ``None``.
+            GameObject|None: The created object if successful, otherwise ``None``.
         """
         if self.attributes.get("ABSTRACT"):
             raise AbstractClassInstantiationError(f"Cannot instantiate abstract class '{self.name}'")
@@ -337,7 +379,8 @@ class MonoClass():
             self._il2cpp._il2cpp_runtime_invoke(ctor, obj, None, ctypes.byref(exc))
             
             if obj:
-                return Object(obj)
+                return GameObject(obj)
+            
             return None
         except:
             return None
@@ -373,7 +416,7 @@ class MonoClass():
 class MonoMethod():
     def __init__(self, owner, il2cpp, name, address, methodInfo, param_count, param_info, signature, return_value, is_static, flags):
         self._il2cpp:Il2cpp = il2cpp
-        self.__owner:MonoClass = owner
+        self._klass:MonoClass = owner
         self._name:str = name
         self._address:int = address
         self._methodInfo:int = methodInfo
@@ -445,13 +488,20 @@ class MonoMethod():
         """
         Parent class instance address.
         """
-        return self.__owner.instance
+        return self.klass.instance
     
     @instance.setter
     def instance(self, value:int):
         if not isinstance(value, int):
             raise TypeError("instance must be an int")
-        self.__owner.instance = value
+        self.klass.instance = value
+
+    @property
+    def klass(self) -> MonoClass:
+        """
+        Method parent class.
+        """
+        return self._klass
 
     @cached_property
     def traits(self) -> dict[str, bool]:
@@ -556,7 +606,7 @@ class MonoMethod():
         
 class MonoField():
     def __init__(self, owner, il2cpp, name, ptr, type_name, is_static, flags):
-        self.__owner:MonoClass = owner
+        self._klass:MonoClass = owner
         self._il2cpp:Il2cpp = il2cpp
         self._name:str = name
         self._ptr:int = ptr
@@ -594,13 +644,13 @@ class MonoField():
         """
         Parent class instance address.
         """
-        return self.__owner.instance
+        return self.klass.instance
 
     @instance.setter
     def instance(self, value:int):
         if not isinstance(value, int):
             raise TypeError("instance must be an int")
-        self.__owner.instance = value
+        self.klass.instance = value
     
     @property
     def flags(self) -> int:
@@ -624,11 +674,32 @@ class MonoField():
         return self._il2cpp._il2cpp_field_get_offset(self.ptr)
     
     @property
+    def klass(self) -> MonoClass:
+        """
+        Field parent class.
+        """
+        return self._klass
+    
+    @property
     def address(self) -> int:
         """
         Field address in memory.
         """
-        return self.instance + self.offset if self.instance else None
+        if self.is_static:
+            if self.offset:
+                return self._il2cpp.memory.read_longlong(self.klass.cls + 0xB8) + self.offset
+            else:
+                addr = self._il2cpp.memory.read_longlong(self.klass.cls + 0xB8)
+                value = self._il2cpp.memory.read_ctype(addr, self.__get_type(self.type)())
+                if value == self.value:
+                    return addr
+
+                return None
+
+        if not self.instance:
+            raise RuntimeError("Non-static field access requires an instance")
+
+        return self.instance + self.offset
     
     @property
     def value(self):
@@ -641,8 +712,9 @@ class MonoField():
         buf = (ctypes.c_byte * 8)()
 
         if self.is_static:
+            if self.name.startswith('<>'):
+                return None
             self._il2cpp._il2cpp_field_static_get_value(ctypes.c_void_p(self.ptr), ctypes.byref(buf))
-        
         else:
             self._il2cpp._il2cpp_field_get_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr), ctypes.byref(buf))
 

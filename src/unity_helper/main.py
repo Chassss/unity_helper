@@ -9,7 +9,7 @@ import ctypes
 from . import memory
 from contextlib import contextmanager
 from .mono import MonoClass, MonoMethod
-from .objects import Camera, Object
+from .objects import Camera, GameObject
 from .bindings import Bindings
 from .structures import Il2CppArray, Vec3, Il2CppAssembly, Quaternion, Color, Vec2, Rect
 from .constants import TypeAttribute
@@ -387,56 +387,56 @@ class Il2cpp(Bindings):
             return None
 
 
-    def find_object(self, object_str:str) -> Object|None:
+    def find_object(self, object_str:str) -> GameObject|None:
         """
-        Retrieve an object by name.
+        Retrieve an game object by name.
 
         Args:
-            object_str (str): Object name e.g., ``'Player'``.
+            object_str (str): GameObject name e.g., ``'Player'``.
 
         Returns:
-            Object | None: Matching object if found, otherwise ``None``.
+            GameObject | None: Matching game object if found, otherwise ``None``.
         """
         try:
             obj = self._UnityEngine_GameObject__Find(self._il2cpp_string_new(object_str.encode()), self._methodInfoData['_UnityEngine_GameObject__Find'])
             if not obj:
                 return None
-            return Object(obj)
+            return GameObject(obj)
         except:
             return None
     
-    def find_object_with_tag(self, tag_str:str) -> Object|None:
+    def find_object_with_tag(self, tag_str:str) -> GameObject|None:
         """
         Retreives a object by tag
 
         Args:
-            tag_str (str): Object name e.g., ``'Player'``.
+            tag_str (str): GameObject name e.g., ``'Player'``.
 
         Returns:
-            Object | None: Matching object if found, otherwise ``None``.
+            GameObject | None: Matching object if found, otherwise ``None``.
         """
         try:
             obj = self._UnityEngine_GameObject__FindGameObjectWithTag(self._il2cpp_string_new(tag_str.encode()), self._methodInfoData['_UnityEngine_GameObject__FindGameObjectWithTag'])
             if not obj:
                 return None
-            return Object(obj)
+            return GameObject(obj)
         except:
             return None
         
 
-    def find_objects_with_tag(self, tag_str:str) -> list[Object]:
+    def find_objects_with_tag(self, tag_str:str) -> list[GameObject]:
         """
         Retreives a list of objects based on the given name
 
         Args:
-            tag_str (str): Object name e.g., 'Player'
+            tag_str (str): GameObject name e.g., 'Player'
 
         Returns:
-            List[Object]: A list containing object objects if found otherwise ``None``.
+            List[Ga,eObject]: A list containing object objects if found otherwise ``None``.
         """
         try:
             arr = self._UnityEngine_GameObject__FindGameObjectsWithTag(self._il2cpp_string_new(tag_str.encode()), self._methodInfoData['_UnityEngine_GameObject__FindGameObjectsWithTag'])
-            objs = [Object(i) for i in self._read_il2cpp_array(arr) if i]
+            objs = [GameObject(i) for i in self._read_il2cpp_array(arr) if i]
             return objs
         except:
             return None
