@@ -296,7 +296,7 @@ class Il2cpp(Bindings):
 
         monoclass = MonoClass(self, int(cls), full_name, flags, type_obj, type_, is_static)
 
-        if not self._class_cache.get(full_name):
+        if not full_name in self._class_cache:
             self._class_cache[full_name] = monoclass
 
         return monoclass
@@ -472,7 +472,7 @@ class Il2cpp(Bindings):
 
             monoclass = MonoClass(self, cls_ptr, full_name, flags, type_obj, type_, is_static)
             
-            if not self._class_cache.get(full_name):
+            if not full_name in self._class_cache:
                 self._class_cache[full_name] = monoclass
 
             classes.append(monoclass)
@@ -537,7 +537,7 @@ class Il2cpp(Bindings):
         if not classes:
             return None
         
-        base = self.memory.get_module_handle('gameassembly.dll')
+        base = self.game_asm._handle
 
         if not base:
             return None
