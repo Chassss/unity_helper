@@ -272,8 +272,9 @@ class Il2cpp(Bindings):
             namespace = ''
         
         if cache:
-            if not self._class_cache:
-                self.list_classes_in_image(assembly_name)
+            if not full_name in self._class_cache:
+                self.list_classes_in_image(assembly_name) # Cache all classes in the image properly
+
             return self._class_cache.get(full_name)
         
         asm = self.__open_assembly(assembly_name)
