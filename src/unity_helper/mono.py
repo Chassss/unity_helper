@@ -67,7 +67,7 @@ class MonoClass():
     @property
     def name(self) -> str:
         """
-        Full name of the monoclass.
+        Full name of the class.
         """
         return self._name
     
@@ -198,13 +198,10 @@ class MonoClass():
         methods = self.list_methods(cache)
         if methods:
             param_range = [param_count] if param_count is not None else range(0, 11)
-            for count in param_range:
-                for method in methods:
-                    if method.name != method_name:
-                        continue
-
-                    if method.param_count == count:
-                        return method
+            
+            for method in methods:
+                if method.name == method_name and method.param_count in param_range:
+                    return method
 
     def list_methods(self, cache=True) -> list[MonoMethod]|None:
         """
@@ -266,8 +263,6 @@ class MonoClass():
         """
         if cache and self._fields:
             return self._fields
-
-        self._fields = []
 
         klass = ctypes.c_void_p(self.cls)
 

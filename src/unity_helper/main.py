@@ -23,10 +23,11 @@ class Il2cpp(Bindings):
         warn_on_missing (bool): If True, emits a warning when a built in requested method is not found; if False, missing methods fail silently. Defaults to `True`.
         init_il2cpp (bool): If True, manually calls il2cpp_init to prevent crashing when attemping to call functions that rely on il2cpp to be initialized first (may break some games). Defaults to `True`.
         init_helpers (bool): If True, initializes helper functions like UnityEngine_Component__GetComponent which are used within ``objects.py`` module. Defaults to ``True``.
+        game_assembly (str): Full path or name of the GameAssembly library to load. Defaults to ``'GameAssembly.dll'``.
     """
     inst = None
-    def __init__(self, warn_on_missing:bool=True, init_il2cpp:bool=True, init_helpers=True):
-        self.game_asm = ctypes.WinDLL("GameAssembly.dll")
+    def __init__(self, warn_on_missing:bool=True, init_il2cpp:bool=True, init_helpers:bool=True, game_assembly:str='GameAssembly.dll'):
+        self.game_asm = ctypes.WinDLL(game_assembly)
 
         self.memory = memory
         self.warn_on_missing:bool = warn_on_missing
@@ -39,7 +40,7 @@ class Il2cpp(Bindings):
         self._assembly_cache: dict[str, int] = {}
         self._image_cache: dict[int, int] = {}
         self._methodInfoData: dict[str, int] = {}
-        self._class_cache: list[MonoClass] = []
+        self._class_cache: dict[str, MonoClass] = {}
 
         Il2cpp.inst = self
         self._initialize_internals()
@@ -263,18 +264,18 @@ class Il2cpp(Bindings):
         Returns:
             MonoClass: An object containing metadata about the class, including its methods, fields and properties.
         """
+        full_name = klass
+
         if '.' in klass:
             namespace, klass = klass.rsplit('.', 1)
         else:
             namespace = ''
-
+        
         if cache:
             if not self._class_cache:
                 self.list_classes_in_image(assembly_name)
-            name = ".".join(filter(None, [namespace, klass]))
-            for i in self._class_cache:
-                if i.name == name:
-                    return i
+            return self._class_cache.get(full_name)
+        
         asm = self.__open_assembly(assembly_name)
         if not asm:
             return None
@@ -292,9 +293,10 @@ class Il2cpp(Bindings):
         flags = TypeAttribute(self._il2cpp_class_get_flags(cls))
         is_static = (TypeAttribute.ABSTRACT in flags) and (TypeAttribute.SEALED in flags)
 
-        monoclass = MonoClass(self, int(cls), klass, flags, type_obj, type_, is_static)
-        if not any(i.name == monoclass.name and i.cls == monoclass.cls for i in self._class_cache):
-            self._class_cache.append(monoclass)
+        monoclass = MonoClass(self, int(cls), full_name, flags, type_obj, type_, is_static)
+
+        if not self._class_cache.get(full_name):
+            self._class_cache[full_name] = monoclass
 
         return monoclass
 
@@ -312,23 +314,14 @@ class Il2cpp(Bindings):
         Returns:
             MonoMethod | None: An object representing the method and its metadata.
         """
-        param_range = [param_count] if param_count is not None else range(0, 11)
-        
-        if cache and self._class_cache:
-            for clazz in self._class_cache:
-                if clazz.name == klass:
-                    for method in clazz.list_methods():
-                        for count in param_range:
-                            if method.name == method_name and method.param_count == count:
-                                return method
-                            
+        param_range = [param_count] if param_count is not None else range(0, 11)             
 
-        cls = self.get_class_from_name(assembly_name, klass)
-        methods = cls.list_methods()
+        cls = self.get_class_from_name(assembly_name, klass, cache)
+        methods = cls.list_methods(cache)
+
         for method in methods:
-            for count in param_range:
-                if method.name == method_name and method.param_count == count:
-                    return method
+            if method.name == method_name and method.param_count in param_range:
+                return method
 
     def get_mainCamera(self) -> Camera|None:
         """
@@ -476,12 +469,12 @@ class Il2cpp(Bindings):
             flags = TypeAttribute(self._il2cpp_class_get_flags(cls_ptr))
             is_static = (TypeAttribute.ABSTRACT in flags) and (TypeAttribute.SEALED in flags)
 
-            cls = MonoClass(self, cls_ptr, full_name, flags, type_obj, type_, is_static)
+            monoclass = MonoClass(self, cls_ptr, full_name, flags, type_obj, type_, is_static)
             
-            if not any(i.name == cls.name and i.object == i.object for i in self._class_cache):
-                self._class_cache.append(cls)
+            if not self._class_cache.get(full_name):
+                self._class_cache[full_name] = monoclass
 
-            classes.append(cls)
+            classes.append(monoclass)
 
         return classes
     

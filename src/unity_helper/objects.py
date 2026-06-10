@@ -419,6 +419,16 @@ class Transform(Component):
         except:
             return None
         
+    @up.setter
+    def up(self, pos:list|tuple|_struct.Vec3):
+        try:
+            pos = self._il2cpp._vec3_helper(pos)
+            if not pos:
+                pass
+            self._il2cpp._UnityEngine_Transform__set_up(self.instance, _ctypes.pointer(pos), self._il2cpp._methodInfoData['_UnityEngine_Transform__set_up'])
+        except:
+            pass
+        
     @property
     def right(self)-> _struct.Vec3|None:
         try:

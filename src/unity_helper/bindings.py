@@ -245,6 +245,7 @@ class Bindings():
         self._UnityEngine_Transform__get_forward = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Transform__get_forward', self._transform, 'get_forward'))
         self._UnityEngine_Transform__set_forward = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Transform__set_forward', self._transform, 'set_forward'))
         self._UnityEngine_Transform__get_up = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Transform__get_up', self._transform, 'get_up'))
+        self._UnityEngine_Transform__set_up = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Transform__set_up', self._transform, 'set_up'))
         self._UnityEngine_Transform__get_right = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Transform__get_right', self._transform, 'get_right'))
         self._UnityEngine_Transform_get_eulerAngles = ctypes.WINFUNCTYPE(None, ctypes.POINTER(Vec3), ctypes.c_void_p, ctypes.c_void_p)(self.__find_method('_UnityEngine_Transform_get_eulerAngles', self._transform, 'get_eulerAngles'))
         self._UnityEngine_Transform_set_eulerAngles = ctypes.WINFUNCTYPE(None, ctypes.c_void_p, ctypes.POINTER(Vec3), ctypes.c_void_p)(self.__find_method('_UnityEngine_Transform_set_eulerAngles', self._transform, 'set_eulerAngles'))
