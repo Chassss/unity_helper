@@ -2,8 +2,21 @@
 Main module for interacting with process memory.
 
 """
+KEYSTONE = False
+
 import ctypes as _ctypes
-import keystone as _keystone
+
+def is_64bit():
+    if _ctypes.sizeof(_ctypes.c_void_p) == 8:
+        return True
+    return False
+
+try:
+    import keystone as _keystone
+    _ks = _keystone.Ks(_keystone.KS_ARCH_X86, _keystone.KS_MODE_64 if is_64bit() else _keystone.KS_MODE_32)
+    KEYSTONE = True
+except:
+    pass
 
 class _MEMORY_BASIC_INFORMATION(_ctypes.Structure):
     _fields_ = [
@@ -38,15 +51,10 @@ _GetModuleHandleW.restype = _ctypes.c_void_p
 
 _process_handle = _ctypes.windll.kernel32.GetCurrentProcess()
 
-def is_64bit():
-    if _ctypes.sizeof(_ctypes.c_void_p) == 8:
-        return True
-    return False
-
-_ks = _keystone.Ks(_keystone.KS_ARCH_X86, _keystone.KS_MODE_64 if is_64bit() else _keystone.KS_MODE_32)
-
 def assemble(code:str) -> bytes:
-    if not isinstance(code, str):
+    if not KEYSTONE:
+        raise ImportError("This feature requires the 'keystone-engine' package. Install it with: pip install unity_helper[asm] or pip install keystone-engine")
+    elif not isinstance(code, str):
         raise TypeError("Invalid type, expected type of str.")
     return _ks.asm(code, as_bytes=True)[0]
 
@@ -112,7 +120,6 @@ def read_char(address:int) -> str:
 
 def read_uchar(address:int) -> bytes:
     return read_ctype(address, _ctypes.c_ubyte()).value
-
 
 def write_ctype(address, ctype:_ctypes._CDataType) -> int:
     return _WriteProcessMemory(_process_handle, address, _ctypes.cast(_ctypes.byref(ctype), _ctypes.c_void_p), _ctypes.sizeof(ctype), None)
