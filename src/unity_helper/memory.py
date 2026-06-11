@@ -2,7 +2,7 @@
 Main module for interacting with process memory.
 
 """
-KEYSTONE = False
+
 
 import ctypes as _ctypes
 
@@ -14,9 +14,8 @@ def is_64bit():
 try:
     import keystone as _keystone
     _ks = _keystone.Ks(_keystone.KS_ARCH_X86, _keystone.KS_MODE_64 if is_64bit() else _keystone.KS_MODE_32)
-    KEYSTONE = True
 except:
-    pass
+    _ks = None
 
 class _MEMORY_BASIC_INFORMATION(_ctypes.Structure):
     _fields_ = [
@@ -52,7 +51,7 @@ _GetModuleHandleW.restype = _ctypes.c_void_p
 _process_handle = _ctypes.windll.kernel32.GetCurrentProcess()
 
 def assemble(code:str) -> bytes:
-    if not KEYSTONE:
+    if not _ks:
         raise ImportError("This feature requires the 'keystone-engine' package. Install it with: pip install unity_helper[asm] or pip install keystone-engine")
     elif not isinstance(code, str):
         raise TypeError("Invalid type, expected type of str.")
