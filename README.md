@@ -48,6 +48,9 @@ print(time.name)
 
 ```bash
 pip install -U unity_helper
+
+# optional: assembly support
+pip install unity_helper[asm]
 ```
 
 ---
@@ -174,7 +177,7 @@ player = ref.find_object_with_tag('Player')
 
 ```python
 for image in ref.list_assemblies():
-    print(image)
+    print(image.name, image.filename)
 
 for clazz in ref.list_classes_in_image('Assembly-CSharp.dll'):
     print(clazz.name)
