@@ -14,7 +14,7 @@ from .objects import Object, Component, GameObject, Transform
 from .memory import get_pages, read_bytes, is_64bit
 from .constants import FieldAttribute, MethodAttribute, TypeAttribute, TYPE_CTYPE_MAP, PYTHON_TO_CTYPES
 from functools import cached_property
-
+from .structures import Il2CppAssembly, Il2CppImage
 
 class AbstractClassInstantiationError(Exception):
     pass
@@ -25,9 +25,22 @@ class FieldReadonlyError(Exception):
 class FieldConstError(Exception):
     pass
 
+
+class _ClassAccessor:
+    def __init__(self, mono_image):
+        self._mono_image:MonoImage = mono_image
+
+    def __getattr__(self, name) -> MonoClass:
+        cls = self._mono_image.find_class(name)
+
+        if cls is None:
+            raise AttributeError(name)
+
+        return cls
+
 class _FieldAccessor:
     def __init__(self, mono_class):
-        self._mono_class = mono_class
+        self._mono_class:MonoClass = mono_class
 
     def __getattr__(self, name) -> MonoField:
         field = self._mono_class.find_field(name)
@@ -40,7 +53,7 @@ class _FieldAccessor:
 
 class _MethodAccessor:
     def __init__(self, mono_class):
-        self._mono_class = mono_class
+        self._mono_class:MonoClass = mono_class
 
     def __getattr__(self, name) -> MonoMethod:
         method = self._mono_class.find_method(name)
@@ -51,10 +64,115 @@ class _MethodAccessor:
         return method
 
 
+class MonoImage():
+    def __init__(self, il2cpp, assembly, image, name, filename):
+        self._il2cpp:Il2cpp = il2cpp
+        self._assembly:Il2CppAssembly = assembly
+        self._image = image
+        self._name:str = name
+        self._filename:str = filename
+        self._classes:dict[str, MonoClass] = {}
+
+    @property
+    def assembly(self) -> Il2CppAssembly:
+        return self._assembly
+    
+    @property
+    def image(self) -> Il2CppImage:
+        """
+        Image structure object.
+        """
+        return self._image
+        
+    @property
+    def name(self) -> str:
+        """
+        Image full name.
+        """
+        return self._name
+    
+    @property
+    def filename(self) -> str:
+        """
+        Image full filename.
+        """
+        return self._filename
+    
+    @property
+    def klass(self):
+        """
+        Provides attribute-style access to classes.
+        """
+
+        return _ClassAccessor(self)
+    
+    def find_class(self, klass:str, cache:bool=True) -> MonoClass|None:
+        """
+        Retrieve a ``MonoClass`` object by its name.
+
+        Args:
+            assembly_name (str): Name of the assembly, e.g., ``'UnityEngine.PhysicsModule.dll'``.
+            klass (str): Fully qualified type name, e.g. ``'UnityEngine.Collider'``.
+            cache (bool, optional): Whether to cache the ``MonoClass`` object for faster future lookups. Defaults to `True`.
+
+        Returns:
+            MonoClass | None: An object containing metadata about the class, including its methods, fields and properties if found else ``None``.
+        """
+        
+        classes = self.list_classes(cache)
+        
+        if cache:
+            return self._classes.get(klass)
+
+        for cls in classes:
+            if cls.name == klass:
+                return cls
+
+    def list_classes(self, cache:bool=True) -> list[MonoClass]:
+        """
+        Retrieve all classes in an assembly image.
+
+        Args:
+            assembly_name (str): Assembly name e.g., ``'Assembly-CSharp.dll'``.
+
+        Returns:
+            list[MonoClass]: List of ``MonoClass`` objects.
+        """
+        if cache and self._classes:
+            return [i for i in self._classes.values()]
+
+        classes = []
+        class_count = self._il2cpp._il2cpp_image_get_class_count(self.image)
+        for i in range(class_count):
+            cls_ptr = self._il2cpp._il2cpp_image_get_class(self.image, i)
+            if not cls_ptr:
+                continue
+            cls_namespace = self._il2cpp._il2cpp_class_get_namespace(ctypes.c_void_p(cls_ptr))
+            cls_namespace = cls_namespace.decode() if cls_namespace else ""
+            cls_name = self._il2cpp._il2cpp_class_get_name(ctypes.c_void_p(cls_ptr))
+            cls_name = cls_name.decode() if cls_name else ""
+            type_ = self._il2cpp._il2cpp_class_get_type(ctypes.c_void_p(cls_ptr))
+            type_obj = self._il2cpp._il2cpp_type_get_object(type_)
+            
+            full_name = ".".join(filter(None, [cls_namespace, cls_name]))
+            flags = TypeAttribute(self._il2cpp._il2cpp_class_get_flags(cls_ptr))
+            is_static = (TypeAttribute.ABSTRACT in flags) and (TypeAttribute.SEALED in flags)
+            
+            monoclass = MonoClass(self._il2cpp, cls_ptr, full_name, self, flags, type_obj, type_, is_static)
+            
+            if not full_name in self._classes:
+                self._classes[full_name] = monoclass
+
+            classes.append(monoclass)
+
+        return classes
+
+
 class MonoClass():
-    def __init__(self, il2cpp, cls, name, flags, object, _type, is_static):
+    def __init__(self, il2cpp, cls, name, image, flags, object, _type, is_static):
         self._il2cpp:Il2cpp = il2cpp
         self._cls:int = cls
+        self._image:MonoImage = image
         self._name:str = name
         self._flags:int = flags
         self._object:int = object
@@ -64,6 +182,13 @@ class MonoClass():
         self._fields:list[MonoField] = []
         self._instance:int = None
 
+    @property
+    def image(self) -> MonoImage:
+        """
+        Class parent image.
+        """
+        return self._image
+    
     @property
     def name(self) -> str:
         """
@@ -77,6 +202,7 @@ class MonoClass():
         Class type object address in memory.
         """
         return self._object
+    
     @property
     def type(self) -> int:
         """
@@ -436,42 +562,49 @@ class MonoMethod():
         Name of the method.
         """
         return self._name
+    
     @property
     def address(self) -> int:
         """
         Address of the method in memory.
         """
         return self._address
+    
     @property
     def methodInfo(self) -> int:
         """
         Address of the methodInfo object in memory.
         """
         return self._methodInfo
+    
     @property
     def param_count(self) -> int:
         """
         Amount of parameters passed into the method.
         """
         return self._param_count
+    
     @property
     def param_info(self) -> str:
         """
         Information about the passed in parameters if any.
         """
         return self._param_info
+    
     @property
     def signature(self) -> str:
         """
         Full signature of the function.
         """
         return self._signature
+    
     @property
     def return_value(self) -> str:
         """
         Information about the return value of the method.
         """
         return self._return_value
+    
     @property
     def is_static(self) -> bool:
         """

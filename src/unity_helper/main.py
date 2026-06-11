@@ -8,11 +8,10 @@ with Unity-based applications, including memory access, and runtime interaction.
 import ctypes
 from . import memory
 from contextlib import contextmanager
-from .mono import MonoClass, MonoMethod
+from .mono import MonoClass, MonoMethod, MonoImage
 from .objects import Camera, GameObject
 from .bindings import Bindings
 from .structures import Il2CppArray, Vec3, Il2CppAssembly, Quaternion, Color, Vec2, Rect
-from .constants import TypeAttribute
 import threading
 
 class Il2cpp(Bindings):
@@ -38,9 +37,7 @@ class Il2cpp(Bindings):
         self._tls.external_attach = None
 
         self._assembly_cache: dict[str, int] = {}
-        self._image_cache: dict[int, int] = {}
         self._methodInfoData: dict[str, int] = {}
-        self._class_cache: dict[str, MonoClass] = {}
 
         Il2cpp.inst = self
         self._initialize_internals()
@@ -109,72 +106,6 @@ class Il2cpp(Bindings):
 
         self._tls.attached = False
         self._tls.thread_ptr = None
-    
-    
-    @contextmanager
-    def _attached_context(self):
-        """
-        Context manager that re-gets the domain, attaches a thread if the current thread is NOT already
-        attached, yields, then detaches (only if we attached).
-        This prevents detaching an already-attached (game) thread.
-        """
-        dom = self._get_domain_raw()
-        if not dom:
-            raise RuntimeError("il2cpp domain not available")
-
-        
-        current_thread = None
-        if self._il2cpp_thread_current:
-            try:
-                current_thread = self._il2cpp_thread_current()
-            except Exception:
-                current_thread = None
-
-        did_attach = False
-        thread_ptr = None
-
-        
-        if current_thread:
-            try:
-                yield
-            finally:
-                pass
-        else:
-            
-            thread_ptr = self._il2cpp_thread_attach(ctypes.c_void_p(dom))
-            did_attach = True
-            try:
-                yield
-            finally:
-                if did_attach and self._il2cpp_thread_detach:
-                    try:
-                        self._il2cpp_thread_detach(thread_ptr)
-                    except Exception:
-                        
-                        pass
-
-    
-    def __open_assembly(self, assembly_name:str) -> int|None:
-        if assembly_name in self._assembly_cache:
-            return self._assembly_cache[assembly_name]
-        dom = self._get_domain_raw()
-        asm = self._il2cpp_domain_assembly_open(ctypes.c_void_p(dom), assembly_name.encode())
-        if not asm:
-            return None
-        self._assembly_cache[assembly_name] = int(asm)
-        return int(asm)
-
-    def __get_image_from_assembly(self, assembly_ptr: int) -> int|None:
-        if assembly_ptr in self._image_cache:
-            return self._image_cache[assembly_ptr]
-        try:
-            ptr = ctypes.cast(ctypes.c_void_p(assembly_ptr), ctypes.POINTER(ctypes.c_void_p))
-            img = int(ptr[0])
-        except Exception:
-            return None
-        self._image_cache[assembly_ptr] = img
-        return img
-        
 
     def _read_il2cpp_array(self, arr_ptr) -> int|None:
         """
@@ -252,8 +183,23 @@ class Il2cpp(Bindings):
         else:
             return None
         return data
+    
+    def get_assembly_from_name(self, assembly_name:str) -> MonoImage|None:
+        """
+        Retrieve a ``MonoImage`` object by its name.
+
+        Args:
+            assembly_name (str): Name of the assembly, e.g., ``'Assembly-CSharp.dll'``.
+
+        Returns:
+            MonoImage | None: The matching ``MonoImage`` if found, else ``None``.
+        """
+        if not assembly_name in self._assembly_cache:
+            self.list_assemblies()
         
-    def get_class_from_name(self, assembly_name:str, klass:str, cache:bool=True) -> MonoClass:
+        return self._assembly_cache.get(assembly_name)
+        
+    def get_class_from_name(self, assembly_name:str, klass:str, cache:bool=True) -> MonoClass|None:
         """
         Retrieve a ``MonoClass`` object by its name.
 
@@ -262,44 +208,15 @@ class Il2cpp(Bindings):
             klass (str): Fully qualified type name, e.g. ``'UnityEngine.Collider'``.
 
         Returns:
-            MonoClass: An object containing metadata about the class, including its methods, fields and properties.
+            MonoClass | None: An object containing metadata about the class, including its methods, fields and properties if found else ``None``.
         """
-        full_name = klass
-
-        if '.' in klass:
-            namespace, klass = klass.rsplit('.', 1)
-        else:
-            namespace = ''
         
-        if cache:
-            if not full_name in self._class_cache:
-                self.list_classes_in_image(assembly_name) # Cache all classes in the image properly
-
-            return self._class_cache.get(full_name)
+        asm = self.get_assembly_from_name(assembly_name)
         
-        asm = self.__open_assembly(assembly_name)
         if not asm:
             return None
-        img = self.__get_image_from_assembly(asm)
-        if not img:
-            return None
-
         
-        cls = self._il2cpp_class_from_name(ctypes.c_void_p(img), namespace.encode(), klass.encode())
-        if not cls:
-            return None
-        
-        type_ = self._il2cpp_class_get_type(ctypes.c_void_p(cls))
-        type_obj = self._il2cpp_type_get_object(type_)
-        flags = TypeAttribute(self._il2cpp_class_get_flags(cls))
-        is_static = (TypeAttribute.ABSTRACT in flags) and (TypeAttribute.SEALED in flags)
-
-        monoclass = MonoClass(self, int(cls), full_name, flags, type_obj, type_, is_static)
-
-        if not full_name in self._class_cache:
-            self._class_cache[full_name] = monoclass
-
-        return monoclass
+        return asm.find_class(klass, cache)
 
     def find_method(self, assembly_name:str, klass:str, method_name:str, param_count:int|None = None, cache:bool = True) -> MonoMethod|None:
         """
@@ -380,7 +297,6 @@ class Il2cpp(Bindings):
         except:
             return None
 
-
     def find_object(self, object_str:str) -> GameObject|None:
         """
         Retrieve an game object by name.
@@ -417,7 +333,6 @@ class Il2cpp(Bindings):
         except:
             return None
         
-
     def find_objects_with_tag(self, tag_str:str) -> list[GameObject]:
         """
         Retreives a list of objects based on the given name
@@ -435,56 +350,30 @@ class Il2cpp(Bindings):
         except:
             return None
         
-    def list_classes_in_image(self, assembly_name:str) -> list[MonoClass]:
+    def list_classes_in_image(self, assembly_name:str, cache:bool=True) -> list[MonoClass]:
         """
         Retrieve all classes in an assembly image.
 
         Args:
             assembly_name (str): Assembly name e.g., ``'Assembly-CSharp.dll'``.
+            cache (bool, optional): Whether to cache the ``MonoClass`` object for faster future lookups. Defaults to `True`.
 
         Returns:
             list[MonoClass]: List of ``MonoClass`` objects.
         """
-        asm_ptr = self.__open_assembly(assembly_name)
-        if not asm_ptr:
+        
+        assembly = self.get_assembly_from_name(assembly_name)
+        if not assembly:
             return []
-
-        img_ptr = self.__get_image_from_assembly(asm_ptr)
-        if not img_ptr:
-            return []
-
-        classes = []
-        class_count = self._il2cpp_image_get_class_count(ctypes.c_void_p(img_ptr))
-        for i in range(class_count):
-            cls_ptr = self._il2cpp_image_get_class(ctypes.c_void_p(img_ptr), i)
-            if not cls_ptr:
-                continue
-            cls_namespace = self._il2cpp_class_get_namespace(ctypes.c_void_p(cls_ptr))
-            cls_namespace = cls_namespace.decode() if cls_namespace else ""
-            cls_name = self._il2cpp_class_get_name(ctypes.c_void_p(cls_ptr))
-            cls_name = cls_name.decode() if cls_name else ""
-            type_ = self._il2cpp_class_get_type(ctypes.c_void_p(cls_ptr))
-            type_obj = self._il2cpp_type_get_object(type_)
-            
-            full_name = ".".join(filter(None, [cls_namespace, cls_name]))
-            flags = TypeAttribute(self._il2cpp_class_get_flags(cls_ptr))
-            is_static = (TypeAttribute.ABSTRACT in flags) and (TypeAttribute.SEALED in flags)
-
-            monoclass = MonoClass(self, cls_ptr, full_name, flags, type_obj, type_, is_static)
-            
-            if not full_name in self._class_cache:
-                self._class_cache[full_name] = monoclass
-
-            classes.append(monoclass)
-
-        return classes
-    
-    def list_assemblies(self) -> list[str]:
+        
+        return assembly.list_classes(cache)
+        
+    def list_assemblies(self) -> list[MonoImage]:
         """
         Retrieves a list of assembly names.
 
         Returns:
-            list[str]: List containing all the loaded assemblies names.
+            list[MonoImage]: List of ``MonoImage`` objects.
         """
         assemblies = []
 
@@ -513,10 +402,18 @@ class Il2cpp(Bindings):
             image = assembly.image.contents
             if not image.name:
                 continue
-
+            
+            img = self._il2cpp_assembly_get_image(assembly).contents
             name = image.name.decode("utf-8", errors="ignore")
+            file_name = self._il2cpp_image_get_filename(image)
+            file_name = file_name.decode() if file_name else ""
 
-            assemblies.append(name)
+            monoimage = MonoImage(self, assembly, img, name, file_name)
+
+            if not name in self._assembly_cache:
+                self._assembly_cache[name] = monoimage
+
+            assemblies.append(monoimage)
 
         return assemblies
     

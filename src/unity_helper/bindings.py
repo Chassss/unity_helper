@@ -4,7 +4,7 @@ Reserved for internal use only.
 """
 
 import ctypes
-from .structures import Vec3, Quaternion, Il2CppAssembly, Bounds, RaycastHit, Ray, Matrix4x4, Color, Vec2, Rect, Scene
+from .structures import Vec3, Quaternion, Il2CppAssembly, Bounds, RaycastHit, Ray, Matrix4x4, Color, Vec2, Rect, Scene, Il2CppImage
 
 
 class Bindings():
@@ -63,42 +63,34 @@ class Bindings():
 
     def _initialize_internals(self):
         self._il2cpp_init = self.__DO_API(self.game_asm.il2cpp_init, [], ctypes.c_void_p)
+        
+        # Domain
         self._il2cpp_domain_get = self.__DO_API(self.game_asm.il2cpp_domain_get, [], ctypes.c_void_p)
+        self._il2cpp_domain_assembly_open = self.__DO_API(self.game_asm.il2cpp_domain_assembly_open, [ctypes.c_void_p, ctypes.c_char_p], ctypes.c_void_p)
+        self._il2cpp_domain_get_assemblies = self.__DO_API(self.game_asm.il2cpp_domain_get_assemblies, [ctypes.c_void_p, ctypes.POINTER(ctypes.c_size_t)], ctypes.POINTER(Il2CppAssembly))
+
+        # Thread
         self._il2cpp_thread_attach = self.__DO_API(self.game_asm.il2cpp_thread_attach, [ctypes.c_void_p], ctypes.c_void_p)
         self._il2cpp_thread_current = self.__DO_API(self.game_asm.il2cpp_thread_current, [], ctypes.c_void_p)
         self._il2cpp_thread_detach = self.__DO_API(self.game_asm.il2cpp_thread_detach, [ctypes.c_void_p], None)
-        self._il2cpp_domain_assembly_open = self.__DO_API(self.game_asm.il2cpp_domain_assembly_open, [ctypes.c_void_p, ctypes.c_char_p], ctypes.c_void_p)
+        
+        # Assembly
+        self._il2cpp_assembly_get_image = self.__DO_API(self.game_asm.il2cpp_assembly_get_image, [Il2CppAssembly], ctypes.POINTER(Il2CppImage))
+
+        # Image
+        self._il2cpp_image_get_filename = self.__DO_API(self.game_asm.il2cpp_image_get_filename, [Il2CppImage], ctypes.c_char_p)
+        self._il2cpp_image_get_class = self.__DO_API(self.game_asm.il2cpp_image_get_class, [Il2CppImage, ctypes.c_int], ctypes.c_void_p)
+        self._il2cpp_image_get_class_count = self.__DO_API(self.game_asm.il2cpp_image_get_class_count, [Il2CppImage], ctypes.c_int)
+
+        # Class
         self._il2cpp_class_from_name = self.__DO_API(self.game_asm.il2cpp_class_from_name, [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p], ctypes.c_void_p)
         self._il2cpp_class_get_methods = self.__DO_API(self.game_asm.il2cpp_class_get_methods, [ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p)], ctypes.c_void_p)
         self._il2cpp_class_get_method_from_name = self.__DO_API(self.game_asm.il2cpp_class_get_method_from_name, [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_int], ctypes.c_void_p)
-        self._il2cpp_method_get_name = self.__DO_API(self.game_asm.il2cpp_method_get_name, [ctypes.c_void_p], ctypes.c_char_p)
-        self._il2cpp_method_get_param_count = self.__DO_API(self.game_asm.il2cpp_method_get_param_count, [ctypes.c_void_p], ctypes.c_int)
-        self._il2cpp_method_get_param = self.__DO_API(self.game_asm.il2cpp_method_get_param, [ctypes.c_void_p, ctypes.c_void_p], ctypes.c_void_p)
-        self._il2cpp_method_get_param_name = self.__DO_API(self.game_asm.il2cpp_method_get_param_name, [ctypes.c_void_p, ctypes.c_void_p], ctypes.c_char_p)
-        self._il2cpp_runtime_invoke = self.__DO_API(self.game_asm.il2cpp_runtime_invoke, [ctypes.c_void_p, ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_void_p)], ctypes.c_void_p)
         self._il2cpp_class_get_fields = self.__DO_API(self.game_asm.il2cpp_class_get_fields, [ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p)], ctypes.c_void_p)
-        self._il2cpp_field_get_name = self.__DO_API(self.game_asm.il2cpp_field_get_name, [ctypes.c_void_p], ctypes.c_char_p)
-        self._il2cpp_field_get_type = self.__DO_API(self.game_asm.il2cpp_field_get_type, [ctypes.c_void_p], ctypes.c_void_p)
-        self._il2cpp_type_get_name = self.__DO_API(self.game_asm.il2cpp_type_get_name, [ctypes.c_void_p], ctypes.c_char_p)
-        self._il2cpp_field_get_offset = self.__DO_API(self.game_asm.il2cpp_field_get_offset, [ctypes.c_void_p], ctypes.c_int)
-        self._il2cpp_field_get_value = self.__DO_API(self.game_asm.il2cpp_field_get_value, [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p], None)
-        self._il2cpp_image_get_class = self.__DO_API(self.game_asm.il2cpp_image_get_class, [ctypes.c_void_p, ctypes.c_int], ctypes.c_void_p)
-        self._il2cpp_image_get_class_count = self.__DO_API(self.game_asm.il2cpp_image_get_class_count, [ctypes.c_void_p], ctypes.c_int)
         self._il2cpp_class_get_namespace = self.__DO_API(self.game_asm.il2cpp_class_get_namespace, [ctypes.c_void_p], ctypes.c_char_p)
         self._il2cpp_class_get_name = self.__DO_API(self.game_asm.il2cpp_class_get_name, [ctypes.c_void_p], ctypes.c_char_p)
-        self._il2cpp_field_static_get_value = self.__DO_API(self.game_asm.il2cpp_field_static_get_value, [ctypes.c_void_p, ctypes.c_void_p], None)
-        self._il2cpp_field_static_set_value = self.__DO_API(self.game_asm.il2cpp_field_static_set_value, [ctypes.c_void_p, ctypes.c_void_p], None)
-        self._il2cpp_field_get_flags = self.__DO_API(self.game_asm.il2cpp_field_get_flags, [ctypes.c_void_p], ctypes.c_int)
-        self._il2cpp_field_set_value = self.__DO_API(self.game_asm.il2cpp_field_set_value, [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p], None)
-        self._il2cpp_object_unbox = self.__DO_API(self.game_asm.il2cpp_object_unbox, [ctypes.c_void_p], ctypes.c_void_p)
-        self._il2cpp_type_get_object = self.__DO_API(self.game_asm.il2cpp_type_get_object, [ctypes.c_void_p], ctypes.c_void_p)
         self._il2cpp_class_get_type = self.__DO_API(self.game_asm.il2cpp_class_get_type, [ctypes.c_void_p], ctypes.c_void_p)
-        self._il2cpp_object_get_class = self.__DO_API(self.game_asm.il2cpp_object_get_class, [ctypes.c_void_p], ctypes.c_void_p)
-        self._il2cpp_string_new = self.__DO_API(self.game_asm.il2cpp_string_new, [ctypes.c_char_p], ctypes.c_void_p)
-        self._il2cpp_method_get_return_type = self.__DO_API(self.game_asm.il2cpp_method_get_return_type, [ctypes.c_void_p], ctypes.c_void_p)
-        self._il2cpp_method_get_flags = self.__DO_API(self.game_asm.il2cpp_method_get_flags, [ctypes.c_void_p, ctypes.c_int32], ctypes.c_int32)
         self._il2cpp_class_get_field_from_name = self.__DO_API(self.game_asm.il2cpp_class_get_field_from_name, [ctypes.c_void_p, ctypes.c_char_p], ctypes.c_void_p)
-        self._il2cpp_domain_get_assemblies = self.__DO_API(self.game_asm.il2cpp_domain_get_assemblies, [ctypes.c_void_p, ctypes.POINTER(ctypes.c_size_t)], ctypes.POINTER(Il2CppAssembly))
         self._il2cpp_class_get_parent = self.__DO_API(self.game_asm.il2cpp_class_get_parent, [ctypes.c_void_p], ctypes.c_void_p)
         self._il2cpp_class_is_enum = self.__DO_API(self.game_asm.il2cpp_class_is_enum, [ctypes.c_void_p], ctypes.c_bool)
         self._il2cpp_class_is_abstract = self.__DO_API(self.game_asm.il2cpp_class_is_abstract, [ctypes.c_void_p], ctypes.c_bool)
@@ -108,10 +100,42 @@ class Bindings():
         self._il2cpp_class_is_valuetype = self.__DO_API(self.game_asm.il2cpp_class_is_valuetype, [ctypes.c_void_p], ctypes.c_bool)
         self._il2cpp_class_get_declaring_type = self.__DO_API(self.game_asm.il2cpp_class_get_declaring_type, [ctypes.c_void_p], ctypes.c_void_p)
         self._il2cpp_class_get_flags = self.__DO_API(self.game_asm.il2cpp_class_get_flags, [ctypes.c_void_p], ctypes.c_int)
+
+        # Method
+        self._il2cpp_method_get_name = self.__DO_API(self.game_asm.il2cpp_method_get_name, [ctypes.c_void_p], ctypes.c_char_p)
+        self._il2cpp_method_get_param_count = self.__DO_API(self.game_asm.il2cpp_method_get_param_count, [ctypes.c_void_p], ctypes.c_int)
+        self._il2cpp_method_get_param = self.__DO_API(self.game_asm.il2cpp_method_get_param, [ctypes.c_void_p, ctypes.c_void_p], ctypes.c_void_p)
+        self._il2cpp_method_get_param_name = self.__DO_API(self.game_asm.il2cpp_method_get_param_name, [ctypes.c_void_p, ctypes.c_void_p], ctypes.c_char_p)
+        self._il2cpp_method_get_return_type = self.__DO_API(self.game_asm.il2cpp_method_get_return_type, [ctypes.c_void_p], ctypes.c_void_p)
+        self._il2cpp_method_get_flags = self.__DO_API(self.game_asm.il2cpp_method_get_flags, [ctypes.c_void_p, ctypes.c_int32], ctypes.c_int32)
         self._il2cpp_method_is_inflated = self.__DO_API(self.game_asm.il2cpp_class_is_abstract, [ctypes.c_void_p], ctypes.c_bool)
         self._il2cpp_method_is_generic = self.__DO_API(self.game_asm.il2cpp_class_is_generic, [ctypes.c_void_p], ctypes.c_bool)
         self._il2cpp_method_is_instance = self.__DO_API(self.game_asm.il2cpp_class_is_inflated, [ctypes.c_void_p], ctypes.c_bool)
+        
+        # Field
+        self._il2cpp_field_get_name = self.__DO_API(self.game_asm.il2cpp_field_get_name, [ctypes.c_void_p], ctypes.c_char_p)
+        self._il2cpp_field_get_type = self.__DO_API(self.game_asm.il2cpp_field_get_type, [ctypes.c_void_p], ctypes.c_void_p)
+        self._il2cpp_field_get_offset = self.__DO_API(self.game_asm.il2cpp_field_get_offset, [ctypes.c_void_p], ctypes.c_int)
+        self._il2cpp_field_get_value = self.__DO_API(self.game_asm.il2cpp_field_get_value, [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p], None)
+        self._il2cpp_field_static_get_value = self.__DO_API(self.game_asm.il2cpp_field_static_get_value, [ctypes.c_void_p, ctypes.c_void_p], None)
+        self._il2cpp_field_static_set_value = self.__DO_API(self.game_asm.il2cpp_field_static_set_value, [ctypes.c_void_p, ctypes.c_void_p], None)
+        self._il2cpp_field_get_flags = self.__DO_API(self.game_asm.il2cpp_field_get_flags, [ctypes.c_void_p], ctypes.c_int)
+        self._il2cpp_field_set_value = self.__DO_API(self.game_asm.il2cpp_field_set_value, [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p], None)
+        
+        # Type
+        self._il2cpp_type_get_name = self.__DO_API(self.game_asm.il2cpp_type_get_name, [ctypes.c_void_p], ctypes.c_char_p)
+        self._il2cpp_type_get_object = self.__DO_API(self.game_asm.il2cpp_type_get_object, [ctypes.c_void_p], ctypes.c_void_p)
+        
+        # String
+        self._il2cpp_string_new = self.__DO_API(self.game_asm.il2cpp_string_new, [ctypes.c_char_p], ctypes.c_void_p)
+        
+        # Object
+        self._il2cpp_object_unbox = self.__DO_API(self.game_asm.il2cpp_object_unbox, [ctypes.c_void_p], ctypes.c_void_p)
+        self._il2cpp_object_get_class = self.__DO_API(self.game_asm.il2cpp_object_get_class, [ctypes.c_void_p], ctypes.c_void_p)
         self._il2cpp_object_new = self.__DO_API(self.game_asm.il2cpp_object_new, [ctypes.c_void_p], ctypes.c_void_p)
+        
+        # Runtime
+        self._il2cpp_runtime_invoke = self.__DO_API(self.game_asm.il2cpp_runtime_invoke, [ctypes.c_void_p, ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p), ctypes.POINTER(ctypes.c_void_p)], ctypes.c_void_p)
 
         if self.init_il2cpp:
             self._il2cpp_init()
