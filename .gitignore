@@ -11,6 +11,7 @@ env/
 dist/
 build/
 *.egg-info/
+poetry.lock
 
 # Testing / coverage
 .pytest_cache/
