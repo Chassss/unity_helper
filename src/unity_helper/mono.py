@@ -352,7 +352,7 @@ class MonoClass():
             param_info = ' '.join([f'{self._il2cpp._il2cpp_type_get_name(self._il2cpp._il2cpp_method_get_param(method, i)).decode()} {self._il2cpp._il2cpp_method_get_param_name(method, i).decode()}' for i in range(param_count)]).replace('&', '*')
 
             return_value = self._il2cpp._il2cpp_type_get_name(self._il2cpp._il2cpp_method_get_return_type(method)).decode()
-            signature = f'{return_value} {self.name.replace('.', '_')}__{name} ({self.name.replace('.', '_')}_o* __this {param_info} const MethoInfo* method);'
+            signature = f'{return_value} {self.name.replace('.', '_')}__{name} ({self.name.replace('.', '_')}_o* __this {param_info} const MethodInfo* method);'
             flags = MethodAttribute(self._il2cpp._il2cpp_method_get_flags(method, 0))
             is_static = MethodAttribute.STATIC in flags
             
