@@ -664,6 +664,7 @@ class MonoMethod():
         return {i.name: i in self.flags for i in MethodAttribute}
 
     def __call__(self, *args) -> int|ctypes._SimpleCData|None:
+        self._il2cpp._ensure_attached() # If we decide to call a function from a seperate thread then we have to attach again in the thread we're calling in order to invoke it.
         argc = len(args)
         
         c_args = (ctypes.c_void_p * max(1, argc))()
