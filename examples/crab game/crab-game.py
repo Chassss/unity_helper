@@ -55,6 +55,27 @@ def initialize_steam():
 config = {}
 host_config = {}
 
+command_types = {
+    '!god': {'type': 'player_toggle', 'var': 'godmode'},
+    '!autorespawn': {'type': 'player_toggle', 'var': 'auto_respawn'},
+    # '!snowballs': {'type': 'player_toggle', 'var': 'snowballs'},
+    # '!anti_knockback': {'type': 'player_toggle', 'var': 'anti_knockback'},
+
+    '!give': {'type': 'generic', 'var': None},
+    '!giveall': {'type': 'generic', 'var': None},
+    '!makeitrain': {'type': 'generic', 'var': None},
+    '!stop': {'type': 'generic', 'var': None},
+    '!respawn': {'type': 'generic', 'var': None},
+    '!start': {'type': 'generic', 'var': None},
+    '!lobby': {'type': 'generic', 'var': None},
+    '!win': {'type': 'generic', 'var': None},
+    '!suicide': {'type': 'generic', 'var': None},
+    '!removeall': {'type': 'generic', 'var': None},
+    '!settimer': {'type': 'generic', 'var': None},
+
+    '!timer': {'type': 'host_toggle', 'var': 'unlimited_time'},
+}
+
 ref = unity_helper.Il2cpp(False)
 
 while not ref.memory._GetModuleHandleW('steam_api64_net.dll'):
@@ -151,6 +172,19 @@ def close_hooks():
         except:
             pass
 
+
+def toggle_command(command, steamID=None):
+    toggled = {True: 'on', False: 'off'}
+    
+    if steamID:
+        steamName = get_username(steamID)
+        val = config[steamID][command] = not config[steamID].get(command, False)
+        SendChatMessage(ctypes.c_int64(1), f'Toggled {command} {toggled.get(val)} for user {steamName}.')
+    else:
+        val = host_config[command] = not host_config.get(command, False)
+        SendChatMessage(ctypes.c_int64(1), f'Toggled {command} {toggled.get(val)}.')
+
+
 def chat_handler(steamID:int, raw:int):
     # Raw is the address of the start our string struct, at offset 20 contains our unicode string and at offset 16 is the length of that string
     message:str = ref.memory.read_unicode_string(raw + 20, ref.memory.read_short(raw + 16) * 2)
@@ -158,58 +192,53 @@ def chat_handler(steamID:int, raw:int):
         # If you want host specific commands you can compare against your steamID since this is always unique and should NEVER compare against names (create a dict of name: steamID and pull from that)
         msg_split = message.split(' ')
         command = msg_split[0].lower()
+        command_type = command_types.get(command, {}).get('type')
+        command_var = command_types.get(command, {}).get('var')
         config.setdefault(steamID, {})
 
 
-        # First time using match im gonna be honest and its def cleaner than elif but on that note i shoulda not even done this and just had a dict containing the commands and
-        # the functionionality of the commands
-        match command:
-        
-            case '!give':
-                ForceGiveWeapon.instance = GameServer.find_object_of_type().instance
-                ForceGiveWeapon(ctypes.c_int64(steamID), int(msg_split[1]), 1)
-            case '!giveall':
-                ForceGiveAllWeapon(int(msg_split[1]))
-            case '!makeitrain':
-                for i in range(100):
-                    ForceGiveAllWeapon(i % 13) # The item with the highest ID is 13
-            case '!stop':
-                close_hooks()
-            case '!respawn':
-                QueueRespawn.instance = GameServer.find_object_of_type().instance
-                QueueRespawn(ctypes.c_int64(steamID), 0.0)
-            case '!god':
-                config[steamID]['godmode'] = not config.get(steamID, False)
-            case '!start':
-                StartGame()
-            case '!lobby':
-                InGameManager.instance = InGameManager.find_object_of_type().instance
-                RestartLobby()
-            case '!win':
-                # 9223372036854775807 this is the max int we do
-                SendWinner(ctypes.c_int64(steamID), ctypes.c_int64(6767676767676767676))
-            # case '!snowballs': # Broken
-            #     config[steamID]['snowballs'] = not config.get(steamID, False)
-            case '!timer':
-                host_config['unlimited_time'] = not host_config.get('unlimited_time', False)
-            case '!suicide':
-                pos = unity_helper.structures.Vec3(0,0,0) # Position quite literally does not matter cause once again bad game code
+        match command_type:
+            case 'player_toggle':
+                toggle_command(command_var, steamID)
+            case 'host_toggle':
+                toggle_command(command_var)
 
-                # Wow this game fucking sucks, you can invoke it with a invalid 2nd param
-                PlayerDied(ctypes.c_int64(steamID), ctypes.c_int64(0), pos)
-            case '!removeall':
-                ForceRemoveAllWeapons() # Bad game code, not static yet we can call it like its static lmfao
+            case 'generic':
+                match command:
+                    case '!give':
+                        ForceGiveWeapon.instance = GameServer.find_object_of_type().instance
+                        ForceGiveWeapon(ctypes.c_int64(steamID), int(msg_split[1]), 1)
+                    case '!giveall':
+                        ForceGiveAllWeapon(int(msg_split[1]))
+                    case '!makeitrain':
+                        for i in range(100):
+                            ForceGiveAllWeapon(i % 13) # The item with the highest ID is 13
+                    case '!stop':
+                        SendChatMessage(ctypes.c_int64(1), 'Shutting down')
+                        close_hooks()
+                    case '!respawn':
+                        QueueRespawn.instance = GameServer.find_object_of_type().instance
+                        QueueRespawn(ctypes.c_int64(steamID), 0.0)
+                    case '!start':
+                        StartGame()
+                    case '!lobby':
+                        InGameManager.instance = InGameManager.find_object_of_type().instance
+                        RestartLobby()
+                    case '!win':
+                        # 9223372036854775807 this is the max int we do
+                        SendWinner(ctypes.c_int64(steamID), ctypes.c_int64(6767676767676767676))
+                    case '!suicide':
+                        pos = unity_helper.structures.Vec3(0,0,0) # Position quite literally does not matter cause once again bad game code
+
+                        # Wow this game fucking sucks, you can invoke it with a invalid 2nd param
+                        PlayerDied(ctypes.c_int64(steamID), ctypes.c_int64(0), pos)
+                    case '!removeall':
+                        ForceRemoveAllWeapons() # Bad game code, not static yet we can call it like its static lmfao
             
-            case '!autorespawn':
-                config[steamID]['auto_respawn'] = not config.get(steamID, False)
-            
-            case '!kb':
-                config[steamID]['anti_knockback'] = not config.get(steamID, False)
-            
-            # Not possible
-            # case '!settimer':
-            #     TimeManager.instance = TimeManager.find_object_of_type().instance # This returns None
-            #     SetTimer(ctypes.c_float(msg_split[1]))
+                    # Not possible
+                    # case '!settimer':
+                    #     TimeManager.instance = TimeManager.find_object_of_type().instance # This returns None
+                    #     SetTimer(ctypes.c_float(msg_split[1]))
 
 
 
