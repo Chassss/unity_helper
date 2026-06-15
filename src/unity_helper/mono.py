@@ -840,6 +840,13 @@ class MonoField():
     
     @cast_type.setter
     def cast_type(self, value):
+        if value is not None:
+            is_struct = hasattr(value, "_fields_")
+            is_primitive = isinstance(value, type) and issubclass(value, ctypes._SimpleCData)
+            
+            if not (is_struct or is_primitive):
+                raise TypeError("cast_type must be a valid ctypes type or Structure (e.g., Vec3, ctypes.c_float)")
+                
         self._cast_type = value
 
     
@@ -900,18 +907,20 @@ class MonoField():
         if not self.instance and not self.is_static:
             raise RuntimeError("Non-static field access requires an instance")
 
-        type_ptr = self._il2cpp._il2cpp_field_get_type(ctypes.c_void_p(self.ptr))
-        type_name = self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else ""
-
         if self.attributes.get('LITERAL'):
             raise FieldConstError("Unable to set a const fields value.")
 
         elif self.attributes.get('INIT_ONLY'):
             raise FieldReadonlyError("Unable to set a readonly fields value.")
-        
-        if not isinstance(value, ctypes._SimpleCData):
-            value = self.__get_type(type_name)(value)
-        
+
+        if not self.cast_type and not isinstance(value, ctypes._SimpleCData):
+            type_ptr = self._il2cpp._il2cpp_field_get_type(ctypes.c_void_p(self.ptr))
+            type_name = self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else ""
+            try:
+                value = self.__get_type(type_name)(value)
+            except:
+                raise RuntimeError(f"Cannot cast {type(value).__name__} ({value}) to ctypes.c_void_p. Provide cast_type or convert value manually.")
+            
         if self.is_static:
             self._il2cpp._il2cpp_field_static_set_value(ctypes.c_void_p(self.ptr), ctypes.byref(value))
         
@@ -930,20 +939,19 @@ class MonoField():
         Returns:
             Any: The structural object, primitive value, or a raw pointer fallback.
         """
-        if as_type:
-            self._cast_type = as_type
+        self.cast_type = as_type
 
-        val = self.value
-        self._cast_type = None
-        return val
+        return self.value
     
-    def set_value(self, value) -> None:
+    def set_value(self, value, as_type=None) -> None:
         """
         Sets the field's value.
 
         Args:
             value: The value to assign. Can be passed as a raw Python primitive (e.g., ``999``) or an explicit ``ctypes`` object (e.g., ``ctypes.c_float(1.27)``).
         """
+        self.cast_type = as_type
+        
         self.value = value
         return
 
