@@ -845,7 +845,7 @@ class MonoField():
             is_primitive = isinstance(value, type) and issubclass(value, ctypes._SimpleCData)
             
             if not (is_struct or is_primitive):
-                raise TypeError("cast_type must be a valid ctypes type or Structure (e.g., Vec3, ctypes.c_float)")
+                raise TypeError(f"cast_type must be a valid ctypes type or Structure (e.g., Vec3, ctypes.c_float)")
                 
         self._cast_type = value
 
@@ -892,8 +892,18 @@ class MonoField():
         else:
             self._il2cpp._il2cpp_field_get_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr), ctypes.byref(buf))
 
-        if self.cast_type: # Return our raw read out as requested
-            return buf
+        if self.cast_type: # If we set cast_type then we have to do these checks
+            if hasattr(buf, "_fields_"): # If its a struct we return the struct
+                return buf
+
+            elif isinstance(buf, ctypes._Pointer): # If its a pointer we get the address its pointing to
+                buf = buf[0]
+                return buf.value if hasattr(buf, 'value') else buf
+
+            elif hasattr(buf, "value"): # If its anything else we get its value
+                return buf.value
+
+            return buf # If any of these fail somehow then just return the buf
 
         type_ptr = self._il2cpp._il2cpp_field_get_type(ctypes.c_void_p(self.ptr))
         type_name = self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else ""
