@@ -35,7 +35,7 @@ class Il2cpp(Bindings):
         self._tls.thread_ptr = None
         self._tls.external_attach = None
 
-        self._assembly_cache: dict[str, int] = {}
+        self._assembly_cache: dict[str, MonoImage] = {}
         self._methodInfoData: dict[str, int] = {}
 
         Il2cpp.inst = self

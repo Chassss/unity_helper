@@ -303,8 +303,18 @@ class MonoClass():
             type_obj = self._il2cpp._il2cpp_type_get_object(type_)
             flags = TypeAttribute(self._il2cpp._il2cpp_class_get_flags(cls))
             is_static = (TypeAttribute.ABSTRACT in flags) and (TypeAttribute.SEALED in flags)
+            
+            full_name = ".".join(filter(None, [namespace, klass]))
 
-            monoclass = MonoClass(self._il2cpp, int(cls), ".".join(filter(None, [namespace, klass])), flags, type_obj, type_, is_static)
+            parent_image = None
+
+            # Loop through all images and attempt to find our class, if we find it then thats our parent image
+            for image in self._il2cpp._assembly_cache.values():
+                if image.find_class(full_name):
+                    parent_image = image
+                    break
+
+            monoclass = MonoClass(self._il2cpp, int(cls), full_name, parent_image, flags, type_obj, type_, is_static)
         except:
             return None
         return monoclass
@@ -753,6 +763,7 @@ class MonoField():
         self._type:str = type_name
         self._is_static:bool = is_static
         self._flags:int = flags
+        self._cast_type = None
 
     @property
     def name(self) -> str:
@@ -821,6 +832,18 @@ class MonoField():
         return self._klass
     
     @property
+    def cast_type(self):
+        """
+        Field value return type.
+        """
+        return self.cast_type
+    
+    @cast_type.setter
+    def cast_type(self, value):
+        self._cast_type = value
+
+    
+    @property
     def address(self) -> int:
         """
         Field address in memory.
@@ -849,7 +872,11 @@ class MonoField():
         if not self.instance and not self.is_static:
             raise RuntimeError("Non-static field access requires an instance")
 
-        buf = (ctypes.c_byte * 8)()
+
+        if self.cast_type:
+            buf = self.cast_type()
+        else:
+            buf = (ctypes.c_byte * 128)() # Change 8 bytes to 128 since getting a fields value doesnt return the address but the actual value and this value can be a very large struct
 
         if self.is_static:
             if self.name.startswith('<>'):
@@ -857,6 +884,9 @@ class MonoField():
             self._il2cpp._il2cpp_field_static_get_value(ctypes.c_void_p(self.ptr), ctypes.byref(buf))
         else:
             self._il2cpp._il2cpp_field_get_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr), ctypes.byref(buf))
+
+        if self.cast_type: # Return our raw read out as requested
+            return buf
 
         type_ptr = self._il2cpp._il2cpp_field_get_type(ctypes.c_void_p(self.ptr))
         type_name = self._il2cpp._il2cpp_type_get_name(type_ptr).decode() if type_ptr else ""
@@ -883,11 +913,41 @@ class MonoField():
             value = self.__get_type(type_name)(value)
         
         if self.is_static:
-            self._il2cpp._il2cpp_field_static_set_value(ctypes.c_void_p(self.ptr), value)
+            self._il2cpp._il2cpp_field_static_set_value(ctypes.c_void_p(self.ptr), ctypes.byref(value))
         
         else:
             self._il2cpp._il2cpp_field_set_value(ctypes.c_void_p(self.instance), ctypes.c_void_p(self.ptr), ctypes.byref(value))
             
+    def get_value(self, as_type=None):
+        """
+        Retrieves the field's value, optionally cast to a specific type layout.
+
+        Args:
+            as_type (type, optional): A specific ``ctypes`` type or structure 
+            (e.g., ``Vec3``) to cast the value into. If ``None``, automatically attempts to look up a primitive data type mapping. 
+            Defaults to ``None``.
+
+        Returns:
+            Any: The structural object, primitive value, or a raw pointer fallback.
+        """
+        if as_type:
+            self._cast_type = as_type
+
+        val = self.value
+        self._cast_type = None
+        return val
+    
+    def set_value(self, value) -> None:
+        """
+        Sets the field's value.
+
+        Args:
+            value: The value to assign. Can be passed as a raw Python primitive (e.g., ``999``) or an explicit ``ctypes`` object (e.g., ``ctypes.c_float(1.27)``).
+        """
+        self.value = value
+        return
+
+
     def __get_type(self, type_name) -> ctypes._SimpleCData|None:
         try:
             ret = TYPE_CTYPE_MAP.get(type_name)
