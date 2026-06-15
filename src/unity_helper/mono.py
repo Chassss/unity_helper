@@ -836,7 +836,7 @@ class MonoField():
         """
         Field value return type.
         """
-        return self.cast_type
+        return self._cast_type
     
     @cast_type.setter
     def cast_type(self, value):
